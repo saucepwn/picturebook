@@ -51,7 +51,7 @@ public class UserFacebookProfile extends Fragment {
             Profile profile = Profile.getCurrentProfile();
 
             TextView name = (TextView) view.findViewById(R.id.facebook_user_name);
-            name.setText(profile.getName());
+            //TODO: name.setText(profile.getName()); This crashes because Facebook's SDK is a piece of shit.
         }
 
         return view;
