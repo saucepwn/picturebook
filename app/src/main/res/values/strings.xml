@@ -2,4 +2,7 @@
     <string name="app_name">Picture Book</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_accounts">AccountsActivity</string>
+
+    <string name="facebook_app_id">1599666040283729</string>
+
 </resources>

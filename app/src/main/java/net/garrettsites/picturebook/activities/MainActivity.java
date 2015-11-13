@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 
 import net.garrettsites.picturebook.R;
@@ -15,6 +16,8 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
     }
 
     @Override
@@ -22,7 +25,7 @@ public class MainActivity extends Activity {
         super.onResume();
 
         // Log 'install' and 'app active' App Events.
-        AppEventsLogger.activateApp(this);
+        AppEventsLogger.activateApp(MainActivity.this);
     }
 
     @Override
@@ -30,7 +33,7 @@ public class MainActivity extends Activity {
         super.onPause();
 
         // Logs 'app deactivate' App Event.
-        AppEventsLogger.deactivateApp(this);
+        AppEventsLogger.deactivateApp(MainActivity.this);
     }
 
     /**
