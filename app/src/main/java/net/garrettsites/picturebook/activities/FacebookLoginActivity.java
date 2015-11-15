@@ -1,15 +1,19 @@
 package net.garrettsites.picturebook.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginBehavior;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
@@ -29,6 +33,7 @@ public class FacebookLoginActivity extends PictureBookActivity {
 
         mCallbackManager = CallbackManager.Factory.create();
         LoginManager loginManager = LoginManager.getInstance();
+        final Activity self = this;
 
         if (AccessToken.getCurrentAccessToken() == null) {
             // Log in a user.
@@ -42,12 +47,16 @@ public class FacebookLoginActivity extends PictureBookActivity {
 
                 @Override
                 public void onCancel() {
-
                 }
 
                 @Override
                 public void onError(FacebookException error) {
-
+                    new AlertDialog.Builder(self)
+                            .setTitle("Facebook Error")
+                            .setMessage(error.getLocalizedMessage())
+                            .setNeutralButton("OK", null)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
                 }
             });
             loginManager.logInWithReadPermissions(this, Arrays.asList("user_photos", "public_profile"));
