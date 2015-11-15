@@ -3,6 +3,8 @@ package net.garrettsites.picturebook.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -34,7 +36,8 @@ public class FacebookLoginActivity extends PictureBookActivity {
             loginManager.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
                 @Override
                 public void onSuccess(LoginResult loginResult) {
-                    finish();
+                    // Show the user a thank you screen.
+                    findViewById(R.id.facebook_login_thank_you_layout).setVisibility(View.VISIBLE);
                 }
 
                 @Override
@@ -53,6 +56,14 @@ public class FacebookLoginActivity extends PictureBookActivity {
             loginManager.logOut();
             finish();
         }
+
+        // Go back to the previous activity if the user clicks "next".
+        findViewById(R.id.facebook_login_next_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     @Override
