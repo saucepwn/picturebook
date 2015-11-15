@@ -1,6 +1,7 @@
 package net.garrettsites.picturebook.activities;
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -35,6 +36,8 @@ public class AccountsActivity extends PictureBookActivity {
     protected void onResume() {
         super.onResume();
 
-        getFragmentManager().beginTransaction().replace(R.id.accounts_profile_fragment_container, new UserFacebookProfile()).commit();
+        FragmentManager fm = getFragmentManager();
+        UserFacebookProfile userInfoFragment  = (UserFacebookProfile) fm.findFragmentById(R.id.accounts_profile_fragment_container);
+        userInfoFragment.updateUserInformation(findViewById(R.id.accounts_profile_fragment_container));
     }
 }

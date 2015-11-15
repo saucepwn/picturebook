@@ -7,8 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.facebook.AccessToken;
-import com.facebook.FacebookActivity;
 import com.facebook.Profile;
 
 import net.garrettsites.picturebook.R;
@@ -40,20 +38,26 @@ public class UserFacebookProfile extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_user_facebook_profile, container, false);
 
-        // Check if there is a logged in user. If there is, display their profile information.
-        if (AccessToken.getCurrentAccessToken() == null) {
-            // User is not logged in.
-            view.findViewById(R.id.facebook_account_details_layout).setVisibility(View.GONE);
-        } else {
-            // User is logged in.
-            view.findViewById(R.id.facebook_no_account_layout).setVisibility(View.GONE);
-
-            Profile profile = Profile.getCurrentProfile();
-
-            TextView name = (TextView) view.findViewById(R.id.facebook_user_name);
-            //TODO: name.setText(profile.getName()); This crashes because Facebook's SDK is a piece of shit.
-        }
+        updateUserInformation(view);
 
         return view;
+    }
+
+    public void updateUserInformation(View rootView) {
+        // Check if there is a logged in user. If there is, display their profile information.
+        Profile profile = Profile.getCurrentProfile();
+
+        if (profile == null) {
+            // User is not logged in.
+            rootView.findViewById(R.id.facebook_account_details_layout).setVisibility(View.GONE);
+            rootView.findViewById(R.id.facebook_no_account_layout).setVisibility(View.VISIBLE);
+        } else {
+            // User is logged in.
+            rootView.findViewById(R.id.facebook_account_details_layout).setVisibility(View.VISIBLE);
+            rootView.findViewById(R.id.facebook_no_account_layout).setVisibility(View.GONE);
+
+            TextView name = (TextView) rootView.findViewById(R.id.facebook_user_name);
+            name.setText(profile.getName());
+        }
     }
 }
