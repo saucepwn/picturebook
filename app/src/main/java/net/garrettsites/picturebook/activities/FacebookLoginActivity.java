@@ -59,7 +59,8 @@ public class FacebookLoginActivity extends PictureBookActivity {
                             .show();
                 }
             });
-            loginManager.logInWithReadPermissions(this, Arrays.asList("user_photos", "public_profile"));
+            
+            loginManager.logInWithReadPermissions(this, Arrays.asList("user_photos", "public_profile", "user_posts", "user_tagged_places"));
         } else {
             // Log out the user.
             loginManager.logOut();

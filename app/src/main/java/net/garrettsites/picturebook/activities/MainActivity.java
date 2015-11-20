@@ -1,16 +1,22 @@
 package net.garrettsites.picturebook.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 
 import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
 
 import net.garrettsites.picturebook.R;
+import net.garrettsites.picturebook.commands.GenericResultReceiver;
+import net.garrettsites.picturebook.commands.GetAllAlbumsService;
+import net.garrettsites.picturebook.model.Album;
 
-public class MainActivity extends Activity {
+import java.util.ArrayList;
+
+public class MainActivity extends PictureBookActivity {
+
+    GenericResultReceiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,22 +26,6 @@ public class MainActivity extends Activity {
         FacebookSdk.sdkInitialize(getApplicationContext());
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Log 'install' and 'app active' App Events.
-        AppEventsLogger.activateApp(MainActivity.this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        // Logs 'app deactivate' App Event.
-        AppEventsLogger.deactivateApp(MainActivity.this);
-    }
-
     /**
      * Launches the AccountsActivity.
      * @param view The view which created this action.
@@ -43,5 +33,23 @@ public class MainActivity extends Activity {
     public void launchAccountsActivity(View view) {
         Intent i = new Intent(this, AccountsActivity.class);
         startActivity(i);
+    }
+
+    /**
+     * Used as a hook for debugging.
+     * @param view The view which created this action.
+     */
+    public void launchDebugActivity(View view) {
+        mReceiver = new GenericResultReceiver(new Handler());
+        mReceiver.setReceiver(new GenericResultReceiver.Receiver() {
+            @Override
+            public void onReceiveResult(int resultCode, ArrayList<Album> albums) {
+                // We've gotten the albums.
+            }
+        });
+
+        Intent i = new Intent(this, GetAllAlbumsService.class);
+        i.putExtra(GetAllAlbumsService.ARG_RECEIVER, mReceiver);
+        startService(i);
     }
 }
