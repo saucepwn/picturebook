@@ -30,7 +30,8 @@ import java.util.Locale;
 public class GetAllAlbumsService extends IntentService {
 
     public static final String ARG_RECEIVER = "receiverTag";
-
+    public static final String ARG_ALBUM_ARRAY_LIST = "albums"
+            ;
     private ArrayList<Album> allAlbums = new ArrayList<>();
 
     public GetAllAlbumsService() {
@@ -58,7 +59,9 @@ public class GetAllAlbumsService extends IntentService {
 
         executeRequestAndAddAlbumsToList(request);
 
-        receiver.send(Activity.RESULT_OK, new Bundle());
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList(ARG_ALBUM_ARRAY_LIST, allAlbums);
+        receiver.send(Activity.RESULT_OK, bundle);
     }
 
     private void executeRequestAndAddAlbumsToList(GraphRequest request) {
@@ -91,9 +94,5 @@ public class GetAllAlbumsService extends IntentService {
         if (nextPage != null) {
             executeRequestAndAddAlbumsToList(nextPage);
         }
-    }
-
-    private ArrayList<Album> getAllAlbums() {
-        return new ArrayList<Album>();
     }
 }

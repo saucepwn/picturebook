@@ -14,7 +14,6 @@ import java.util.ArrayList;
  */
 public class GenericResultReceiver extends ResultReceiver {
     private Receiver mReceiver;
-    private ArrayList<Album> mAlbums;
 
     public GenericResultReceiver(Handler handler) {
         super(handler);
@@ -31,7 +30,9 @@ public class GenericResultReceiver extends ResultReceiver {
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
         if (mReceiver != null) {
-            mReceiver.onReceiveResult(resultCode, mAlbums);
+            // Deserialize the parceled version of our album array.
+            ArrayList<Album> albums = resultData.getParcelableArrayList(GetAllAlbumsService.ARG_ALBUM_ARRAY_LIST);
+            mReceiver.onReceiveResult(resultCode, albums);
         }
     }
 }
