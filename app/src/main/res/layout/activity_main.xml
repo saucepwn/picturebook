@@ -22,4 +22,10 @@
         android:onClick="launchDebugActivity"
         android:text="Do the thing" />
 
+    <TextView
+        android:id="@+id/random_album_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Press 'do the thing'" />
+
 </LinearLayout>
