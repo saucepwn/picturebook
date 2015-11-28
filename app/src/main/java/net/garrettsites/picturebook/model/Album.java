@@ -11,13 +11,15 @@ import org.joda.time.DateTime;
 public class Album implements Parcelable {
     private String mType;
     private String mName;
+    private String mDescription;
     private DateTime mCreatedTime;
     private DateTime mUpdatedTime;
     private int mId;
 
-    public Album(String type, String name, DateTime createdTime, DateTime updatedTime, int id) {
+    public Album(String type, String name, String description, DateTime createdTime, DateTime updatedTime, int id) {
         mType = type;
         mName = name;
+        mDescription = description;
         mCreatedTime = createdTime;
         mUpdatedTime = updatedTime;
         mId = id;
@@ -40,6 +42,10 @@ public class Album implements Parcelable {
 
     public String getName() {
         return mName;
+    }
+
+    public String getDescription() {
+        return mDescription;
     }
 
     public DateTime getCreatedTime() {

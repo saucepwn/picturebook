@@ -51,7 +51,7 @@ public class MainActivity extends PictureBookActivity {
                 // We've gotten the albums.
                 ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
                 Album randomAlbum = albumRandomizer.selectRandomAlbum();
-                albumNameView.setText("Your album is: " + randomAlbum.getName() + "\nType: " + randomAlbum.getType() + "\nCreated: " + randomAlbum.getCreatedTime() + "\nLast updated: " + randomAlbum.getUpdatedTime());
+                albumNameView.setText("Your album is: " + randomAlbum.getName() + "\nDescription: " + randomAlbum.getDescription() + "\nType: " + randomAlbum.getType() + "\nCreated: " + randomAlbum.getCreatedTime() + "\nLast updated: " + randomAlbum.getUpdatedTime());
             }
         });
 

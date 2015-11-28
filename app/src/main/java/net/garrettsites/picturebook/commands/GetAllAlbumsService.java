@@ -3,7 +3,6 @@ package net.garrettsites.picturebook.commands;
 import android.app.Activity;
 import android.app.IntentService;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
@@ -11,7 +10,6 @@ import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
-import com.facebook.Profile;
 
 import net.garrettsites.picturebook.model.Album;
 
@@ -21,8 +19,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Created by Garrett on 11/20/2015.
@@ -48,7 +44,7 @@ public class GetAllAlbumsService extends IntentService {
         ResultReceiver receiver = intent.getParcelableExtra(ARG_RECEIVER);
 
         Bundle parameters = new Bundle();
-        parameters.putString("fields", "type,name,created_time,updated_time");
+        parameters.putString("fields", "type,name,created_time,updated_time,description");
         parameters.putString("limit", "50");
 
         GraphRequest request = new GraphRequest(
@@ -78,10 +74,15 @@ public class GetAllAlbumsService extends IntentService {
                 String updatedTimeStr = thisAlbum.getString("updated_time");
                 int id = thisAlbum.getInt("id");
 
+                String description = null;
+                if (thisAlbum.has("description")) {
+                    description = thisAlbum.getString("description");
+                }
+
                 DateTime createdTime = new DateTime(createdTimeStr);
                 DateTime updatedTime = new DateTime(updatedTimeStr);
 
-                Album album = new Album(type, name, createdTime, updatedTime, id);
+                Album album = new Album(type, name, description, createdTime, updatedTime, id);
 
                 allAlbums.add(album);
             }
