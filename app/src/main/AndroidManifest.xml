@@ -43,6 +43,9 @@
         <service
             android:name=".commands.GetAllAlbumsService"
             android:exported="false" />
+        <service
+            android:name=".commands.GetAllPhotoMetadata"
+            android:exported="false" />
     </application>
 
 </manifest>

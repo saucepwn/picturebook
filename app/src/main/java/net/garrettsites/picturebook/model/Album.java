@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+
 /**
  * Created by Garrett on 11/20/2015.
  */
@@ -14,9 +16,12 @@ public class Album implements Parcelable {
     private String mDescription;
     private DateTime mCreatedTime;
     private DateTime mUpdatedTime;
-    private int mId;
+    private String mId;
 
-    public Album(String type, String name, String description, DateTime createdTime, DateTime updatedTime, int id) {
+    // NOTE: This field is not parceled.
+    private ArrayList<Photo> mPhotos;
+
+    public Album(String type, String name, String description, DateTime createdTime, DateTime updatedTime, String id) {
         mType = type;
         mName = name;
         mDescription = description;
@@ -31,9 +36,10 @@ public class Album implements Parcelable {
         in.readStringArray(data);
         mType = data[0];
         mName = data[1];
-        mCreatedTime = new DateTime(data[2]);
-        mUpdatedTime = new DateTime(data[3]);
-        mId = Integer.parseInt(data[4]);
+        mDescription = data[2];
+        mCreatedTime = new DateTime(data[3]);
+        mUpdatedTime = new DateTime(data[4]);
+        mId = data[5];
     }
 
     public String getType() {
@@ -56,7 +62,7 @@ public class Album implements Parcelable {
         return mUpdatedTime;
     }
 
-    public int getId() {
+    public String getId() {
         return mId;
     }
 
@@ -68,7 +74,7 @@ public class Album implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeStringArray(new String[] {
-                mType, mName, mCreatedTime.toString(), mUpdatedTime.toString(), Integer.toString(mId)
+                mType, mName, mDescription, mCreatedTime.toString(), mUpdatedTime.toString(), mId
         });
     }
 }

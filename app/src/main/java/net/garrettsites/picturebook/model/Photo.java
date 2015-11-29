@@ -12,14 +12,14 @@ import java.net.URL;
  * Created by Garrett on 11/28/2015.
  */
 public class Photo implements Parcelable {
-    private int mId;
+    private String mId;
     private String mUploadedBy;
-    private int mUploadedById;
+    private String mUploadedById;
     private URL mImageUrl;
     private URL mPostUrl;
     private DateTime mCreatedTime;
 
-    public Photo(int id, String uploadedBy, int uploadedById, URL imageUrl, URL postUrl, DateTime createdTime) {
+    public Photo(String id, String uploadedBy, String uploadedById, URL imageUrl, URL postUrl, DateTime createdTime) {
         this.mId = id;
         this.mUploadedBy = uploadedBy;
         this.mUploadedById = uploadedById;
@@ -32,9 +32,9 @@ public class Photo implements Parcelable {
         String[] data = new String[6];
 
         in.readStringArray(data);
-        mId = Integer.parseInt(data[0]);
+        mId = data[0];
         mUploadedBy = data[1];
-        mUploadedById = Integer.parseInt(data[2]);
+        mUploadedById = data[2];
 
         try {
             mImageUrl = new URL(data[3]);
@@ -51,7 +51,7 @@ public class Photo implements Parcelable {
         mCreatedTime = new DateTime(data[5]);
     }
 
-    public int getId() {
+    public String getId() {
         return mId;
     }
 
@@ -59,7 +59,7 @@ public class Photo implements Parcelable {
         return mUploadedBy;
     }
 
-    public int getUploadedById() {
+    public String getUploadedById() {
         return mUploadedById;
     }
 
@@ -83,7 +83,7 @@ public class Photo implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeStringArray(new String[] {
-           Integer.toString(mId), mUploadedBy, Integer.toString(mUploadedById), mImageUrl.toString(), mPostUrl.toString(), mCreatedTime.toString()
+           mId, mUploadedBy, mUploadedById, mImageUrl.toString(), mPostUrl.toString(), mCreatedTime.toString()
         });
     }
 }

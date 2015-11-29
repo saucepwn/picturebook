@@ -2,25 +2,25 @@ package net.garrettsites.picturebook.commands;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.RemoteException;
 import android.os.ResultReceiver;
 
 import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.model.Photo;
 
 import java.util.ArrayList;
 
 /**
  * Created by Garrett on 11/20/2015.
  */
-public class GenericResultReceiver extends ResultReceiver {
+public class AllPhotosMetadataResultReceiver extends ResultReceiver {
     private Receiver mReceiver;
 
-    public GenericResultReceiver(Handler handler) {
+    public AllPhotosMetadataResultReceiver(Handler handler) {
         super(handler);
     }
 
     public interface Receiver {
-        void onReceiveResult(int resultCode, ArrayList<Album> albums);
+        void onReceiveResult(int resultCode, ArrayList<Photo> albums);
     }
 
     public void setReceiver(Receiver receiver) {
@@ -31,8 +31,8 @@ public class GenericResultReceiver extends ResultReceiver {
     protected void onReceiveResult(int resultCode, Bundle resultData) {
         if (mReceiver != null) {
             // Deserialize the parceled version of our album array.
-            ArrayList<Album> albums = resultData.getParcelableArrayList(GetAllAlbumsService.ARG_ALBUM_ARRAY_LIST);
-            mReceiver.onReceiveResult(resultCode, albums);
+            ArrayList<Photo> photos = resultData.getParcelableArrayList(GetAllPhotoMetadata.ARG_PHOTOS_METADATA);
+            mReceiver.onReceiveResult(resultCode, photos);
         }
     }
 }

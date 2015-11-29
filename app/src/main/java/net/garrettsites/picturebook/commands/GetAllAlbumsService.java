@@ -26,17 +26,11 @@ import java.util.ArrayList;
 public class GetAllAlbumsService extends IntentService {
 
     public static final String ARG_RECEIVER = "receiverTag";
-    public static final String ARG_ALBUM_ARRAY_LIST = "albums"
-            ;
+    public static final String ARG_ALBUM_ARRAY_LIST = "albums";
     private ArrayList<Album> allAlbums = new ArrayList<>();
 
     public GetAllAlbumsService() {
         super(GetAllAlbumsService.class.getName());
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
     }
 
     @Override
@@ -70,17 +64,14 @@ public class GetAllAlbumsService extends IntentService {
 
                 String type = thisAlbum.getString("type");
                 String name = thisAlbum.getString("name");
-                String createdTimeStr = thisAlbum.getString("created_time");
-                String updatedTimeStr = thisAlbum.getString("updated_time");
-                int id = thisAlbum.getInt("id");
+                DateTime createdTime = new DateTime(thisAlbum.getString("created_time"));
+                DateTime updatedTime = new DateTime(thisAlbum.getString("updated_time"));
+                String id = thisAlbum.getString("id");
 
                 String description = null;
                 if (thisAlbum.has("description")) {
                     description = thisAlbum.getString("description");
                 }
-
-                DateTime createdTime = new DateTime(createdTimeStr);
-                DateTime updatedTime = new DateTime(updatedTimeStr);
 
                 Album album = new Album(type, name, description, createdTime, updatedTime, id);
 
