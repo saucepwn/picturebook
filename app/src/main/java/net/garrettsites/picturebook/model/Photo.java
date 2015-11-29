@@ -13,14 +13,16 @@ import java.net.URL;
  */
 public class Photo implements Parcelable {
     private String mId;
+    private String mName;
     private String mUploadedBy;
     private String mUploadedById;
     private URL mImageUrl;
     private URL mPostUrl;
     private DateTime mCreatedTime;
 
-    public Photo(String id, String uploadedBy, String uploadedById, URL imageUrl, URL postUrl, DateTime createdTime) {
+    public Photo(String id, String name, String uploadedBy, String uploadedById, URL imageUrl, URL postUrl, DateTime createdTime) {
         this.mId = id;
+        this.mName = name;
         this.mUploadedBy = uploadedBy;
         this.mUploadedById = uploadedById;
         this.mImageUrl = imageUrl;
@@ -29,30 +31,35 @@ public class Photo implements Parcelable {
     }
 
     public Photo(Parcel in) {
-        String[] data = new String[6];
+        String[] data = new String[7];
 
         in.readStringArray(data);
         mId = data[0];
-        mUploadedBy = data[1];
-        mUploadedById = data[2];
+        mName = data[1];
+        mUploadedBy = data[2];
+        mUploadedById = data[3];
 
         try {
-            mImageUrl = new URL(data[3]);
+            mImageUrl = new URL(data[4]);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
 
         try {
-            mPostUrl = new URL(data[4]);
+            mPostUrl = new URL(data[5]);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
 
-        mCreatedTime = new DateTime(data[5]);
+        mCreatedTime = new DateTime(data[6]);
     }
 
     public String getId() {
         return mId;
+    }
+
+    public String getName() {
+        return mName;
     }
 
     public String getUploadedBy() {
@@ -83,7 +90,7 @@ public class Photo implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeStringArray(new String[] {
-           mId, mUploadedBy, mUploadedById, mImageUrl.toString(), mPostUrl.toString(), mCreatedTime.toString()
+           mId, mName, mUploadedBy, mUploadedById, mImageUrl.toString(), mPostUrl.toString(), mCreatedTime.toString()
         });
     }
 }

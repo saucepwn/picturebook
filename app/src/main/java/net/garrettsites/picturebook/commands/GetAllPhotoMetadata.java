@@ -46,7 +46,7 @@ public class GetAllPhotoMetadata extends IntentService {
             throw new IllegalArgumentException("Must pass album ID to GetAllPhotosMetadata.");
 
         Bundle parameters = new Bundle();
-        parameters.putString("fields", "created_time,id,from,images,link,place");
+        parameters.putString("fields", "created_time,id,from,images,link,name");
 
         GraphRequest request = new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
@@ -70,6 +70,12 @@ public class GetAllPhotoMetadata extends IntentService {
                 JSONObject thisPhoto = photosListJson.getJSONObject(i);
 
                 String id = thisPhoto.getString("id");
+
+                String name = null;
+                if (thisPhoto.has("name")) {
+                    name = thisPhoto.getString("name");
+                }
+
                 String uploadedBy = thisPhoto.getJSONObject("from").getString("name");
                 String uploadedById = thisPhoto.getJSONObject("from").getString("id");
                 String imageUrlStr = thisPhoto.getJSONArray("images").getJSONObject(0).getString("source");
@@ -90,7 +96,7 @@ public class GetAllPhotoMetadata extends IntentService {
                     e.printStackTrace();
                 }
 
-                Photo photo = new Photo(id, uploadedBy, uploadedById, imageUrl, postUrl, createdTime);
+                Photo photo = new Photo(id, name, uploadedBy, uploadedById, imageUrl, postUrl, createdTime);
 
                 mAllPhotos.add(photo);
             }
