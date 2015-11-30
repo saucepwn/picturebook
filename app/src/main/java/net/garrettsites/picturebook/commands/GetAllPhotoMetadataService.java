@@ -26,15 +26,15 @@ import java.util.Locale;
 /**
  * Created by Garrett on 11/28/2015.
  */
-public class GetAllPhotoMetadata extends IntentService {
+public class GetAllPhotoMetadataService extends IntentService {
 
     public static final String ARG_RECEIVER = "receiverTag";
     public static final String ARG_ALBUM_ID = "albumId";
     public static final String ARG_PHOTOS_METADATA = "photos_metadata";
     private ArrayList<Photo> mAllPhotos = new ArrayList<>();
 
-    public GetAllPhotoMetadata() {
-        super(GetAllPhotoMetadata.class.getName());
+    public GetAllPhotoMetadataService() {
+        super(GetAllPhotoMetadataService.class.getName());
     }
 
     @Override

@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 
-import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.Photo;
 
 import java.util.ArrayList;
@@ -31,7 +30,7 @@ public class AllPhotosMetadataResultReceiver extends ResultReceiver {
     protected void onReceiveResult(int resultCode, Bundle resultData) {
         if (mReceiver != null) {
             // Deserialize the parceled version of our album array.
-            ArrayList<Photo> photos = resultData.getParcelableArrayList(GetAllPhotoMetadata.ARG_PHOTOS_METADATA);
+            ArrayList<Photo> photos = resultData.getParcelableArrayList(GetAllPhotoMetadataService.ARG_PHOTOS_METADATA);
             mReceiver.onReceiveResult(resultCode, photos);
         }
     }

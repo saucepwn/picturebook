@@ -14,7 +14,7 @@ import net.garrettsites.picturebook.commands.AllPhotosMetadataResultReceiver;
 import net.garrettsites.picturebook.commands.ChooseRandomAlbum;
 import net.garrettsites.picturebook.commands.AllAlbumsResultReceiver;
 import net.garrettsites.picturebook.commands.GetAllAlbumsService;
-import net.garrettsites.picturebook.commands.GetAllPhotoMetadata;
+import net.garrettsites.picturebook.commands.GetAllPhotoMetadataService;
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.Photo;
 
@@ -68,9 +68,9 @@ public class MainActivity extends PictureBookActivity {
                     }
                 });
 
-                Intent i = new Intent(self, GetAllPhotoMetadata.class);
-                i.putExtra(GetAllPhotoMetadata.ARG_RECEIVER, allPhotosReceiver);
-                i.putExtra(GetAllPhotoMetadata.ARG_ALBUM_ID, randomAlbum.getId());
+                Intent i = new Intent(self, GetAllPhotoMetadataService.class);
+                i.putExtra(GetAllPhotoMetadataService.ARG_RECEIVER, allPhotosReceiver);
+                i.putExtra(GetAllPhotoMetadataService.ARG_ALBUM_ID, randomAlbum.getId());
                 self.startService(i);
             }
         });
