@@ -39,6 +39,11 @@ public class MainActivity extends PictureBookActivity {
         startActivity(i);
     }
 
+    public void startSlideshow(View view) {
+        Intent i = new Intent(this, ViewSlideshowActivity.class);
+        startActivity(i);
+    }
+
     /**
      * Used as a hook for debugging. Delete all this shit before it's time to release.
      * @param view The view which created this action.

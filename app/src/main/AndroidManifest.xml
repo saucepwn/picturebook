@@ -32,6 +32,14 @@
                 android:value=".activities.MainActivity" />
         </activity>
         <activity
+            android:name=".activities.ViewSlideshowActivity"
+            android:label="Slideshow"
+            android:parentActivityName=".activities.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
+        <activity
             android:name=".activities.FacebookLoginActivity"
             android:label="Log In"
             android:parentActivityName=".activities.AccountsActivity">

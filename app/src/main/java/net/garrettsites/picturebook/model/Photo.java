@@ -93,4 +93,14 @@ public class Photo implements Parcelable {
            mId, mName, mUploadedBy, mUploadedById, mImageUrl.toString(), mPostUrl.toString(), mCreatedTime.toString()
         });
     }
+
+    public static final Parcelable.Creator<Photo> CREATOR = new Parcelable.Creator<Photo>() {
+        public Photo createFromParcel(Parcel in) {
+            return new Photo(in);
+        }
+
+        public Photo[] newArray(int size) {
+            return new Photo[size];
+        }
+    };
 }

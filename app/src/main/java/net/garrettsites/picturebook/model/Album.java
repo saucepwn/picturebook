@@ -77,4 +77,14 @@ public class Album implements Parcelable {
                 mType, mName, mDescription, mCreatedTime.toString(), mUpdatedTime.toString(), mId
         });
     }
+
+    public static final Parcelable.Creator<Album> CREATOR = new Parcelable.Creator<Album>() {
+        public Album createFromParcel(Parcel in) {
+            return new Album(in);
+        }
+
+        public Album[] newArray(int size) {
+            return new Album[size];
+        }
+    };
 }
