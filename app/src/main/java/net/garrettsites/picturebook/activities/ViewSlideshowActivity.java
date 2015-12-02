@@ -15,17 +15,22 @@ import net.garrettsites.picturebook.commands.GetPhotoBitmapReceiver;
 import net.garrettsites.picturebook.commands.GetPhotoBitmapService;
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.Photo;
+import net.garrettsites.picturebook.model.UserPreferences;
 
 /**
  * Created by Garrett on 11/29/2015.
  */
 public class ViewSlideshowActivity extends Activity
-        implements GetPhotoBitmapReceiver.Receiver {
+        implements GetPhotoBitmapReceiver.Receiver, Runnable {
 
     public static final String ARG_ALBUM = "album";
     private static final String TAG = ViewSlideshowActivity.class.getName();
 
-    private Handler mHandler;
+    private Album mAlbum;
+    private int mCurrentPhotoIdx = 0;
+
+    private GetPhotoBitmapReceiver mReceiver = new GetPhotoBitmapReceiver(new Handler());
+    private Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,23 +38,17 @@ public class ViewSlideshowActivity extends Activity
         setContentView(R.layout.activity_view_slideshow);
 
         // Get the album we're supposed to display.
-        Album album = getIntent().getParcelableExtra(ARG_ALBUM);
+        mAlbum = getIntent().getParcelableExtra(ARG_ALBUM);
 
-        if (album == null) {
+        if (mAlbum == null) {
             throw new IllegalArgumentException("Need to pass the '" + ARG_ALBUM + "' arg as an Album to this activity.");
         }
 
-        // Display the first picture from the album.
-        GetPhotoBitmapReceiver receiver = new GetPhotoBitmapReceiver(new Handler());
-        receiver.setReceiver(this);
+        // Hook up the receiver from the GetPhotoBitmap service.
+        mReceiver = new GetPhotoBitmapReceiver(new Handler());
+        mReceiver.setReceiver(this);
 
-        // For now, just get the first photo from the album.
-        Photo p = album.getPhotos().get(0);
-
-        Intent getBitmapIntent = new Intent(this, GetPhotoBitmapService.class);
-        getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_PHOTO_OBJ, p);
-        getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_RECEIVER, receiver);
-        startService(getBitmapIntent);
+        loadNewPhoto();
     }
 
     @Override
@@ -60,8 +59,13 @@ public class ViewSlideshowActivity extends Activity
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
         decorView.setSystemUiVisibility(uiOptions);
+    }
 
-        // Begin the timer to advance to the next photo.
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        mHandler.removeCallbacks(this);
     }
 
     @Override
@@ -70,5 +74,31 @@ public class ViewSlideshowActivity extends Activity
         KenBurnsView imageViewport = (KenBurnsView) findViewById(R.id.image_viewport);
         Bitmap imageBitmap = BitmapFactory.decodeFile(imageFilePath);
         imageViewport.setImageBitmap(imageBitmap);
+
+        // Queue up another photo.
+        mHandler.postDelayed(this, UserPreferences.getPhotoDelaySeconds() * 1000);
+    }
+
+    @Override
+    public void run() {
+        loadNewPhoto();
+    }
+
+    /**
+     * Begin the process of displaying a new photo. This calls GetPhotoBitmapService which will
+     * either acquire the photo from Facebook (using the internet) or locally from cache. The act
+     * of retrieving the photo happens on a background thread.
+     */
+    private void loadNewPhoto() {
+        if (mCurrentPhotoIdx >= mAlbum.getPhotos().size()) {
+            mCurrentPhotoIdx = 0;
+        }
+
+        Photo p = mAlbum.getPhotos().get(mCurrentPhotoIdx++);
+
+        Intent getBitmapIntent = new Intent(this, GetPhotoBitmapService.class);
+        getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_PHOTO_OBJ, p);
+        getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_RECEIVER, mReceiver);
+        startService(getBitmapIntent);
     }
 }
