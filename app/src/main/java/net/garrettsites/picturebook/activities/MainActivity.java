@@ -1,6 +1,7 @@
 package net.garrettsites.picturebook.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,6 +22,7 @@ import net.garrettsites.picturebook.model.Photo;
 import java.util.ArrayList;
 
 public class MainActivity extends PictureBookActivity {
+    private final ArrayList<Album> albumToShow = new ArrayList<Album>(1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +42,17 @@ public class MainActivity extends PictureBookActivity {
     }
 
     public void startSlideshow(View view) {
-        Intent i = new Intent(this, ViewSlideshowActivity.class);
-        startActivity(i);
+        if (albumToShow.size() == 0) {
+            new AlertDialog.Builder(this)
+                    .setTitle("No Albums Retrieved")
+                    .setMessage("Press 'Do the Thing' first to retrieve albums from Facebook.")
+                    .setNeutralButton("OK", null)
+                    .show();
+        } else {
+            Intent i = new Intent(this, ViewSlideshowActivity.class);
+            i.putExtra(ViewSlideshowActivity.ARG_ALBUM, albumToShow.get(0));
+            startActivity(i);
+        }
     }
 
     /**
@@ -60,16 +71,19 @@ public class MainActivity extends PictureBookActivity {
             public void onReceiveResult(int resultCode, ArrayList<Album> albums) {
                 // We've gotten the albums.
                 ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
-                Album randomAlbum = albumRandomizer.selectRandomAlbum();
+                final Album randomAlbum = albumRandomizer.selectRandomAlbum();
                 albumNameView.setText("Your album is: " + randomAlbum.getName() + "\nDescription: " + randomAlbum.getDescription() + "\nType: " + randomAlbum.getType() + "\nCreated: " + randomAlbum.getCreatedTime() + "\nLast updated: " + randomAlbum.getUpdatedTime());
 
                 // Get all of the photos in our target album.
                 AllPhotosMetadataResultReceiver allPhotosReceiver = new AllPhotosMetadataResultReceiver(new Handler());
                 allPhotosReceiver.setReceiver(new AllPhotosMetadataResultReceiver.Receiver() {
                     @Override
-                    public void onReceiveResult(int resultCode, ArrayList<Photo> albums) {
+                    public void onReceiveResult(int resultCode, ArrayList<Photo> photos) {
                         // We've gotten all of the photos in this album.
-                        albumPhotoCount.setText("Album contains " + albums.size() + " photos.");
+                        randomAlbum.setPhotos(photos);
+                        albumPhotoCount.setText("Album contains " + photos.size() + " photos.");
+
+                        albumToShow.add(0, randomAlbum);
                     }
                 });
 

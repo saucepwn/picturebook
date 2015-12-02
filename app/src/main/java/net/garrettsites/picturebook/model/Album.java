@@ -36,6 +36,8 @@ public class Album implements Parcelable {
         mCreatedTime = new DateTime(in.readString());
         mUpdatedTime = new DateTime(in.readString());
         mId = in.readString();
+
+        mPhotos = in.readArrayList(getClass().getClassLoader());
     }
 
     public String getType() {
@@ -62,6 +64,14 @@ public class Album implements Parcelable {
         return mId;
     }
 
+    public void setPhotos(ArrayList<Photo> photos) {
+        mPhotos = photos;
+    }
+
+    public ArrayList<Photo> getPhotos() {
+        return mPhotos;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -75,7 +85,10 @@ public class Album implements Parcelable {
         dest.writeString(mCreatedTime.toString());
         dest.writeString(mUpdatedTime.toString());
         dest.writeString(mId);
-        //dest.writeParcelable(mPhotos, flags);
+
+        dest.writeList(mPhotos);
+        /*Photo[] photos = (Photo[]) mPhotos.toArray();
+        dest.writeTypedArray(photos, flags);*/
     }
 
     public static final Parcelable.Creator<Album> CREATOR = new Parcelable.Creator<Album>() {
