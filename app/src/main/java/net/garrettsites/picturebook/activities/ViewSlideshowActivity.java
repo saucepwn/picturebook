@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 
 import com.flaviofaria.kenburnsview.KenBurnsView;
 
@@ -14,10 +15,6 @@ import net.garrettsites.picturebook.commands.GetPhotoBitmapReceiver;
 import net.garrettsites.picturebook.commands.GetPhotoBitmapService;
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.Photo;
-
-import org.joda.time.DateTime;
-
-import java.net.URL;
 
 /**
  * Created by Garrett on 11/29/2015.
@@ -50,6 +47,16 @@ public class ViewSlideshowActivity extends Activity implements GetPhotoBitmapRec
         getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_PHOTO_OBJ, p);
         getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_RECEIVER, receiver);
         startService(getBitmapIntent);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Hide the navigation bar.
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        decorView.setSystemUiVisibility(uiOptions);
     }
 
     @Override
