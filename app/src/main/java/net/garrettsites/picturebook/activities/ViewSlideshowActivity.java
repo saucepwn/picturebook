@@ -19,10 +19,13 @@ import net.garrettsites.picturebook.model.Photo;
 /**
  * Created by Garrett on 11/29/2015.
  */
-public class ViewSlideshowActivity extends Activity implements GetPhotoBitmapReceiver.Receiver {
+public class ViewSlideshowActivity extends Activity
+        implements GetPhotoBitmapReceiver.Receiver {
 
     public static final String ARG_ALBUM = "album";
     private static final String TAG = ViewSlideshowActivity.class.getName();
+
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +60,8 @@ public class ViewSlideshowActivity extends Activity implements GetPhotoBitmapRec
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
         decorView.setSystemUiVisibility(uiOptions);
+
+        // Begin the timer to advance to the next photo.
     }
 
     @Override

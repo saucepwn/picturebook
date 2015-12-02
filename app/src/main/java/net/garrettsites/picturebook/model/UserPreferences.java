@@ -6,6 +6,7 @@ package net.garrettsites.picturebook.model;
 public class UserPreferences {
     // TODO: Hook all these up to SharedPreferences
     private static int mPhotoDelaySeconds = 10;
+    private static boolean mRandomizePhotoOrder = false;
 
     public static void setPhotoDelaySeconds(int photoDelaySeconds) {
         mPhotoDelaySeconds = photoDelaySeconds;
@@ -13,5 +14,13 @@ public class UserPreferences {
 
     public static int getPhotoDelaySeconds() {
         return mPhotoDelaySeconds;
+    }
+
+    public static void setRandomizePhotoOrder(boolean randomizePhotoOrder) {
+        mRandomizePhotoOrder = randomizePhotoOrder;
+    }
+
+    public static boolean getRandomizePhotoOrder() {
+        return mRandomizePhotoOrder;
     }
 }
