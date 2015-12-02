@@ -30,28 +30,25 @@ public class Photo implements Parcelable {
         this.mCreatedTime = createdTime;
     }
 
-    public Photo(Parcel in) {
-        String[] data = new String[7];
-
-        in.readStringArray(data);
-        mId = data[0];
-        mName = data[1];
-        mUploadedBy = data[2];
-        mUploadedById = data[3];
+    private Photo(Parcel in) {
+        mId = in.readString();
+        mName = in.readString();
+        mUploadedBy = in.readString();
+        mUploadedById = in.readString();
 
         try {
-            mImageUrl = new URL(data[4]);
+            mImageUrl = new URL(in.readString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
 
         try {
-            mPostUrl = new URL(data[5]);
+            mPostUrl = new URL(in.readString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
 
-        mCreatedTime = new DateTime(data[6]);
+        mCreatedTime = new DateTime(in.readString());
     }
 
     public String getId() {
@@ -89,9 +86,13 @@ public class Photo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringArray(new String[] {
-           mId, mName, mUploadedBy, mUploadedById, mImageUrl.toString(), mPostUrl.toString(), mCreatedTime.toString()
-        });
+        dest.writeString(mId);
+        dest.writeString(mName);
+        dest.writeString(mUploadedBy);
+        dest.writeString(mUploadedById);
+        dest.writeString(mImageUrl.toString());
+        dest.writeString(mPostUrl.toString());
+        dest.writeString(mCreatedTime.toString());
     }
 
     public static final Parcelable.Creator<Photo> CREATOR = new Parcelable.Creator<Photo>() {

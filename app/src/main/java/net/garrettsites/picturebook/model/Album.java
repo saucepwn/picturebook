@@ -18,7 +18,6 @@ public class Album implements Parcelable {
     private DateTime mUpdatedTime;
     private String mId;
 
-    // NOTE: This field is not parceled.
     private ArrayList<Photo> mPhotos;
 
     public Album(String type, String name, String description, DateTime createdTime, DateTime updatedTime, String id) {
@@ -30,16 +29,13 @@ public class Album implements Parcelable {
         mId = id;
     }
 
-    public Album(Parcel in) {
-        String[] data = new String[5];
-
-        in.readStringArray(data);
-        mType = data[0];
-        mName = data[1];
-        mDescription = data[2];
-        mCreatedTime = new DateTime(data[3]);
-        mUpdatedTime = new DateTime(data[4]);
-        mId = data[5];
+    private Album(Parcel in) {
+        mType = in.readString();
+        mName = in.readString();
+        mDescription = in.readString();
+        mCreatedTime = new DateTime(in.readString());
+        mUpdatedTime = new DateTime(in.readString());
+        mId = in.readString();
     }
 
     public String getType() {
@@ -73,9 +69,13 @@ public class Album implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringArray(new String[] {
-                mType, mName, mDescription, mCreatedTime.toString(), mUpdatedTime.toString(), mId
-        });
+        dest.writeString(mType);
+        dest.writeString(mName);
+        dest.writeString(mDescription);
+        dest.writeString(mCreatedTime.toString());
+        dest.writeString(mUpdatedTime.toString());
+        dest.writeString(mId);
+        //dest.writeParcelable(mPhotos, flags);
     }
 
     public static final Parcelable.Creator<Album> CREATOR = new Parcelable.Creator<Album>() {
