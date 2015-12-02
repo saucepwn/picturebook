@@ -16,6 +16,9 @@ import net.garrettsites.picturebook.commands.GetPhotoBitmapService;
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.model.UserPreferences;
+import net.garrettsites.picturebook.util.PhotoOrder;
+import net.garrettsites.picturebook.util.RandomPhotoOrder;
+import net.garrettsites.picturebook.util.SequentialPhotoOrder;
 
 /**
  * Created by Garrett on 11/29/2015.
@@ -27,7 +30,7 @@ public class ViewSlideshowActivity extends Activity
     private static final String TAG = ViewSlideshowActivity.class.getName();
 
     private Album mAlbum;
-    private int mCurrentPhotoIdx = 0;
+    private PhotoOrder mPhotoOrder;
 
     private GetPhotoBitmapReceiver mReceiver = new GetPhotoBitmapReceiver(new Handler());
     private Handler mHandler = new Handler();
@@ -39,9 +42,15 @@ public class ViewSlideshowActivity extends Activity
 
         // Get the album we're supposed to display.
         mAlbum = getIntent().getParcelableExtra(ARG_ALBUM);
-
         if (mAlbum == null) {
             throw new IllegalArgumentException("Need to pass the '" + ARG_ALBUM + "' arg as an Album to this activity.");
+        }
+
+        // Create the ordering scheme for the photos.
+        if (UserPreferences.getRandomizePhotoOrder()) {
+            mPhotoOrder = new RandomPhotoOrder(mAlbum.getPhotos().size());
+        } else {
+            mPhotoOrder = new SequentialPhotoOrder(mAlbum.getPhotos().size());
         }
 
         // Hook up the receiver from the GetPhotoBitmap service.
@@ -64,7 +73,6 @@ public class ViewSlideshowActivity extends Activity
     @Override
     public void onPause() {
         super.onPause();
-
         mHandler.removeCallbacks(this);
     }
 
@@ -90,11 +98,7 @@ public class ViewSlideshowActivity extends Activity
      * of retrieving the photo happens on a background thread.
      */
     private void loadNewPhoto() {
-        if (mCurrentPhotoIdx >= mAlbum.getPhotos().size()) {
-            mCurrentPhotoIdx = 0;
-        }
-
-        Photo p = mAlbum.getPhotos().get(mCurrentPhotoIdx++);
+        Photo p = mAlbum.getPhotos().get(mPhotoOrder.getNextPhotoIdx());
 
         Intent getBitmapIntent = new Intent(this, GetPhotoBitmapService.class);
         getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_PHOTO_OBJ, p);
