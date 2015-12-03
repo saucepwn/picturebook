@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.TextView;
 
 import com.flaviofaria.kenburnsview.KenBurnsView;
 
@@ -20,6 +21,9 @@ import net.garrettsites.picturebook.util.PhotoOrder;
 import net.garrettsites.picturebook.util.RandomPhotoOrder;
 import net.garrettsites.picturebook.util.SequentialPhotoOrder;
 
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 /**
  * Created by Garrett on 11/29/2015.
  */
@@ -31,6 +35,8 @@ public class ViewSlideshowActivity extends Activity
 
     private Album mAlbum;
     private PhotoOrder mPhotoOrder;
+    private Photo mNextPhoto;
+    private Photo mThisPhoto;
 
     private GetPhotoBitmapReceiver mReceiver = new GetPhotoBitmapReceiver(new Handler());
     private Handler mHandler = new Handler();
@@ -57,6 +63,11 @@ public class ViewSlideshowActivity extends Activity
         mReceiver = new GetPhotoBitmapReceiver(new Handler());
         mReceiver.setReceiver(this);
 
+        // Populate UI elements with data from the album.
+        String numPhotosStr = getString(R.string.num_photos, mAlbum.getPhotos().size());
+        ((TextView) findViewById(R.id.photo_album_photo_count)).setText(numPhotosStr);
+        ((TextView) findViewById(R.id.photo_album_name)).setText(mAlbum.getName());
+
         loadNewPhoto();
     }
 
@@ -78,10 +89,22 @@ public class ViewSlideshowActivity extends Activity
 
     @Override
     public void onReceiveResult(int resultCode, String imageFilePath) {
+        mThisPhoto = mNextPhoto;
+        mNextPhoto = null;
+
         // Show the image we've just retrieved.
         KenBurnsView imageViewport = (KenBurnsView) findViewById(R.id.image_viewport);
         Bitmap imageBitmap = BitmapFactory.decodeFile(imageFilePath);
         imageViewport.setImageBitmap(imageBitmap);
+
+        // Populate the UI with additional photo information.
+        TextView photoDate = (TextView) findViewById(R.id.photo_date);
+        TextView photoDescription = (TextView) findViewById(R.id.photo_description);
+
+        DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("MMMM e, YYYY");
+        photoDate.setText(dateTimeFormat.print(mThisPhoto.getCreatedTime()));
+
+        photoDescription.setText(mThisPhoto.getName());
 
         // Queue up another photo.
         mHandler.postDelayed(this, UserPreferences.getPhotoDelaySeconds() * 1000);
@@ -98,10 +121,10 @@ public class ViewSlideshowActivity extends Activity
      * of retrieving the photo happens on a background thread.
      */
     private void loadNewPhoto() {
-        Photo p = mAlbum.getPhotos().get(mPhotoOrder.getNextPhotoIdx());
+        mNextPhoto = mAlbum.getPhotos().get(mPhotoOrder.getNextPhotoIdx());
 
         Intent getBitmapIntent = new Intent(this, GetPhotoBitmapService.class);
-        getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_PHOTO_OBJ, p);
+        getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_PHOTO_OBJ, mNextPhoto);
         getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_RECEIVER, mReceiver);
         startService(getBitmapIntent);
     }

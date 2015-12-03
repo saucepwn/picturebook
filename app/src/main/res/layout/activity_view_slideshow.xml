@@ -5,6 +5,56 @@
     <com.flaviofaria.kenburnsview.KenBurnsView
         android:id="@+id/image_viewport"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/view_slideshow_bottom_bar_size"/>
+
+    <LinearLayout
+        android:id="@+id/photo_details_layout"
+        android:layout_width="match_parent"
+        android:layout_marginTop="@dimen/view_slideshow_bottom_bar_size_negative"
+        android:layout_height="@dimen/view_slideshow_bottom_bar_size"
+        android:layout_below="@id/image_viewport"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/photo_album_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/view_slideshow_bottom_bar_element_margin"
+            android:layout_marginEnd="@dimen/view_slideshow_bottom_bar_element_margin"/>
+
+        <TextView
+            android:id="@+id/photo_album_photo_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/view_slideshow_bottom_bar_element_margin"
+            android:layout_marginEnd="@dimen/view_slideshow_bottom_bar_element_margin"/>
+
+        <TextView
+            android:id="@+id/photo_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="January 1, 2011"
+            android:layout_marginStart="@dimen/view_slideshow_bottom_bar_element_margin"
+            android:layout_marginEnd="@dimen/view_slideshow_bottom_bar_element_margin"/>
+
+        <TextView
+            android:id="@+id/photo_likes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="4 likes"
+            android:layout_marginStart="@dimen/view_slideshow_bottom_bar_element_margin"
+            android:layout_marginEnd="@dimen/view_slideshow_bottom_bar_element_margin"/>
+
+        <TextView
+            android:id="@+id/photo_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="This photo is a good photo"
+            android:layout_marginStart="@dimen/view_slideshow_bottom_bar_element_margin"
+            android:layout_marginEnd="@dimen/view_slideshow_bottom_bar_element_margin"/>
+
+    </LinearLayout>
 
 </RelativeLayout>
