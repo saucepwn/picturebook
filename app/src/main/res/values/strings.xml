@@ -6,5 +6,22 @@
     <string name="facebook_app_id">1599666040283729</string>
 
     <!-- View Slideshow Activity -->
-    <string name="num_photos">%1$d photos</string>
+    <plurals name="num_photos">
+        <item quantity="one">one photo</item>
+        <item quantity="other">%1$d photos</item>
+    </plurals>
+
+    <plurals name="var_days_ago">
+        <item quantity="one">yesterday</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+    <plurals name="var_months_ago">
+        <item quantity="one">last month</item>
+        <item quantity="other">%1$d months ago</item>
+    </plurals>
+    <plurals name="var_years_ago">
+        <item quantity="one">last year</item>
+        <item quantity="other">%1$d years ago</item>
+    </plurals>
+    <string name="just_now">Just now</string>
 </resources>

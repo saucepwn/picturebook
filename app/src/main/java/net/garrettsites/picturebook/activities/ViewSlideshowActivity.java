@@ -2,6 +2,7 @@ package net.garrettsites.picturebook.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import net.garrettsites.picturebook.util.PhotoOrder;
 import net.garrettsites.picturebook.util.RandomPhotoOrder;
 import net.garrettsites.picturebook.util.SequentialPhotoOrder;
 
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -73,7 +75,9 @@ public class ViewSlideshowActivity extends Activity
         mReceiver.setReceiver(this);
 
         // Populate UI elements with data from the album.
-        String numPhotosStr = getString(R.string.num_photos, mAlbum.getPhotos().size());
+        Resources r = getResources();
+        int numPhotos = mAlbum.getPhotos().size();
+        String numPhotosStr = r.getQuantityString(R.plurals.num_photos, numPhotos, numPhotos);
         ((TextView) findViewById(R.id.photo_album_photo_count)).setText(numPhotosStr);
         ((TextView) findViewById(R.id.photo_album_name)).setText(mAlbum.getName());
     }
@@ -114,11 +118,13 @@ public class ViewSlideshowActivity extends Activity
         // Populate the UI with additional photo information.
         TextView photoDate = (TextView) findViewById(R.id.photo_date);
         TextView photoDescription = (TextView) findViewById(R.id.photo_description);
+        TextView photoTimeAgo = (TextView) findViewById(R.id.photo_time_ago);
 
         DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("MMMM e, YYYY");
         photoDate.setText(dateTimeFormat.print(mThisPhoto.getCreatedTime()));
 
         photoDescription.setText(mThisPhoto.getName());
+        photoTimeAgo.setText(formatTimeSincePhotoCreated(mThisPhoto.getTimeElapsedSinceCreated()));
 
         // Queue up another photo.
         mHandler.postDelayed(this, UserPreferences.getPhotoDelaySeconds() * 1000);
@@ -141,5 +147,31 @@ public class ViewSlideshowActivity extends Activity
         getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_PHOTO_OBJ, mNextPhoto);
         getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_RECEIVER, mReceiver);
         startService(getBitmapIntent);
+    }
+
+    /**
+     * Given a Period representing the time between when a photo was taken and now, this method
+     * formats a string to show the user the amount of time that's elapsed during the Period.
+     * @param period How much time has elapsed.
+     * @return A formatted string for the UI.
+     */
+    private String formatTimeSincePhotoCreated(Period period) {
+        Resources r = getResources();
+
+        if (period.getYears() != 0) {
+            int years = period.getYears();
+            return r.getQuantityString(R.plurals.var_years_ago, years, years);
+
+        } else if (period.getMonths() != 0) {
+            int months = period.getMonths();
+            return r.getQuantityString(R.plurals.var_months_ago, months, months);
+
+        } else if (period.getDays() != 0) {
+            int days = period.getDays();
+            return r.getQuantityString(R.plurals.var_days_ago, days, days);
+
+        } else {
+            return getString(R.string.just_now);
+        }
     }
 }
