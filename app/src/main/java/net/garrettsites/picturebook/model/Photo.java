@@ -14,6 +14,7 @@ import java.net.URL;
  */
 public class Photo implements Parcelable {
     private String mId;
+    private int mOrder = 0;
     private String mName;
     private String mUploadedBy;
     private String mUploadedById;
@@ -21,8 +22,9 @@ public class Photo implements Parcelable {
     private URL mPostUrl;
     private DateTime mCreatedTime;
 
-    public Photo(String id, String name, String uploadedBy, String uploadedById, URL imageUrl, URL postUrl, DateTime createdTime) {
+    public Photo(String id, int order, String name, String uploadedBy, String uploadedById, URL imageUrl, URL postUrl, DateTime createdTime) {
         this.mId = id;
+        this.mOrder= order;
         this.mName = name;
         this.mUploadedBy = uploadedBy;
         this.mUploadedById = uploadedById;
@@ -33,6 +35,7 @@ public class Photo implements Parcelable {
 
     private Photo(Parcel in) {
         mId = in.readString();
+        mOrder = in.readInt();
         mName = in.readString();
         mUploadedBy = in.readString();
         mUploadedById = in.readString();
@@ -54,6 +57,10 @@ public class Photo implements Parcelable {
 
     public String getId() {
         return mId;
+    }
+
+    public int getOrder() {
+        return mOrder;
     }
 
     public String getName() {
@@ -95,6 +102,7 @@ public class Photo implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mId);
+        dest.writeInt(mOrder);
         dest.writeString(mName);
         dest.writeString(mUploadedBy);
         dest.writeString(mUploadedById);

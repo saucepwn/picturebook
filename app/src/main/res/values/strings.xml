@@ -6,10 +6,7 @@
     <string name="facebook_app_id">1599666040283729</string>
 
     <!-- View Slideshow Activity -->
-    <plurals name="num_photos">
-        <item quantity="one">one photo</item>
-        <item quantity="other">%1$d photos</item>
-    </plurals>
+    <string name="photo_var_of_var">photo %1$d of %2$d</string>
 
     <plurals name="var_days_ago">
         <item quantity="one">yesterday</item>

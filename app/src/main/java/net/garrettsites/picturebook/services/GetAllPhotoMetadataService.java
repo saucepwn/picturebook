@@ -96,7 +96,15 @@ public class GetAllPhotoMetadataService extends IntentService {
                     e.printStackTrace();
                 }
 
-                Photo photo = new Photo(id, name, uploadedBy, uploadedById, imageUrl, postUrl, createdTime);
+                Photo photo = new Photo(
+                        id,
+                        i + 1, // order
+                        name,
+                        uploadedBy,
+                        uploadedById,
+                        imageUrl,
+                        postUrl,
+                        createdTime);
 
                 mAllPhotos.add(photo);
             }

@@ -75,10 +75,6 @@ public class ViewSlideshowActivity extends Activity
         mReceiver.setReceiver(this);
 
         // Populate UI elements with data from the album.
-        Resources r = getResources();
-        int numPhotos = mAlbum.getPhotos().size();
-        String numPhotosStr = r.getQuantityString(R.plurals.num_photos, numPhotos, numPhotos);
-        ((TextView) findViewById(R.id.photo_album_photo_count)).setText(numPhotosStr);
         ((TextView) findViewById(R.id.photo_album_name)).setText(mAlbum.getName());
     }
 
@@ -116,14 +112,19 @@ public class ViewSlideshowActivity extends Activity
         imageViewport.setImageBitmap(imageBitmap);
 
         // Populate the UI with additional photo information.
-        TextView photoDate = (TextView) findViewById(R.id.photo_date);
         TextView photoDescription = (TextView) findViewById(R.id.photo_description);
         TextView photoTimeAgo = (TextView) findViewById(R.id.photo_time_ago);
+        TextView photoOrder = (TextView) findViewById(R.id.photo_album_photo_count);
 
-        DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("MMMM e, YYYY");
-        photoDate.setText(dateTimeFormat.print(mThisPhoto.getCreatedTime()));
+        String numPhotosStr = getString(R.string.photo_var_of_var, mThisPhoto.getOrder(), mAlbum.getPhotos().size());
+        photoOrder.setText(numPhotosStr);
 
-        photoDescription.setText(mThisPhoto.getName());
+        if (mThisPhoto.getName() == null || mThisPhoto.getName().length() == 0) {
+            photoDescription.setVisibility(View.INVISIBLE);
+        } else {
+            photoDescription.setVisibility(View.VISIBLE);
+            photoDescription.setText(mThisPhoto.getName());
+        }
         photoTimeAgo.setText(formatTimeSincePhotoCreated(mThisPhoto.getTimeElapsedSinceCreated()));
 
         // Queue up another photo.
