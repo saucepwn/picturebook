@@ -39,6 +39,8 @@ public class ViewSlideshowActivity extends Activity
     private Photo mNextPhoto;
     private Photo mThisPhoto;
 
+    private boolean activityFirstCreated = true;
+
     private GetPhotoBitmapReceiver mReceiver = new GetPhotoBitmapReceiver(new Handler());
     private Handler mHandler = new Handler();
 
@@ -74,8 +76,6 @@ public class ViewSlideshowActivity extends Activity
         String numPhotosStr = getString(R.string.num_photos, mAlbum.getPhotos().size());
         ((TextView) findViewById(R.id.photo_album_photo_count)).setText(numPhotosStr);
         ((TextView) findViewById(R.id.photo_album_name)).setText(mAlbum.getName());
-
-        loadNewPhoto();
     }
 
     @Override
@@ -86,6 +86,13 @@ public class ViewSlideshowActivity extends Activity
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
         decorView.setSystemUiVisibility(uiOptions);
+
+        if (activityFirstCreated)
+            loadNewPhoto();
+        else
+            mHandler.postDelayed(this, UserPreferences.getPhotoDelaySeconds() * 1000);
+
+        activityFirstCreated = false;
     }
 
     @Override
