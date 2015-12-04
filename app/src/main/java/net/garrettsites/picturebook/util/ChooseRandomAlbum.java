@@ -1,4 +1,4 @@
-package net.garrettsites.picturebook.commands;
+package net.garrettsites.picturebook.util;
 
 import net.garrettsites.picturebook.model.Album;
 

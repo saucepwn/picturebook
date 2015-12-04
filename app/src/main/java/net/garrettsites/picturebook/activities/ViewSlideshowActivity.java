@@ -13,8 +13,8 @@ import android.widget.TextView;
 import com.flaviofaria.kenburnsview.KenBurnsView;
 
 import net.garrettsites.picturebook.R;
-import net.garrettsites.picturebook.commands.GetPhotoBitmapReceiver;
-import net.garrettsites.picturebook.commands.GetPhotoBitmapService;
+import net.garrettsites.picturebook.receivers.GetPhotoBitmapReceiver;
+import net.garrettsites.picturebook.services.GetPhotoBitmapService;
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.model.UserPreferences;
@@ -95,7 +95,7 @@ public class ViewSlideshowActivity extends Activity
     }
 
     @Override
-    public void onReceiveResult(int resultCode, String imageFilePath) {
+    public void onReceivePhotoBitmap(int resultCode, String imageFilePath) {
         mThisPhoto = mNextPhoto;
         mNextPhoto = null;
 

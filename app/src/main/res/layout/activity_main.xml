@@ -17,22 +17,9 @@
         android:onClick="startSlideshow"
         android:text="Start Slideshow" />
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="launchDebugActivity"
-        android:text="Do the thing" />
-
     <TextView
-        android:id="@+id/random_album_name"
+        android:id="@+id/status_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Press 'do the thing'" />
-
-    <TextView
-        android:id="@+id/album_photo_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Number of photos in the album." />
-
+        android:text="Status goes here" />
 </LinearLayout>

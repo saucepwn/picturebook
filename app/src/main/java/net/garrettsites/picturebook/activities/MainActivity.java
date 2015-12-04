@@ -11,18 +11,18 @@ import android.widget.TextView;
 import com.facebook.FacebookSdk;
 
 import net.garrettsites.picturebook.R;
-import net.garrettsites.picturebook.commands.AllPhotosMetadataResultReceiver;
-import net.garrettsites.picturebook.commands.ChooseRandomAlbum;
-import net.garrettsites.picturebook.commands.AllAlbumsResultReceiver;
-import net.garrettsites.picturebook.commands.GetAllAlbumsService;
-import net.garrettsites.picturebook.commands.GetAllPhotoMetadataService;
+import net.garrettsites.picturebook.receivers.GetAllPhotoMetadataReceiver;
+import net.garrettsites.picturebook.receivers.StartSlideshowBroadcastReceiver;
+import net.garrettsites.picturebook.util.ChooseRandomAlbum;
+import net.garrettsites.picturebook.receivers.GetAllAlbumsReceiver;
+import net.garrettsites.picturebook.services.GetAllAlbumsService;
+import net.garrettsites.picturebook.services.GetAllPhotoMetadataService;
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.Photo;
 
 import java.util.ArrayList;
 
 public class MainActivity extends PictureBookActivity {
-    private final ArrayList<Album> albumToShow = new ArrayList<Album>(1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +30,13 @@ public class MainActivity extends PictureBookActivity {
         setContentView(R.layout.activity_main);
 
         FacebookSdk.sdkInitialize(getApplicationContext());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        ((TextView) findViewById(R.id.status_textview)).setText("Status goes here");
     }
 
     /**
@@ -42,60 +49,7 @@ public class MainActivity extends PictureBookActivity {
     }
 
     public void startSlideshow(View view) {
-        if (albumToShow.size() == 0) {
-            new AlertDialog.Builder(this)
-                    .setTitle("No Albums Retrieved")
-                    .setMessage("Press 'Do the Thing' first to retrieve albums from Facebook.")
-                    .setNeutralButton("OK", null)
-                    .show();
-        } else {
-            Intent i = new Intent(this, ViewSlideshowActivity.class);
-            i.putExtra(ViewSlideshowActivity.ARG_ALBUM, albumToShow.get(0));
-            startActivity(i);
-        }
-    }
-
-    /**
-     * Used as a hook for debugging. Delete all this shit before it's time to release.
-     * @param view The view which created this action.
-     */
-    public void launchDebugActivity(View view) {
-        final TextView albumNameView = (TextView) findViewById(R.id.random_album_name);
-        final TextView albumPhotoCount = (TextView) findViewById(R.id.album_photo_count);
-
-        final Activity self = this;
-
-        AllAlbumsResultReceiver mReceiver = new AllAlbumsResultReceiver(new Handler());
-        mReceiver.setReceiver(new AllAlbumsResultReceiver.Receiver() {
-            @Override
-            public void onReceiveResult(int resultCode, ArrayList<Album> albums) {
-                // We've gotten the albums.
-                ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
-                final Album randomAlbum = albumRandomizer.selectRandomAlbum();
-                albumNameView.setText("Your album is: " + randomAlbum.getName() + "\nDescription: " + randomAlbum.getDescription() + "\nType: " + randomAlbum.getType() + "\nCreated: " + randomAlbum.getCreatedTime() + "\nLast updated: " + randomAlbum.getUpdatedTime());
-
-                // Get all of the photos in our target album.
-                AllPhotosMetadataResultReceiver allPhotosReceiver = new AllPhotosMetadataResultReceiver(new Handler());
-                allPhotosReceiver.setReceiver(new AllPhotosMetadataResultReceiver.Receiver() {
-                    @Override
-                    public void onReceiveResult(int resultCode, ArrayList<Photo> photos) {
-                        // We've gotten all of the photos in this album.
-                        randomAlbum.setPhotos(photos);
-                        albumPhotoCount.setText("Album contains " + photos.size() + " photos.");
-
-                        albumToShow.add(0, randomAlbum);
-                    }
-                });
-
-                Intent i = new Intent(self, GetAllPhotoMetadataService.class);
-                i.putExtra(GetAllPhotoMetadataService.ARG_RECEIVER, allPhotosReceiver);
-                i.putExtra(GetAllPhotoMetadataService.ARG_ALBUM_ID, randomAlbum.getId());
-                self.startService(i);
-            }
-        });
-
-        Intent i = new Intent(this, GetAllAlbumsService.class);
-        i.putExtra(GetAllAlbumsService.ARG_RECEIVER, mReceiver);
-        startService(i);
+        ((TextView) findViewById(R.id.status_textview)).setText("Triggered StartSlideshowBroadcastReceiver.");
+        sendBroadcast(new Intent(this, StartSlideshowBroadcastReceiver.class));
     }
 }

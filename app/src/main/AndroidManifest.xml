@@ -54,14 +54,21 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <service
-            android:name=".commands.GetAllAlbumsService"
+            android:name=".services.GetAlbumAndStartSlideshowService"
             android:exported="false" />
         <service
-            android:name=".commands.GetAllPhotoMetadataService"
+            android:name=".services.GetAllAlbumsService"
             android:exported="false" />
         <service
-            android:name=".commands.GetPhotoBitmapService"
+            android:name=".services.GetAllPhotoMetadataService"
             android:exported="false" />
+        <service
+            android:name=".services.GetPhotoBitmapService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".receivers.StartSlideshowBroadcastReceiver">
+        </receiver>
     </application>
 
 </manifest>
