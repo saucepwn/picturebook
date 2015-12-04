@@ -22,4 +22,7 @@
         <item quantity="other">%1$d years ago</item>
     </plurals>
     <string name="just_now">Just now</string>
+    <string name="loading_album">Hang tight! Loading an album for you.</string>
+    <string name="getting_all_albums">Getting all albums...</string>
+    <string name="getting_photo_details">Getting photo details...</string>
 </resources>

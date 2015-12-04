@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -19,24 +20,32 @@ import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.model.UserPreferences;
+import net.garrettsites.picturebook.receivers.GetAllAlbumsReceiver;
+import net.garrettsites.picturebook.receivers.GetAllPhotoMetadataReceiver;
 import net.garrettsites.picturebook.receivers.GetPhotoBitmapReceiver;
+import net.garrettsites.picturebook.services.GetAllAlbumsService;
+import net.garrettsites.picturebook.services.GetAllPhotoMetadataService;
 import net.garrettsites.picturebook.services.GetPhotoBitmapService;
+import net.garrettsites.picturebook.util.ChooseRandomAlbum;
 import net.garrettsites.picturebook.util.PhotoOrder;
 import net.garrettsites.picturebook.util.RandomPhotoOrder;
 import net.garrettsites.picturebook.util.SequentialPhotoOrder;
 
 import org.joda.time.Period;
 
+import java.util.ArrayList;
+
 /**
  * Created by Garrett on 11/29/2015.
  */
-public class ViewSlideshowActivity extends Activity
-        implements GetPhotoBitmapReceiver.Receiver, Runnable {
-
-    public static final String ARG_ALBUM = "album";
+public class ViewSlideshowActivity extends Activity implements
+        Runnable,
+        GetPhotoBitmapReceiver.Receiver,
+        GetAllAlbumsReceiver.Receiver,
+        GetAllPhotoMetadataReceiver.Receiver {
 
     private static final int ALBUM_TITLE_MAX_CHARS = 50;
-    private static final int SPLASH_SCREEN_FADE_OUT_MS = 1000;
+    private static final int SPLASH_SCREEN_FADE_OUT_MS = 300;
     private static final String TAG = ViewSlideshowActivity.class.getName();
 
     private Album mAlbum;
@@ -44,9 +53,7 @@ public class ViewSlideshowActivity extends Activity
     private Photo mNextPhoto;
     private Photo mThisPhoto;
 
-    private boolean activityFirstCreated = true;
-
-    private GetPhotoBitmapReceiver mReceiver = new GetPhotoBitmapReceiver(new Handler());
+    private GetPhotoBitmapReceiver mPhotoBitmapReceiver = new GetPhotoBitmapReceiver(new Handler());
     private Handler mHandler = new Handler();
 
     @Override
@@ -54,35 +61,17 @@ public class ViewSlideshowActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_slideshow);
 
-        // Get the album we're supposed to display.
-        mAlbum = getIntent().getParcelableExtra(ARG_ALBUM);
-        if (mAlbum == null) {
-            throw new IllegalArgumentException("Need to pass the '" + ARG_ALBUM + "' arg as an Album to this activity.");
-        }
-
         // Wake the device up when this activity starts & prevent sleep.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        // Create the ordering scheme for the photos.
-        if (UserPreferences.getRandomizePhotoOrder()) {
-            mPhotoOrder = new RandomPhotoOrder(mAlbum.getPhotos().size());
-        } else {
-            mPhotoOrder = new SequentialPhotoOrder(mAlbum.getPhotos().size());
-        }
-
         // Hook up the receiver from the GetPhotoBitmap service.
-        mReceiver = new GetPhotoBitmapReceiver(new Handler());
-        mReceiver.setReceiver(this);
+        mPhotoBitmapReceiver = new GetPhotoBitmapReceiver(new Handler());
+        mPhotoBitmapReceiver.setReceiver(this);
 
-        // Populate UI elements with data from the album.
-        CharSequence albumName = mAlbum.getName();
-        if (albumName.length() >= ALBUM_TITLE_MAX_CHARS) {
-            albumName = albumName.subSequence(0, ALBUM_TITLE_MAX_CHARS - 1) + "…";
-        }
-        ((TextView) findViewById(R.id.photo_album_name)).setText(albumName);
+        beginRetrieveAlbumSequence();
     }
 
     @Override
@@ -94,37 +83,15 @@ public class ViewSlideshowActivity extends Activity
         int uiOptions = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
         decorView.setSystemUiVisibility(uiOptions);
 
-        if (activityFirstCreated)
-            loadNewPhoto();
-        else
+        if (mAlbum != null) {
             mHandler.postDelayed(this, UserPreferences.getPhotoDelaySeconds() * 1000);
-
-        activityFirstCreated = false;
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mHandler.removeCallbacks(this);
-    }
-
-    @Override
-    public void onReceivePhotoBitmap(int resultCode, String imageFilePath) {
-        mThisPhoto = mNextPhoto;
-        mNextPhoto = null;
-
-        hideSplashScreenIfVisible();
-
-        // Show the image we've just retrieved.
-        KenBurnsView imageViewport = (KenBurnsView) findViewById(R.id.image_viewport);
-        Bitmap imageBitmap = BitmapFactory.decodeFile(imageFilePath);
-        imageViewport.setImageBitmap(imageBitmap);
-
-        // Populate the UI with additional photo information.
-       populateUiWithPhotoInfo(mThisPhoto);
-
-        // Queue up another photo.
-        mHandler.postDelayed(this, UserPreferences.getPhotoDelaySeconds() * 1000);
     }
 
     private void populateUiWithPhotoInfo(Photo photo) {
@@ -154,27 +121,12 @@ public class ViewSlideshowActivity extends Activity
         } else {
             photoPlaceName.setText(getString(R.string.at_var, photo.getPlaceName()));
             photoPlaceName.setVisibility(View.VISIBLE);
-
         }
     }
 
     @Override
     public void run() {
         loadNewPhoto();
-    }
-
-    /**
-     * Begin the process of displaying a new photo. This calls GetPhotoBitmapService which will
-     * either acquire the photo from Facebook (using the internet) or locally from cache. The act
-     * of retrieving the photo happens on a background thread.
-     */
-    private void loadNewPhoto() {
-        mNextPhoto = mAlbum.getPhotos().get(mPhotoOrder.getNextPhotoIdx());
-
-        Intent getBitmapIntent = new Intent(this, GetPhotoBitmapService.class);
-        getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_PHOTO_OBJ, mNextPhoto);
-        getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_RECEIVER, mReceiver);
-        startService(getBitmapIntent);
     }
 
     /**
@@ -221,4 +173,114 @@ public class ViewSlideshowActivity extends Activity
             return getString(R.string.just_now);
         }
     }
+
+    /**
+     * From here until the below comment, the following methods should be called IN ORDER to
+     * retrieve the photo album.
+     */
+    protected void beginRetrieveAlbumSequence() {
+        // Step 1: Get the metadata for all of this user's Facebook albums.
+        Log.i(TAG, "Starting retrieve album sequence");
+        callGetAllAlbumsService();
+    }
+
+    private void callGetAllAlbumsService() {
+        ((TextView) findViewById(R.id.splash_screen_loading_details)).setText(R.string.getting_all_albums);
+        GetAllAlbumsReceiver getAllAlbumsReceiver = new GetAllAlbumsReceiver(new Handler());
+        getAllAlbumsReceiver.setReceiver(this);
+
+        Intent getAllAlbumsIntent = new Intent(this, GetAllAlbumsService.class);
+        getAllAlbumsIntent.putExtra(GetAllAlbumsService.ARG_RECEIVER, getAllAlbumsReceiver);
+
+        Log.v(TAG, "Calling GetAllAlbumsService");
+        startService(getAllAlbumsIntent);
+    }
+
+    @Override
+    public void onReceiveAllAlbums(int resultCode, ArrayList<Album> albums) {
+        Log.v(TAG, "Got results from GetAllAlbumsService");
+        ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
+        mAlbum = albumRandomizer.selectRandomAlbum();
+
+        // Step 2: Get the photo metadata for all of the photos in this album.
+        callGetAllPhotoMetadataService();
+    }
+
+    private void callGetAllPhotoMetadataService() {
+        ((TextView) findViewById(R.id.splash_screen_loading_details)).setText(R.string.getting_photo_details);
+        GetAllPhotoMetadataReceiver allPhotosReceiver = new GetAllPhotoMetadataReceiver(new Handler());
+        allPhotosReceiver.setReceiver(this);
+
+        Intent getAllPhotoMetadataIntent = new Intent(this, GetAllPhotoMetadataService.class);
+        getAllPhotoMetadataIntent.putExtra(GetAllPhotoMetadataService.ARG_RECEIVER, allPhotosReceiver);
+        getAllPhotoMetadataIntent.putExtra(GetAllPhotoMetadataService.ARG_ALBUM_ID, mAlbum.getId());
+
+        Log.v(TAG, "Calling GetAllPhotoMetadataService");
+        startService(getAllPhotoMetadataIntent);
+    }
+
+    @Override
+    public void onReceiveAllPhotoMetadata(int resultCode, ArrayList<Photo> photos) {
+        Log.v(TAG, "Got results from GetAllPhotoMetadataService");
+        mAlbum.setPhotos(photos);
+
+        // Create the ordering scheme for the photos.
+        if (UserPreferences.getRandomizePhotoOrder()) {
+            mPhotoOrder = new RandomPhotoOrder(mAlbum.getPhotos().size());
+        } else {
+            mPhotoOrder = new SequentialPhotoOrder(mAlbum.getPhotos().size());
+        }
+
+        Log.i(TAG, "Retrieve Album sequence complete.");
+        writeAlbumDataToUi();
+    }
+
+    private void writeAlbumDataToUi() {
+        // Populate UI elements with data from the album.
+        CharSequence albumName = mAlbum.getName();
+        if (albumName.length() >= ALBUM_TITLE_MAX_CHARS) {
+            albumName = albumName.subSequence(0, ALBUM_TITLE_MAX_CHARS - 1) + "…";
+        }
+        ((TextView) findViewById(R.id.photo_album_name)).setText(albumName);
+
+        loadNewPhoto();
+    }
+
+    /**
+     * Begin the process of displaying a new photo. This calls GetPhotoBitmapService which will
+     * either acquire the photo from Facebook (using the internet) or locally from cache. The act
+     * of retrieving the photo happens on a background thread.
+     */
+    private void loadNewPhoto() {
+        Log.v(TAG, "Begin load new photo");
+        mNextPhoto = mAlbum.getPhotos().get(mPhotoOrder.getNextPhotoIdx());
+
+        Intent getBitmapIntent = new Intent(this, GetPhotoBitmapService.class);
+        getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_PHOTO_OBJ, mNextPhoto);
+        getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_RECEIVER, mPhotoBitmapReceiver);
+        startService(getBitmapIntent);
+        Log.v(TAG, "End load new photo");
+    }
+
+    @Override
+    public void onReceivePhotoBitmap(int resultCode, String imageFilePath) {
+        mThisPhoto = mNextPhoto;
+        mNextPhoto = null;
+
+        hideSplashScreenIfVisible();
+
+        // Show the image we've just retrieved.
+        KenBurnsView imageViewport = (KenBurnsView) findViewById(R.id.image_viewport);
+        Bitmap imageBitmap = BitmapFactory.decodeFile(imageFilePath);
+        imageViewport.setImageBitmap(imageBitmap);
+
+        // Populate the UI with additional photo information.
+        populateUiWithPhotoInfo(mThisPhoto);
+
+        // Queue up another photo.
+        mHandler.postDelayed(this, UserPreferences.getPhotoDelaySeconds() * 1000);
+    }
+    /**
+     * END sequence
+     */
 }
