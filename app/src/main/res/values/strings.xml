@@ -7,6 +7,7 @@
 
     <!-- View Slideshow Activity -->
     <string name="photo_var_of_var">photo %1$d of %2$d</string>
+    <string name="at_var">at %1$s</string>
 
     <plurals name="var_days_ago">
         <item quantity="one">yesterday</item>

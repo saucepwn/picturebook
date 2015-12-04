@@ -18,6 +18,7 @@ public class Photo implements Parcelable {
     private String mName;
     private String mUploadedBy;
     private String mUploadedById;
+    private String mPlaceName;
     private URL mImageUrl;
     private URL mPostUrl;
     private DateTime mCreatedTime;
@@ -39,6 +40,7 @@ public class Photo implements Parcelable {
         mName = in.readString();
         mUploadedBy = in.readString();
         mUploadedById = in.readString();
+        mPlaceName = in.readString();
 
         try {
             mImageUrl = new URL(in.readString());
@@ -75,6 +77,18 @@ public class Photo implements Parcelable {
         return mUploadedById;
     }
 
+    /**
+     * Set the name of the place this photo was taken.
+     * @param placeName The name of the place this photo was taken.
+     */
+    public void setPlaceName(String placeName) {
+        mPlaceName = placeName;
+    }
+
+    public String getPlaceName() {
+        return mPlaceName;
+    }
+
     public URL getImageUrl() {
         return mImageUrl;
     }
@@ -106,6 +120,7 @@ public class Photo implements Parcelable {
         dest.writeString(mName);
         dest.writeString(mUploadedBy);
         dest.writeString(mUploadedById);
+        dest.writeString(mPlaceName);
         dest.writeString(mImageUrl.toString());
         dest.writeString(mPostUrl.toString());
         dest.writeString(mCreatedTime.toString());

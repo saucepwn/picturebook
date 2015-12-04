@@ -112,23 +112,40 @@ public class ViewSlideshowActivity extends Activity
         imageViewport.setImageBitmap(imageBitmap);
 
         // Populate the UI with additional photo information.
-        TextView photoDescription = (TextView) findViewById(R.id.photo_description);
-        TextView photoTimeAgo = (TextView) findViewById(R.id.photo_time_ago);
-        TextView photoOrder = (TextView) findViewById(R.id.photo_album_photo_count);
-
-        String numPhotosStr = getString(R.string.photo_var_of_var, mThisPhoto.getOrder(), mAlbum.getPhotos().size());
-        photoOrder.setText(numPhotosStr);
-
-        if (mThisPhoto.getName() == null || mThisPhoto.getName().length() == 0) {
-            photoDescription.setVisibility(View.INVISIBLE);
-        } else {
-            photoDescription.setVisibility(View.VISIBLE);
-            photoDescription.setText(mThisPhoto.getName());
-        }
-        photoTimeAgo.setText(formatTimeSincePhotoCreated(mThisPhoto.getTimeElapsedSinceCreated()));
+       populateUiWithPhotoInfo(mThisPhoto);
 
         // Queue up another photo.
         mHandler.postDelayed(this, UserPreferences.getPhotoDelaySeconds() * 1000);
+    }
+
+    private void populateUiWithPhotoInfo(Photo photo) {
+        TextView photoDescription = (TextView) findViewById(R.id.photo_description);
+        TextView photoTimeAgo = (TextView) findViewById(R.id.photo_time_ago);
+        TextView photoPlaceName = (TextView) findViewById(R.id.photo_place_name);
+        TextView photoOrder = (TextView) findViewById(R.id.photo_album_photo_count);
+
+        // photo {num} of {num}.
+        String numPhotosStr = getString(R.string.photo_var_of_var, photo.getOrder(), mAlbum.getPhotos().size());
+        photoOrder.setText(numPhotosStr);
+
+        // Uploader's comment of this photo.
+        if (photo.getName() == null || photo.getName().length() == 0) {
+            photoDescription.setVisibility(View.INVISIBLE);
+        } else {
+            photoDescription.setText(photo.getName());
+            photoDescription.setVisibility(View.VISIBLE);
+        }
+
+        // {age} days/months/years ago.
+        photoTimeAgo.setText(formatTimeSincePhotoCreated(photo.getTimeElapsedSinceCreated()));
+
+        if (photo.getPlaceName() == null || photo.getPlaceName().length() == 0) {
+            photoPlaceName.setVisibility(View.INVISIBLE);
+        } else {
+            photoPlaceName.setText(getString(R.string.at_var, photo.getPlaceName()));
+            photoPlaceName.setVisibility(View.VISIBLE);
+
+        }
     }
 
     @Override
