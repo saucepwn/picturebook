@@ -36,6 +36,10 @@ public class PhotoDiskCache {
      * @return A File reference to the image that was just saved.
      */
     public File savePhotoToCache(String photoId, Bitmap photo) {
+        if (photo == null) {
+            return null;
+        }
+
         File writeLocation = getWritablePhotoFile(photoId);
 
         // Remove the file if it currently exists.

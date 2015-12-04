@@ -264,18 +264,22 @@ public class ViewSlideshowActivity extends Activity implements
 
     @Override
     public void onReceivePhotoBitmap(int resultCode, String imageFilePath) {
-        mThisPhoto = mNextPhoto;
-        mNextPhoto = null;
+        // Only update the photo if the last operation completed successfully. If it didn't, try it
+        // again.
+        if (resultCode == Activity.RESULT_OK) {
+            mThisPhoto = mNextPhoto;
+            mNextPhoto = null;
 
-        hideSplashScreenIfVisible();
+            hideSplashScreenIfVisible();
 
-        // Show the image we've just retrieved.
-        KenBurnsView imageViewport = (KenBurnsView) findViewById(R.id.image_viewport);
-        Bitmap imageBitmap = BitmapFactory.decodeFile(imageFilePath);
-        imageViewport.setImageBitmap(imageBitmap);
+            // Show the image we've just retrieved.
+            KenBurnsView imageViewport = (KenBurnsView) findViewById(R.id.image_viewport);
+            Bitmap imageBitmap = BitmapFactory.decodeFile(imageFilePath);
+            imageViewport.setImageBitmap(imageBitmap);
 
-        // Populate the UI with additional photo information.
-        populateUiWithPhotoInfo(mThisPhoto);
+            // Populate the UI with additional photo information.
+            populateUiWithPhotoInfo(mThisPhoto);
+        }
 
         // Queue up another photo.
         mHandler.postDelayed(this, UserPreferences.getPhotoDelaySeconds() * 1000);

@@ -30,7 +30,7 @@ public class GetPhotoBitmapService extends IntentService {
     private PhotoDiskCache mCache;
 
     public GetPhotoBitmapService() {
-        super (GetPhotoBitmapService.class.getName());
+        super(GetPhotoBitmapService.class.getName());
     }
 
     @Override
@@ -57,8 +57,12 @@ public class GetPhotoBitmapService extends IntentService {
         }
 
         Bundle retVal = new Bundle();
-        retVal.putString(ARG_IMAGE_PATH, imageLocation.getPath());
-        receiver.send(Activity.RESULT_OK, retVal);
+        if (imageLocation == null) {
+            receiver.send(Activity.RESULT_CANCELED, retVal);
+        } else {
+            retVal.putString(ARG_IMAGE_PATH, imageLocation.getPath());
+            receiver.send(Activity.RESULT_OK, retVal);
+        }
     }
 
     /**
