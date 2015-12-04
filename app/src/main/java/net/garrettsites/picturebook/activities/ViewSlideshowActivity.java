@@ -53,8 +53,8 @@ public class ViewSlideshowActivity extends Activity implements
     private Photo mNextPhoto;
     private Photo mThisPhoto;
 
-    private GetPhotoBitmapReceiver mPhotoBitmapReceiver = new GetPhotoBitmapReceiver(new Handler());
     private Handler mHandler = new Handler();
+    private GetPhotoBitmapReceiver mPhotoBitmapReceiver = new GetPhotoBitmapReceiver(mHandler);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +68,7 @@ public class ViewSlideshowActivity extends Activity implements
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // Hook up the receiver from the GetPhotoBitmap service.
-        mPhotoBitmapReceiver = new GetPhotoBitmapReceiver(new Handler());
+        mPhotoBitmapReceiver = new GetPhotoBitmapReceiver(mHandler);
         mPhotoBitmapReceiver.setReceiver(this);
 
         beginRetrieveAlbumSequence();
@@ -186,7 +186,7 @@ public class ViewSlideshowActivity extends Activity implements
 
     private void callGetAllAlbumsService() {
         ((TextView) findViewById(R.id.splash_screen_loading_details)).setText(R.string.getting_all_albums);
-        GetAllAlbumsReceiver getAllAlbumsReceiver = new GetAllAlbumsReceiver(new Handler());
+        GetAllAlbumsReceiver getAllAlbumsReceiver = new GetAllAlbumsReceiver(mHandler);
         getAllAlbumsReceiver.setReceiver(this);
 
         Intent getAllAlbumsIntent = new Intent(this, GetAllAlbumsService.class);
@@ -208,7 +208,7 @@ public class ViewSlideshowActivity extends Activity implements
 
     private void callGetAllPhotoMetadataService() {
         ((TextView) findViewById(R.id.splash_screen_loading_details)).setText(R.string.getting_photo_details);
-        GetAllPhotoMetadataReceiver allPhotosReceiver = new GetAllPhotoMetadataReceiver(new Handler());
+        GetAllPhotoMetadataReceiver allPhotosReceiver = new GetAllPhotoMetadataReceiver(mHandler);
         allPhotosReceiver.setReceiver(this);
 
         Intent getAllPhotoMetadataIntent = new Intent(this, GetAllPhotoMetadataService.class);
