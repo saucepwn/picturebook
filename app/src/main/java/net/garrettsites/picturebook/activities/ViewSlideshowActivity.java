@@ -14,18 +14,16 @@ import android.widget.TextView;
 import com.flaviofaria.kenburnsview.KenBurnsView;
 
 import net.garrettsites.picturebook.R;
-import net.garrettsites.picturebook.receivers.GetPhotoBitmapReceiver;
-import net.garrettsites.picturebook.services.GetPhotoBitmapService;
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.model.UserPreferences;
+import net.garrettsites.picturebook.receivers.GetPhotoBitmapReceiver;
+import net.garrettsites.picturebook.services.GetPhotoBitmapService;
 import net.garrettsites.picturebook.util.PhotoOrder;
 import net.garrettsites.picturebook.util.RandomPhotoOrder;
 import net.garrettsites.picturebook.util.SequentialPhotoOrder;
 
 import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 /**
  * Created by Garrett on 11/29/2015.
@@ -34,6 +32,8 @@ public class ViewSlideshowActivity extends Activity
         implements GetPhotoBitmapReceiver.Receiver, Runnable {
 
     public static final String ARG_ALBUM = "album";
+
+    private static final int ALBUM_TITLE_MAX_CHARS = 38;
     private static final String TAG = ViewSlideshowActivity.class.getName();
 
     private Album mAlbum;
@@ -75,7 +75,11 @@ public class ViewSlideshowActivity extends Activity
         mReceiver.setReceiver(this);
 
         // Populate UI elements with data from the album.
-        ((TextView) findViewById(R.id.photo_album_name)).setText(mAlbum.getName());
+        CharSequence albumName = mAlbum.getName();
+        if (albumName.length() >= ALBUM_TITLE_MAX_CHARS) {
+            albumName = albumName.subSequence(0, ALBUM_TITLE_MAX_CHARS - 1) + "…";
+        }
+        ((TextView) findViewById(R.id.photo_album_name)).setText(albumName);
     }
 
     @Override
@@ -139,8 +143,9 @@ public class ViewSlideshowActivity extends Activity
         // {age} days/months/years ago.
         photoTimeAgo.setText(formatTimeSincePhotoCreated(photo.getTimeElapsedSinceCreated()));
 
+        // The name of the place where the photo was taken.
         if (photo.getPlaceName() == null || photo.getPlaceName().length() == 0) {
-            photoPlaceName.setVisibility(View.INVISIBLE);
+            photoPlaceName.setVisibility(View.GONE);
         } else {
             photoPlaceName.setText(getString(R.string.at_var, photo.getPlaceName()));
             photoPlaceName.setVisibility(View.VISIBLE);

@@ -30,9 +30,8 @@
                 android:id="@+id/photo_album_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
                 android:singleLine="true"
-                android:maxLength="40"
+                android:maxLines="1"
                 style="@style/PictureBook.LargeTextAppearance"/>
 
             <TextView
@@ -62,6 +61,7 @@
                 android:id="@+id/photo_place_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 style="@style/PictureBook.MediumTextAppearance" />
 
         </LinearLayout>
@@ -74,6 +74,7 @@
             android:paddingStart="@dimen/view_slideshow_bottom_bar_element_margin"
             android:paddingEnd="@dimen/view_slideshow_bottom_bar_element_margin"
             android:gravity="center_vertical"
+            android:ellipsize="end"
             style="@style/PictureBook.MediumTextAppearance"
             android:background="@android:color/holo_orange_dark"/>
 
