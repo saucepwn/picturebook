@@ -1,5 +1,7 @@
 package net.garrettsites.picturebook.activities;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -33,7 +35,8 @@ public class ViewSlideshowActivity extends Activity
 
     public static final String ARG_ALBUM = "album";
 
-    private static final int ALBUM_TITLE_MAX_CHARS = 38;
+    private static final int ALBUM_TITLE_MAX_CHARS = 50;
+    private static final int SPLASH_SCREEN_FADE_OUT_MS = 1000;
     private static final String TAG = ViewSlideshowActivity.class.getName();
 
     private Album mAlbum;
@@ -110,6 +113,8 @@ public class ViewSlideshowActivity extends Activity
         mThisPhoto = mNextPhoto;
         mNextPhoto = null;
 
+        hideSplashScreenIfVisible();
+
         // Show the image we've just retrieved.
         KenBurnsView imageViewport = (KenBurnsView) findViewById(R.id.image_viewport);
         Bitmap imageBitmap = BitmapFactory.decodeFile(imageFilePath);
@@ -170,6 +175,25 @@ public class ViewSlideshowActivity extends Activity
         getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_PHOTO_OBJ, mNextPhoto);
         getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_RECEIVER, mReceiver);
         startService(getBitmapIntent);
+    }
+
+    /**
+     * Hides the splash screen if it's visible.
+     */
+    private void hideSplashScreenIfVisible() {
+        final View splashScreen = findViewById(R.id.photo_splash_screen);
+
+        if (splashScreen.getVisibility() == View.VISIBLE) {
+            splashScreen.animate()
+                    .alpha(0f)
+                    .setDuration(SPLASH_SCREEN_FADE_OUT_MS)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            splashScreen.setVisibility(View.GONE);
+                        }
+            });
+        }
     }
 
     /**

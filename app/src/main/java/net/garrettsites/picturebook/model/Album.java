@@ -85,10 +85,7 @@ public class Album implements Parcelable {
         dest.writeString(mCreatedTime.toString());
         dest.writeString(mUpdatedTime.toString());
         dest.writeString(mId);
-
         dest.writeList(mPhotos);
-        /*Photo[] photos = (Photo[]) mPhotos.toArray();
-        dest.writeTypedArray(photos, flags);*/
     }
 
     public static final Parcelable.Creator<Album> CREATOR = new Parcelable.Creator<Album>() {

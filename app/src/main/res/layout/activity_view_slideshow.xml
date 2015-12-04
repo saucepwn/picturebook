@@ -10,9 +10,8 @@
     <LinearLayout
         android:id="@+id/photo_details_layout"
         android:layout_width="match_parent"
-        android:layout_marginTop="@dimen/view_slideshow_bottom_bar_size_negative"
         android:layout_height="@dimen/view_slideshow_bottom_bar_size"
-        android:layout_below="@id/image_viewport"
+        android:layout_alignParentBottom="true"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:background="@android:color/transparent">
@@ -74,9 +73,21 @@
             android:paddingStart="@dimen/view_slideshow_bottom_bar_element_margin"
             android:paddingEnd="@dimen/view_slideshow_bottom_bar_element_margin"
             android:gravity="center_vertical"
+            android:maxLines="3"
             android:ellipsize="end"
             style="@style/PictureBook.MediumTextAppearance"
             android:background="@android:color/holo_orange_dark"/>
+
+    </LinearLayout>
+
+    <!-- Splash screen -->
+    <LinearLayout
+        android:id="@+id/photo_splash_screen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:background="@android:color/black">
 
     </LinearLayout>
 

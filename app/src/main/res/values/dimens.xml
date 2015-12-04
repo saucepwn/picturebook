@@ -9,5 +9,4 @@
 
     <!-- The following two are defined in sp since the container primarily holds text, and we want to scale it with the text. -->
     <dimen name="view_slideshow_bottom_bar_size">75sp</dimen>
-    <dimen name="view_slideshow_bottom_bar_size_negative">-75sp</dimen>
 </resources>
