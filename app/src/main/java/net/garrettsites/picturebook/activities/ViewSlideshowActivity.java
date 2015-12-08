@@ -28,6 +28,7 @@ import net.garrettsites.picturebook.services.GetAllPhotoMetadataService;
 import net.garrettsites.picturebook.services.GetPhotoBitmapService;
 import net.garrettsites.picturebook.util.ChooseRandomAlbum;
 import net.garrettsites.picturebook.util.PhotoOrder;
+import net.garrettsites.picturebook.util.PhotoTagsTransitionGenerator;
 import net.garrettsites.picturebook.util.RandomPhotoOrder;
 import net.garrettsites.picturebook.util.SequentialPhotoOrder;
 
@@ -94,39 +95,9 @@ public class ViewSlideshowActivity extends Activity implements
         mHandler.removeCallbacks(this);
     }
 
-    private void populateUiWithPhotoInfo(Photo photo) {
-        TextView photoDescription = (TextView) findViewById(R.id.photo_description);
-        TextView photoTimeAgo = (TextView) findViewById(R.id.photo_time_ago);
-        TextView photoPlaceName = (TextView) findViewById(R.id.photo_place_name);
-        TextView photoOrder = (TextView) findViewById(R.id.photo_album_photo_count);
-
-        // photo {num} of {num}.
-        String numPhotosStr = getString(R.string.photo_var_of_var, photo.getOrder(), mAlbum.getPhotos().size());
-        photoOrder.setText(numPhotosStr);
-
-        // Uploader's comment of this photo.
-        if (photo.getName() == null || photo.getName().length() == 0) {
-            photoDescription.setVisibility(View.INVISIBLE);
-        } else {
-            photoDescription.setText(photo.getName());
-            photoDescription.setVisibility(View.VISIBLE);
-        }
-
-        // {age} days/months/years ago.
-        photoTimeAgo.setText(formatTimeSincePhotoCreated(photo.getTimeElapsedSinceCreated()));
-
-        // The name of the place where the photo was taken.
-        if (photo.getPlaceName() == null || photo.getPlaceName().length() == 0) {
-            photoPlaceName.setVisibility(View.GONE);
-        } else {
-            photoPlaceName.setText(getString(R.string.at_var, photo.getPlaceName()));
-            photoPlaceName.setVisibility(View.VISIBLE);
-        }
-    }
-
     @Override
     public void run() {
-        loadNewPhoto();
+        beginLoadNewPhoto();
     }
 
     /**
@@ -243,7 +214,7 @@ public class ViewSlideshowActivity extends Activity implements
         }
         ((TextView) findViewById(R.id.photo_album_name)).setText(albumName);
 
-        loadNewPhoto();
+        beginLoadNewPhoto();
     }
 
     /**
@@ -251,7 +222,7 @@ public class ViewSlideshowActivity extends Activity implements
      * either acquire the photo from Facebook (using the internet) or locally from cache. The act
      * of retrieving the photo happens on a background thread.
      */
-    private void loadNewPhoto() {
+    private void beginLoadNewPhoto() {
         Log.v(TAG, "Begin load new photo");
         mNextPhoto = mAlbum.getPhotos().get(mPhotoOrder.getNextPhotoIdx());
 
@@ -273,9 +244,7 @@ public class ViewSlideshowActivity extends Activity implements
             hideSplashScreenIfVisible();
 
             // Show the image we've just retrieved.
-            KenBurnsView imageViewport = (KenBurnsView) findViewById(R.id.image_viewport);
-            Bitmap imageBitmap = BitmapFactory.decodeFile(imageFilePath);
-            imageViewport.setImageBitmap(imageBitmap);
+            setupKenBurnsTransition(imageFilePath);
 
             // Populate the UI with additional photo information.
             populateUiWithPhotoInfo(mThisPhoto);
@@ -283,6 +252,47 @@ public class ViewSlideshowActivity extends Activity implements
 
         // Queue up another photo.
         mHandler.postDelayed(this, UserPreferences.getPhotoDelaySeconds() * 1000);
+    }
+
+    private void setupKenBurnsTransition(String imageFilePath) {
+        KenBurnsView kbv = (KenBurnsView) findViewById(R.id.image_viewport);
+
+        Bitmap imageBitmap = BitmapFactory.decodeFile(imageFilePath);
+        kbv.setImageBitmap(imageBitmap);
+
+        PhotoTagsTransitionGenerator generator = new PhotoTagsTransitionGenerator(
+                UserPreferences.getPhotoDelaySeconds() * 1000, mThisPhoto.getTags());
+        kbv.setTransitionGenerator(generator);
+    }
+
+    private void populateUiWithPhotoInfo(Photo photo) {
+        TextView photoDescription = (TextView) findViewById(R.id.photo_description);
+        TextView photoTimeAgo = (TextView) findViewById(R.id.photo_time_ago);
+        TextView photoPlaceName = (TextView) findViewById(R.id.photo_place_name);
+        TextView photoOrder = (TextView) findViewById(R.id.photo_album_photo_count);
+
+        // photo {num} of {num}.
+        String numPhotosStr = getString(R.string.photo_var_of_var, photo.getOrder(), mAlbum.getPhotos().size());
+        photoOrder.setText(numPhotosStr);
+
+        // Uploader's comment of this photo.
+        if (photo.getName() == null || photo.getName().length() == 0) {
+            photoDescription.setVisibility(View.INVISIBLE);
+        } else {
+            photoDescription.setText(photo.getName());
+            photoDescription.setVisibility(View.VISIBLE);
+        }
+
+        // {age} days/months/years ago.
+        photoTimeAgo.setText(formatTimeSincePhotoCreated(photo.getTimeElapsedSinceCreated()));
+
+        // The name of the place where the photo was taken.
+        if (photo.getPlaceName() == null || photo.getPlaceName().length() == 0) {
+            photoPlaceName.setVisibility(View.GONE);
+        } else {
+            photoPlaceName.setText(getString(R.string.at_var, photo.getPlaceName()));
+            photoPlaceName.setVisibility(View.VISIBLE);
+        }
     }
     /**
      * END sequence
