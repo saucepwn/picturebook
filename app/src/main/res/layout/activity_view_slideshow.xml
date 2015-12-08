@@ -3,7 +3,13 @@
     android:layout_width="match_parent" android:layout_height="match_parent">
 
     <com.flaviofaria.kenburnsview.KenBurnsView
-        android:id="@+id/image_viewport"
+        android:id="@+id/image_viewport_1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <com.flaviofaria.kenburnsview.KenBurnsView
+        android:id="@+id/image_viewport_2"
+        android:alpha="0"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

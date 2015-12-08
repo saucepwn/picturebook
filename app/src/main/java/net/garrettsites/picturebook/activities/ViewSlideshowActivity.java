@@ -47,12 +47,16 @@ public class ViewSlideshowActivity extends Activity implements
 
     private static final int ALBUM_TITLE_MAX_CHARS = 50;
     private static final int SPLASH_SCREEN_FADE_OUT_MS = 300;
+    private static final int PHOTO_TRANSITION_MS = 750;
     private static final String TAG = ViewSlideshowActivity.class.getName();
 
     private Album mAlbum;
     private PhotoOrder mPhotoOrder;
     private Photo mNextPhoto;
     private Photo mThisPhoto;
+
+    private KenBurnsView mActiveKenBurnsView;
+    private KenBurnsView mBackgroundKenBurnsView;
 
     private Handler mHandler = new Handler();
     private GetPhotoBitmapReceiver mPhotoBitmapReceiver = new GetPhotoBitmapReceiver(mHandler);
@@ -71,6 +75,9 @@ public class ViewSlideshowActivity extends Activity implements
         // Hook up the receiver from the GetPhotoBitmap service.
         mPhotoBitmapReceiver = new GetPhotoBitmapReceiver(mHandler);
         mPhotoBitmapReceiver.setReceiver(this);
+
+        mActiveKenBurnsView = (KenBurnsView) findViewById(R.id.image_viewport_1);
+        mBackgroundKenBurnsView = (KenBurnsView) findViewById(R.id.image_viewport_2);
 
         beginRetrieveAlbumSequence();
     }
@@ -255,14 +262,35 @@ public class ViewSlideshowActivity extends Activity implements
     }
 
     private void setupKenBurnsTransition(String imageFilePath) {
-        KenBurnsView kbv = (KenBurnsView) findViewById(R.id.image_viewport);
 
         Bitmap imageBitmap = BitmapFactory.decodeFile(imageFilePath);
-        kbv.setImageBitmap(imageBitmap);
+        mBackgroundKenBurnsView.setImageBitmap(imageBitmap);
 
         PhotoTagsTransitionGenerator generator = new PhotoTagsTransitionGenerator(
                 UserPreferences.getPhotoDelaySeconds() * 1000, mThisPhoto.getTags());
-        kbv.setTransitionGenerator(generator);
+
+        mBackgroundKenBurnsView.setTransitionGenerator(generator);
+
+        // Fade the background ken burns view into the foreground, and the foreground into the bkgd.
+        mBackgroundKenBurnsView.setVisibility(View.VISIBLE);
+        mBackgroundKenBurnsView.animate()
+                .alpha(1f)
+                .setDuration(PHOTO_TRANSITION_MS);
+
+        mActiveKenBurnsView.animate()
+                .alpha(0f)
+                .setDuration(PHOTO_TRANSITION_MS)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mBackgroundKenBurnsView.setVisibility(View.INVISIBLE);
+                    }
+                });
+
+        // Swap the KenBurnsViews in memory.
+        KenBurnsView temp = mActiveKenBurnsView;
+        mActiveKenBurnsView = mBackgroundKenBurnsView;
+        mBackgroundKenBurnsView = temp;
     }
 
     private void populateUiWithPhotoInfo(Photo photo) {
