@@ -12,6 +12,7 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 
 import net.garrettsites.picturebook.model.Photo;
+import net.garrettsites.picturebook.model.Tag;
 
 import org.joda.time.DateTime;
 import org.json.JSONArray;
@@ -96,14 +97,6 @@ public class GetAllPhotoMetadataService extends IntentService {
                     e.printStackTrace();
                 }
 
-                String placeName = null;
-                if (thisPhoto.has("place")) {
-                    JSONObject placeJsonObj = thisPhoto.getJSONObject("place");
-                    if (placeJsonObj.has("name")) {
-                        placeName = placeJsonObj.getString("name");
-                    }
-                }
-
                 Photo photo = new Photo(
                         id,
                         i + 1, // order
@@ -114,9 +107,36 @@ public class GetAllPhotoMetadataService extends IntentService {
                         postUrl,
                         createdTime);
 
+                String placeName = null;
+                if (thisPhoto.has("place")) {
+                    JSONObject placeJsonObj = thisPhoto.getJSONObject("place");
+                    if (placeJsonObj.has("name")) {
+                        placeName = placeJsonObj.getString("name");
+                    }
+                }
+
                 if (placeName != null) {
                     photo.setPlaceName(placeName);
                 }
+
+                ArrayList<Tag> tags = new ArrayList<>();
+                if (thisPhoto.has("tags")) {
+                    JSONArray tagsArray = thisPhoto.getJSONObject("tags").getJSONArray("data");
+
+                    for (int j = 0; j < tagsArray.length(); j++) {
+                        JSONObject thisTag = tagsArray.getJSONObject(j);
+
+                        String taggedUserId = thisTag.getString("id");
+                        String taggedUserName = thisTag.getString("name");
+                        DateTime tagCreated = new DateTime(thisTag.getString("created_time"));
+                        double tagX = thisTag.getDouble("x");
+                        double tagY = thisTag.getDouble("y");
+
+                        tags.add(new Tag(taggedUserId, taggedUserName, tagCreated, tagX, tagY));
+                    }
+                }
+
+                photo.setTags(tags);
 
                 mAllPhotos.add(photo);
             }

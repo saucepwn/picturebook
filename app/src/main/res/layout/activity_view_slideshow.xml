@@ -23,6 +23,7 @@
             android:paddingEnd="@dimen/view_slideshow_bottom_bar_element_margin"
             android:orientation="vertical"
             android:gravity="center"
+            android:alpha="0.85"
             android:background="@android:color/black">
 
             <TextView
@@ -48,6 +49,7 @@
             android:paddingEnd="@dimen/view_slideshow_bottom_bar_element_margin"
             android:orientation="vertical"
             android:gravity="center"
+            android:alpha="0.85"
             android:background="@android:color/holo_purple">
 
             <TextView
@@ -75,6 +77,7 @@
             android:gravity="center_vertical"
             android:maxLines="3"
             android:ellipsize="end"
+            android:alpha="0.85"
             style="@style/PictureBook.MediumTextAppearance"
             android:background="@android:color/holo_orange_dark"/>
 

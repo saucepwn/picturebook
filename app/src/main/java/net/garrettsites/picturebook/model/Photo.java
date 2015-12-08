@@ -8,6 +8,7 @@ import org.joda.time.Period;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * Created by Garrett on 11/28/2015.
@@ -22,6 +23,8 @@ public class Photo implements Parcelable {
     private URL mImageUrl;
     private URL mPostUrl;
     private DateTime mCreatedTime;
+
+    private ArrayList<Tag> mTags;
 
     public Photo(String id, int order, String name, String uploadedBy, String uploadedById, URL imageUrl, URL postUrl, DateTime createdTime) {
         this.mId = id;
@@ -55,6 +58,7 @@ public class Photo implements Parcelable {
         }
 
         mCreatedTime = new DateTime(in.readString());
+        mTags = in.readArrayList(getClass().getClassLoader());
     }
 
     public String getId() {
@@ -101,6 +105,14 @@ public class Photo implements Parcelable {
         return mCreatedTime;
     }
 
+    public ArrayList<Tag> getTags() {
+        return mTags;
+    }
+
+    public void setTags(ArrayList<Tag> tags) {
+        mTags = tags;
+    }
+
     /**
      * @return The duration between when the photo was uploaded, and now.
      */
@@ -124,6 +136,8 @@ public class Photo implements Parcelable {
         dest.writeString(mImageUrl.toString());
         dest.writeString(mPostUrl.toString());
         dest.writeString(mCreatedTime.toString());
+
+        dest.writeList(mTags);
     }
 
     public static final Parcelable.Creator<Photo> CREATOR = new Parcelable.Creator<Photo>() {
