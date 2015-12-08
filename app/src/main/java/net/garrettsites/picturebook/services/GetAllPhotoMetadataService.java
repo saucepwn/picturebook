@@ -99,7 +99,7 @@ public class GetAllPhotoMetadataService extends IntentService {
 
                 Photo photo = new Photo(
                         id,
-                        i + 1, // order
+                        mAllPhotos.size() + 1, // order
                         name,
                         uploadedBy,
                         uploadedById,
