@@ -17,9 +17,10 @@
         android:onClick="startSlideshow"
         android:text="Start Slideshow" />
 
-    <TextView
-        android:id="@+id/status_textview"
+    <fragment
+        android:name="net.garrettsites.picturebook.fragments.SleepScheduleConfig"
+        android:id="@+id/fragment_sleep_schedule_included_in_main"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Status goes here" />
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

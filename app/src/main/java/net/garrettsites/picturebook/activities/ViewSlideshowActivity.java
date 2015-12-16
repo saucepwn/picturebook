@@ -45,7 +45,7 @@ public class ViewSlideshowActivity extends Activity implements
         GetAllAlbumsReceiver.Receiver,
         GetAllPhotoMetadataReceiver.Receiver {
 
-    private static final int ALBUM_TITLE_MAX_CHARS = 50;
+    private static final int ALBUM_TITLE_MAX_CHARS = 40;
     private static final int SPLASH_SCREEN_FADE_OUT_MS = 300;
     private static final int PHOTO_TRANSITION_MS = 750;
     private static final String TAG = ViewSlideshowActivity.class.getName();
