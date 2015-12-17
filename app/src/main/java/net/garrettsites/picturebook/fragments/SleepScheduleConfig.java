@@ -1,21 +1,17 @@
 package net.garrettsites.picturebook.fragments;
 
-import android.app.AlarmManager;
 import android.app.Fragment;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.TimePicker;
+import android.widget.ToggleButton;
 
 import net.garrettsites.picturebook.R;
-import net.garrettsites.picturebook.receivers.StartSlideshowBroadcastReceiver;
-
-import java.util.Calendar;
+import net.garrettsites.picturebook.model.UserPreferences;
+import net.garrettsites.picturebook.util.Wakeitizer;
 
 public class SleepScheduleConfig extends Fragment {
 
@@ -23,6 +19,7 @@ public class SleepScheduleConfig extends Fragment {
 
     private TimePicker mWakeTimePicker;
     private TimePicker mSleepTimePicker;
+    private ToggleButton mSleepWakeEnable;
 
     /**
      * Required empty public constructor.
@@ -31,39 +28,54 @@ public class SleepScheduleConfig extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sleep_schedule_config, container, false);
-        final Context context = inflater.getContext();
 
         mWakeTimePicker = (TimePicker) view.findViewById(R.id.wake_time_picker);
         mSleepTimePicker = (TimePicker) view.findViewById(R.id.sleep_time_picker);
+        mSleepWakeEnable = (ToggleButton) view.findViewById(R.id.sleep_wake_enable);
+
+        // Set UI controls to their values from config.
+        mSleepWakeEnable.setChecked(UserPreferences.isSleeperWakerEnabled());
+
+        mWakeTimePicker.setCurrentHour(UserPreferences.getWakeTimeHour());
+        mWakeTimePicker.setCurrentMinute(UserPreferences.getWakeTimeMinute());
+
+        mSleepTimePicker.setCurrentHour(UserPreferences.getSleepTimeHour());
+        mSleepTimePicker.setCurrentMinute(UserPreferences.getSleepTimeMinute());
+
+        // Add listeners to the UI controls.
+        mSleepWakeEnable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                UserPreferences.setEnableSleeperWaker(isChecked);
+                Wakeitizer waker = Wakeitizer.getInstance(buttonView.getContext().getApplicationContext());
+
+                if (isChecked) {
+                    // Enable the sleeper & waker.
+                    int wakeHour = UserPreferences.getWakeTimeHour();
+                    int wakeMinute = UserPreferences.getWakeTimeMinute();
+
+                    waker.setDailyWakeTime(wakeHour, wakeMinute);
+                } else {
+                    // Disable the sleeper & waker.
+                    waker.cancelWaker();
+                }
+            }
+        });
 
         // Update the app's alarm to wake the device at a given time each day.
         mWakeTimePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
             public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-                // RTC_WAKEUP
-                AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                PendingIntent alarmIntent;
+                UserPreferences.setWakeTime(hourOfDay, minute);
 
-                Intent startSlideshowIntent = new Intent(context, StartSlideshowBroadcastReceiver.class);
-                alarmIntent = PendingIntent.getBroadcast(context, 0, startSlideshowIntent, 0);
-
-                // Set the alarm to start at the user's specified time.
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                calendar.set(Calendar.MINUTE, minute);
-
-                // Set an alarm with a 24 hour repeating window.
-                alarmMgr.setInexactRepeating(
-                        AlarmManager.RTC_WAKEUP,
-                        calendar.getTimeInMillis(),
-                        AlarmManager.INTERVAL_DAY,
-                        alarmIntent);
-
-                Log.i(TAG, "Setting wake alarm for " + hourOfDay + ":" + minute);
+                if (mSleepWakeEnable.isChecked()) {
+                    Wakeitizer waker =
+                            Wakeitizer.getInstance(inflater.getContext().getApplicationContext());
+                    waker.setDailyWakeTime(hourOfDay, minute);
+                }
             }
         });
 
