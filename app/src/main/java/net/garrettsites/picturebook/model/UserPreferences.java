@@ -1,70 +1,97 @@
 package net.garrettsites.picturebook.model;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 /**
  * Created by Garrett on 11/28/2015.
  */
 public class UserPreferences {
-    // TODO: Hook all these up to SharedPreferences
-    private static int mPhotoDelaySeconds = 10;
-    private static boolean mRandomizePhotoOrder = false;
+    private static final String SHARED_PREFS_NAME = "picturebook.preferences";
 
-    // Default wake time: 6:30am
-    private static int mWakeTimeHour = 6;
-    private static int mWakeTimeMinute = 0;
+    private static final String KEY_PHOTO_DELAY = "photo_delay_sec";
+    private static final String KEY_RANDOMIZE_PHOTO_ORDER = "randomize_photo_order";
+    private static final String KEY_WAKE_TIME_HOUR = "wake_time_hour";
+    private static final String KEY_WAKE_TIME_MINUTE = "wake_time_minute";
+    private static final String KEY_SLEEP_TIME_HOUR = "sleep_time_hour";
+    private static final String KEY_SLEEP_TIME_MINUTE = "sleep_time_minute";
+    private static final String KEY_ENABLE_SLEEPER_WAKER = "enable_sleeper_waker";
 
-    // Default sleep time: 11:30pm
-    private static int mSleepTimeHour = 23;
-    private static int mSleepTimeMinute = 30;
+    private Context mAppContext;
 
-    private static boolean mEnableSleeperWaker = false;
-
-    public static void setPhotoDelaySeconds(int photoDelaySeconds) {
-        mPhotoDelaySeconds = photoDelaySeconds;
+    public UserPreferences(Context appContext) {
+        mAppContext = appContext;
     }
 
-    public static int getPhotoDelaySeconds() {
-        return mPhotoDelaySeconds;
+    public void setPhotoDelaySeconds(int photoDelaySeconds) {
+        getEditor().putInt(KEY_PHOTO_DELAY, photoDelaySeconds).apply();
     }
 
-    public static void setRandomizePhotoOrder(boolean randomizePhotoOrder) {
-        mRandomizePhotoOrder = randomizePhotoOrder;
+    public int getPhotoDelaySeconds() {
+        return getSharedPrefs().getInt(KEY_PHOTO_DELAY, 10);
     }
 
-    public static boolean getRandomizePhotoOrder() {
-        return mRandomizePhotoOrder;
+    public void setRandomizePhotoOrder(boolean randomizePhotoOrder) {
+        getEditor().putBoolean(KEY_RANDOMIZE_PHOTO_ORDER, randomizePhotoOrder).apply();
     }
 
-    public static void setWakeTime(int wakeTimeHour, int wakeTimeMinute) {
-        mWakeTimeHour = wakeTimeHour;
-        mWakeTimeMinute = wakeTimeMinute;
+    public boolean getRandomizePhotoOrder() {
+        return getSharedPrefs().getBoolean(KEY_RANDOMIZE_PHOTO_ORDER, false);
     }
 
-    public static int getWakeTimeHour() {
-        return mWakeTimeHour;
+    public void setWakeTime(int wakeTimeHour, int wakeTimeMinute) {
+        SharedPreferences.Editor editor = getEditor();
+
+        editor.putInt(KEY_WAKE_TIME_HOUR, wakeTimeHour);
+        editor.putInt(KEY_WAKE_TIME_MINUTE, wakeTimeMinute);
+
+        editor.apply();
     }
 
-    public static int getWakeTimeMinute() {
-        return mWakeTimeMinute;
+    public int getWakeTimeHour() {
+        return getSharedPrefs().getInt(KEY_WAKE_TIME_HOUR, 6);
     }
 
-    public static void setSleepTime(int sleepTimeHour, int sleepTimeMinute) {
-        mSleepTimeHour = sleepTimeHour;
-        mSleepTimeMinute = sleepTimeMinute;
+    public int getWakeTimeMinute() {
+        return getSharedPrefs().getInt(KEY_WAKE_TIME_MINUTE, 0);
     }
 
-    public static int getSleepTimeHour() {
-        return mSleepTimeHour;
+    public void setSleepTime(int sleepTimeHour, int sleepTimeMinute) {
+        SharedPreferences.Editor editor = getEditor();
+
+        editor.putInt(KEY_SLEEP_TIME_HOUR, sleepTimeHour);
+        editor.putInt(KEY_SLEEP_TIME_MINUTE, sleepTimeMinute);
+
+        editor.apply();
     }
 
-    public static int getSleepTimeMinute() {
-        return mSleepTimeMinute;
+    public int getSleepTimeHour() {
+        return getSharedPrefs().getInt(KEY_SLEEP_TIME_HOUR, 23);
     }
 
-    public static void setEnableSleeperWaker(boolean enableSleeperWaker) {
-        mEnableSleeperWaker = enableSleeperWaker;
+    public int getSleepTimeMinute() {
+        return getSharedPrefs().getInt(KEY_SLEEP_TIME_MINUTE, 30);
     }
 
-    public static boolean isSleeperWakerEnabled() {
-        return mEnableSleeperWaker;
+    public void setEnableSleeperWaker(boolean enableSleeperWaker) {
+        getEditor().putBoolean(KEY_ENABLE_SLEEPER_WAKER, enableSleeperWaker).apply();
+    }
+
+    public boolean isSleeperWakerEnabled() {
+        return getSharedPrefs().getBoolean(KEY_ENABLE_SLEEPER_WAKER, false);
+    }
+
+    /**
+     * @return The SharedPreferences.Editor object for the app's preferences.
+     */
+    private SharedPreferences.Editor getEditor() {
+        return getSharedPrefs().edit();
+    }
+
+    /**
+     * @return The app's SharedPreferences object where configuration is stored.
+     */
+    private SharedPreferences getSharedPrefs() {
+        return mAppContext.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
     }
 }

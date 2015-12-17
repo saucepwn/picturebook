@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.flaviofaria.kenburnsview.KenBurnsView;
 
+import net.garrettsites.picturebook.PicturebookApplication;
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.Photo;
@@ -61,6 +62,8 @@ public class ViewSlideshowActivity extends Activity implements
     private Handler mHandler = new Handler();
     private GetPhotoBitmapReceiver mPhotoBitmapReceiver = new GetPhotoBitmapReceiver(mHandler);
 
+    private UserPreferences mUserPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +82,8 @@ public class ViewSlideshowActivity extends Activity implements
         mActiveKenBurnsView = (KenBurnsView) findViewById(R.id.image_viewport_1);
         mBackgroundKenBurnsView = (KenBurnsView) findViewById(R.id.image_viewport_2);
 
+        mUserPreferences = ((PicturebookApplication) getApplication()).preferences;
+
         beginRetrieveAlbumSequence();
     }
 
@@ -92,7 +97,7 @@ public class ViewSlideshowActivity extends Activity implements
         decorView.setSystemUiVisibility(uiOptions);
 
         if (mAlbum != null) {
-            mHandler.postDelayed(this, UserPreferences.getPhotoDelaySeconds() * 1000);
+            mHandler.postDelayed(this, mUserPreferences.getPhotoDelaySeconds() * 1000);
         }
     }
 
@@ -203,7 +208,7 @@ public class ViewSlideshowActivity extends Activity implements
         mAlbum.setPhotos(photos);
 
         // Create the ordering scheme for the photos.
-        if (UserPreferences.getRandomizePhotoOrder()) {
+        if (mUserPreferences.getRandomizePhotoOrder()) {
             mPhotoOrder = new RandomPhotoOrder(mAlbum.getPhotos().size());
         } else {
             mPhotoOrder = new SequentialPhotoOrder(mAlbum.getPhotos().size());
@@ -258,7 +263,7 @@ public class ViewSlideshowActivity extends Activity implements
         }
 
         // Queue up another photo.
-        mHandler.postDelayed(this, UserPreferences.getPhotoDelaySeconds() * 1000);
+        mHandler.postDelayed(this, mUserPreferences.getPhotoDelaySeconds() * 1000);
     }
 
     private void setupKenBurnsTransition(String imageFilePath) {
@@ -267,7 +272,7 @@ public class ViewSlideshowActivity extends Activity implements
         mBackgroundKenBurnsView.setImageBitmap(imageBitmap);
 
         PhotoTagsTransitionGenerator generator = new PhotoTagsTransitionGenerator(
-                UserPreferences.getPhotoDelaySeconds() * 1000, mThisPhoto.getTags());
+                mUserPreferences.getPhotoDelaySeconds() * 1000, mThisPhoto.getTags());
 
         mBackgroundKenBurnsView.setTransitionGenerator(generator);
 

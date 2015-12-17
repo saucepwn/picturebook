@@ -9,6 +9,7 @@ import android.widget.CompoundButton;
 import android.widget.TimePicker;
 import android.widget.ToggleButton;
 
+import net.garrettsites.picturebook.PicturebookApplication;
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.model.UserPreferences;
 import net.garrettsites.picturebook.util.Wakeitizer;
@@ -32,30 +33,34 @@ public class SleepScheduleConfig extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sleep_schedule_config, container, false);
 
+        // Get user preferences
+        final UserPreferences userPreferences =
+                ((PicturebookApplication) getActivity().getApplication()).preferences;
+
         mWakeTimePicker = (TimePicker) view.findViewById(R.id.wake_time_picker);
         mSleepTimePicker = (TimePicker) view.findViewById(R.id.sleep_time_picker);
         mSleepWakeEnable = (ToggleButton) view.findViewById(R.id.sleep_wake_enable);
 
         // Set UI controls to their values from config.
-        mSleepWakeEnable.setChecked(UserPreferences.isSleeperWakerEnabled());
+        mSleepWakeEnable.setChecked(userPreferences.isSleeperWakerEnabled());
 
-        mWakeTimePicker.setCurrentHour(UserPreferences.getWakeTimeHour());
-        mWakeTimePicker.setCurrentMinute(UserPreferences.getWakeTimeMinute());
+        mWakeTimePicker.setCurrentHour(userPreferences.getWakeTimeHour());
+        mWakeTimePicker.setCurrentMinute(userPreferences.getWakeTimeMinute());
 
-        mSleepTimePicker.setCurrentHour(UserPreferences.getSleepTimeHour());
-        mSleepTimePicker.setCurrentMinute(UserPreferences.getSleepTimeMinute());
+        mSleepTimePicker.setCurrentHour(userPreferences.getSleepTimeHour());
+        mSleepTimePicker.setCurrentMinute(userPreferences.getSleepTimeMinute());
 
         // Add listeners to the UI controls.
         mSleepWakeEnable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                UserPreferences.setEnableSleeperWaker(isChecked);
+                userPreferences.setEnableSleeperWaker(isChecked);
                 Wakeitizer waker = Wakeitizer.getInstance(buttonView.getContext().getApplicationContext());
 
                 if (isChecked) {
                     // Enable the sleeper & waker.
-                    int wakeHour = UserPreferences.getWakeTimeHour();
-                    int wakeMinute = UserPreferences.getWakeTimeMinute();
+                    int wakeHour = userPreferences.getWakeTimeHour();
+                    int wakeMinute = userPreferences.getWakeTimeMinute();
 
                     waker.setDailyWakeTime(wakeHour, wakeMinute);
                 } else {
@@ -69,7 +74,7 @@ public class SleepScheduleConfig extends Fragment {
         mWakeTimePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
             public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-                UserPreferences.setWakeTime(hourOfDay, minute);
+                userPreferences.setWakeTime(hourOfDay, minute);
 
                 if (mSleepWakeEnable.isChecked()) {
                     Wakeitizer waker =
