@@ -13,7 +13,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Turn on and turn off at specified times?" />
+            android:text="Do you want to turn the picture frame on and turn off at specified times?" />
 
         <ToggleButton
             android:id="@+id/sleep_wake_enable"
@@ -23,38 +23,60 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="0.5"
-        android:orientation="horizontal">
+        android:id="@+id/edit_sleep_wake_time_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Turn on:"/>
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:orientation="horizontal">
 
-        <TimePicker
-            android:id="@+id/wake_time_picker"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Every day, turn on the picture frame at: "/>
+
+            <TextView
+                android:id="@+id/wake_time_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"/>
+
+            <Button
+                android:id="@+id/edit_wake_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Change time" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:orientation="horizontal">
 
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Every day, turn off the picture frame at: "/>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="0.5"
-        android:orientation="horizontal">
+            <TextView
+                android:id="@+id/sleep_time_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Turn off:"/>
+            <Button
+                android:id="@+id/edit_sleep_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Change time"/>
 
-        <TimePicker
-            android:id="@+id/sleep_time_picker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        </LinearLayout>
 
     </LinearLayout>
 
