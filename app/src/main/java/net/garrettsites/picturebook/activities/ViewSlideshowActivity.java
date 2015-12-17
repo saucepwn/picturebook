@@ -190,7 +190,9 @@ public class ViewSlideshowActivity extends Activity implements
     }
 
     private void callGetAllPhotoMetadataService() {
-        ((TextView) findViewById(R.id.splash_screen_loading_details)).setText(R.string.getting_photo_details);
+        String albumName = getResources().getString(R.string.getting_photo_details, mAlbum.getName());
+        ((TextView) findViewById(R.id.splash_screen_loading_details)).setText(albumName);
+
         GetAllPhotoMetadataReceiver allPhotosReceiver = new GetAllPhotoMetadataReceiver(mHandler);
         allPhotosReceiver.setReceiver(this);
 
