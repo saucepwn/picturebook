@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.facebook.FacebookSdk;
-
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.receivers.StartSlideshowBroadcastReceiver;
 
@@ -15,8 +13,6 @@ public class MainActivity extends PictureBookActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        FacebookSdk.sdkInitialize(getApplicationContext());
     }
 
     /**

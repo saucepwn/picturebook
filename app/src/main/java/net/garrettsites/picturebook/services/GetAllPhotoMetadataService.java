@@ -5,6 +5,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -28,6 +29,7 @@ import java.util.Locale;
  * Created by Garrett on 11/28/2015.
  */
 public class GetAllPhotoMetadataService extends IntentService {
+    private static final String TAG = GetAllPhotoMetadataService.class.getName();
 
     public static final String ARG_RECEIVER = "receiverTag";
     public static final String ARG_ALBUM_ID = "albumId";
@@ -126,13 +128,17 @@ public class GetAllPhotoMetadataService extends IntentService {
                     for (int j = 0; j < tagsArray.length(); j++) {
                         JSONObject thisTag = tagsArray.getJSONObject(j);
 
-                        String taggedUserId = thisTag.getString("id");
-                        String taggedUserName = thisTag.getString("name");
-                        DateTime tagCreated = new DateTime(thisTag.getString("created_time"));
-                        double tagX = thisTag.getDouble("x");
-                        double tagY = thisTag.getDouble("y");
+                        try {
+                            String taggedUserId = thisTag.getString("id");
+                            String taggedUserName = thisTag.getString("name");
+                            DateTime tagCreated = new DateTime(thisTag.getString("created_time"));
+                            double tagX = thisTag.getDouble("x");
+                            double tagY = thisTag.getDouble("y");
 
-                        tags.add(new Tag(taggedUserId, taggedUserName, tagCreated, tagX, tagY));
+                            tags.add(new Tag(taggedUserId, taggedUserName, tagCreated, tagX, tagY));
+                        } catch (JSONException e) {
+                            Log.w(TAG, "Could not add tag for photo with ID: " + photo.getId(), e);
+                        }
                     }
                 }
 
