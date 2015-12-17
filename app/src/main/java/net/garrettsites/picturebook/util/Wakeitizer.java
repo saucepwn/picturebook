@@ -59,6 +59,7 @@ public class Wakeitizer {
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
         calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
 
         // Set an alarm with a 24 hour repeating window.
         mAlarmManager.setRepeating(
