@@ -165,6 +165,10 @@ public class SleepScheduleConfig extends Fragment implements View.OnClickListene
         StringBuilder str = new StringBuilder();
         str.append(hour);
         str.append(":");
+
+        if (minute < 10)
+            str.append("0");
+
         str.append(minute);
         str.append(" ");
 
