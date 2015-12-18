@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 
 import net.garrettsites.picturebook.receivers.StartSlideshowBroadcastReceiver;
@@ -61,13 +62,23 @@ public class Wakeitizer {
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, 0);
 
-        // Set an alarm with a 24 hour repeating window.
-        mAlarmManager.setRepeating(
-                AlarmManager.RTC_WAKEUP,
-                calendar.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY,
-                mWakerIntent);
+        // If the alarm is to be set for sometime in the past, set it for tomorrow.
+        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+            calendar.add(Calendar.DATE, 1);
+        }
 
-        Log.i(TAG, "Setting wake alarm for " + hourOfDay + ":" + minute);
+        // Set an alarm with a 24 hour repeating window.
+        if (Build.VERSION.SDK_INT >= 19) {
+            mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mWakerIntent);
+        } else {
+            mAlarmManager.set(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(),
+                    mWakerIntent);
+        }
+
+        Log.i(TAG, "Setting wake alarm for " + hourOfDay + ":" + minute + " on " +
+                (calendar.get(Calendar.MONTH) + 1) + "/" +
+                calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.YEAR));
     }
 }
