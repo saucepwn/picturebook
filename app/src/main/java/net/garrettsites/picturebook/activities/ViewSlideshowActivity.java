@@ -32,6 +32,7 @@ import net.garrettsites.picturebook.util.PhotoOrder;
 import net.garrettsites.picturebook.util.PhotoTagsTransitionGenerator;
 import net.garrettsites.picturebook.util.RandomPhotoOrder;
 import net.garrettsites.picturebook.util.SequentialPhotoOrder;
+import net.garrettsites.picturebook.util.Sleepitizer;
 
 import org.joda.time.Period;
 
@@ -59,6 +60,7 @@ public class ViewSlideshowActivity extends Activity implements
     private KenBurnsView mActiveKenBurnsView;
     private KenBurnsView mBackgroundKenBurnsView;
 
+    private Sleepitizer mSleeper = new Sleepitizer();
     private Handler mHandler = new Handler();
     private GetPhotoBitmapReceiver mPhotoBitmapReceiver = new GetPhotoBitmapReceiver(mHandler);
 
@@ -99,6 +101,11 @@ public class ViewSlideshowActivity extends Activity implements
         if (mAlbum != null) {
             mHandler.postDelayed(this, mUserPreferences.getPhotoDelaySeconds() * 1000);
         }
+
+        if (mUserPreferences.isSleeperWakerEnabled()) {
+            mSleeper.setDailySleepTime(
+                    mUserPreferences.getSleepTimeHour(), mUserPreferences.getSleepTimeMinute());
+        }
     }
 
     @Override
@@ -109,7 +116,14 @@ public class ViewSlideshowActivity extends Activity implements
 
     @Override
     public void run() {
-        beginLoadNewPhoto();
+        // Check if we should put the device to sleep (by finishing the activity).
+        if (mSleeper.timeToSleep()) {
+            Log.i(TAG, "Finishing slideshow per user's configuration.");
+            mHandler.removeCallbacks(this);
+            finish();
+        } else {
+            beginLoadNewPhoto();
+        }
     }
 
     /**
