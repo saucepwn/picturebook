@@ -27,14 +27,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.AccountsActivity"
-            android:label="@string/title_activity_accounts"
-            android:parentActivityName=".activities.MainActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
-        </activity>
-        <activity
             android:name=".activities.ViewSlideshowActivity"
             android:label="Slideshow"
             android:screenOrientation="sensorLandscape"
@@ -44,11 +36,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
-        </activity>
-        <activity
-            android:name=".activities.FacebookLoginActivity"
-            android:label="Log In"
-            android:parentActivityName=".activities.AccountsActivity">
         </activity>
         <activity
             android:name="com.facebook.FacebookActivity"

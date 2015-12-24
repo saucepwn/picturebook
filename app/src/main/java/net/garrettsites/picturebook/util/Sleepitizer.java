@@ -32,6 +32,6 @@ public class Sleepitizer {
      * @return True if the device should go to mSleepTime, false otherwise.
      */
     public boolean timeToSleep() {
-        return System.currentTimeMillis() >= mSleepTime.getMillis();
+        return mSleepTime != null && System.currentTimeMillis() >= mSleepTime.getMillis();
     }
 }

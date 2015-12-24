@@ -25,4 +25,7 @@
     <string name="loading_album">Hang tight! Loading an album for you.</string>
     <string name="getting_all_albums">Getting all albums…</string>
     <string name="getting_photo_details">Getting photo metadata for album: %1$s…</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
