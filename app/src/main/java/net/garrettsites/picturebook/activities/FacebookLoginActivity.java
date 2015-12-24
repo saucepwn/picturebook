@@ -3,6 +3,7 @@ package net.garrettsites.picturebook.activities;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -32,7 +33,7 @@ public class FacebookLoginActivity extends PictureBookActivity {
         setContentView(R.layout.activity_facebook_login);
 
         mCallbackManager = CallbackManager.Factory.create();
-        LoginManager loginManager = LoginManager.getInstance();
+        final LoginManager loginManager = LoginManager.getInstance();
         final Activity self = this;
 
         if (AccessToken.getCurrentAccessToken() == null) {
@@ -63,8 +64,22 @@ public class FacebookLoginActivity extends PictureBookActivity {
             loginManager.logInWithReadPermissions(this, Arrays.asList("user_photos", "public_profile", "user_posts", "user_tagged_places"));
         } else {
             // Log out the user.
-            loginManager.logOut();
-            finish();
+            new AlertDialog.Builder(this).setTitle("Confirm Log Out")
+                    .setMessage("You must have a Facebook account logged in to view slideshows. Are you sure you want to log out?")
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            self.finish();
+                        }
+                    })
+                    .setPositiveButton("Log out", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            loginManager.logOut();
+                            self.finish();
+                        }
+                    })
+                    .show();
         }
 
         // Go back to the previous activity if the user clicks "next".

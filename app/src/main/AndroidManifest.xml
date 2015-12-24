@@ -38,6 +38,9 @@
                 android:value=".activities.MainActivity" />
         </activity>
         <activity
+            android:name=".activities.FacebookLoginActivity">
+        </activity>
+        <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"

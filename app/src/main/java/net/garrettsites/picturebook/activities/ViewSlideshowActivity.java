@@ -117,7 +117,7 @@ public class ViewSlideshowActivity extends Activity implements
     @Override
     public void run() {
         // Check if we should put the device to sleep (by finishing the activity).
-        if (mSleeper.timeToSleep()) {
+        if (mUserPreferences.isSleeperWakerEnabled() && mSleeper.timeToSleep()) {
             Log.i(TAG, "Finishing slideshow per user's configuration.");
             mHandler.removeCallbacks(this);
             finish();
