@@ -1,16 +1,8 @@
 package net.garrettsites.picturebook.model;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.util.Log;
 
-import net.garrettsites.picturebook.receivers.BootReceiver;
-
-/**
- * Created by Garrett on 11/28/2015.
- */
 public class UserPreferences {
     private static final String TAG = UserPreferences.class.getName();
 
@@ -82,24 +74,6 @@ public class UserPreferences {
 
     public void setEnableSleeperWaker(boolean enableSleeperWaker) {
         getEditor().putBoolean(KEY_ENABLE_SLEEPER_WAKER, enableSleeperWaker).apply();
-
-        // Enable or disable the boot receiver congruent to the enableSleeperWaker setting.
-        ComponentName receiver = new ComponentName(mAppContext, BootReceiver.class);
-        PackageManager pm = mAppContext.getPackageManager();
-
-        if (enableSleeperWaker) {
-            // Enable the boot broadcast receiver so we can re-set alarm on device reboot.
-            Log.v(TAG, "Enabling boot listener.");
-            pm.setComponentEnabledSetting(receiver,
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                    PackageManager.DONT_KILL_APP);
-        } else {
-            // Disable the boot broadcast receiver since we don't need to re-set alarm.
-            Log.v(TAG, "Disabling boot listener.");
-            pm.setComponentEnabledSetting(receiver,
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                    PackageManager.DONT_KILL_APP);
-        }
     }
 
     public boolean isSleeperWakerEnabled() {
