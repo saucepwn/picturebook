@@ -28,8 +28,10 @@
 
     <!-- Error messages -->
     <string name="error">Uh oh!</string>
+    <string name="ok">OK</string>
 
     <string name="error_no_account">There are no Facebook accounts logged in. Please log in with a Facebook account.</string>
+    <string name="error_no_albums">The logged in account has no photo albums, so we can\'t show you a slideshow :(</string>
 
     <string name="generic_error">An unknown error has occurred.</string>
 </resources>

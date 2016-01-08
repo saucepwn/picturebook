@@ -207,13 +207,12 @@ public class ViewSlideshowActivity extends Activity implements
             callGetAllPhotoMetadataService();
         } else {
             // Show the user an error if we received an error code.
-            ErrorCodes.Error errorCodeEnum = ErrorCodes.Error.values()[errorCode];
             final Activity self = this;
 
-            new AlertDialog.Builder(this).setTitle("Error")
-                    .setMessage(ErrorCodes.getLocalizedErrorStringResource(errorCodeEnum))
+            new AlertDialog.Builder(this).setTitle(R.string.error)
+                    .setMessage(ErrorCodes.getLocalizedErrorStringResource(errorCode))
                     .setIcon(android.R.drawable.stat_notify_error)
-                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                    .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             self.finish();

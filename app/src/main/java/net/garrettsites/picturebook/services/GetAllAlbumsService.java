@@ -40,12 +40,14 @@ public class GetAllAlbumsService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         ResultReceiver receiver = intent.getParcelableExtra(ARG_RECEIVER);
 
+        // Fail with an error code if the user is not logged in.
         if (AccessToken.getCurrentAccessToken() == null) {
             Log.w(TAG, "Tried to start slideshow without logged in Facebook account - aborting.");
+
             Bundle errorBundle = new Bundle();
             errorBundle.putInt("ErrorCode", ErrorCodes.Error.NO_LOGGED_IN_ACCOUNT.ordinal());
 
-            receiver.send(Activity.RESULT_CANCELED, new Bundle());
+            receiver.send(Activity.RESULT_CANCELED, errorBundle);
             return;
         }
 
@@ -60,6 +62,17 @@ public class GetAllAlbumsService extends IntentService {
                 HttpMethod.GET);
 
         executeRequestAndAddAlbumsToList(request);
+
+        // Fail with an error code if the user has no albums.
+        if (allAlbums.size() == 0) {
+            Log.w(TAG, "User has no albums, so we have nothing to display. Aborting.");
+
+            Bundle errorBundle = new Bundle();
+            errorBundle.putInt("ErrorCode", ErrorCodes.Error.NO_ALBUMS.ordinal());
+
+            receiver.send(Activity.RESULT_CANCELED, errorBundle);
+            return;
+        }
 
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList(ARG_ALBUM_ARRAY_LIST, allAlbums);
