@@ -3,6 +3,8 @@ package net.garrettsites.picturebook.activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -19,6 +21,7 @@ import com.flaviofaria.kenburnsview.KenBurnsView;
 import net.garrettsites.picturebook.PicturebookApplication;
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.model.ErrorCodes;
 import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.model.UserPreferences;
 import net.garrettsites.picturebook.receivers.GetAllAlbumsReceiver;
@@ -194,13 +197,29 @@ public class ViewSlideshowActivity extends Activity implements
     }
 
     @Override
-    public void onReceiveAllAlbums(int resultCode, ArrayList<Album> albums) {
-        Log.v(TAG, "Got results from GetAllAlbumsService");
-        ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
-        mAlbum = albumRandomizer.selectRandomAlbum();
+    public void onReceiveAllAlbums(int resultCode, int errorCode, ArrayList<Album> albums) {
+        if (resultCode == Activity.RESULT_OK) {
+            Log.v(TAG, "Got results from GetAllAlbumsService");
+            ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
+            mAlbum = albumRandomizer.selectRandomAlbum();
 
-        // Step 2: Get the photo metadata for all of the photos in this album.
-        callGetAllPhotoMetadataService();
+            // Step 2: Get the photo metadata for all of the photos in this album.
+            callGetAllPhotoMetadataService();
+        } else {
+            // Show the user an error if we received an error code.
+            ErrorCodes.Error errorCodeEnum = ErrorCodes.Error.values()[errorCode];
+            final Activity self = this;
+
+            new AlertDialog.Builder(this).setTitle("Error")
+                    .setMessage(ErrorCodes.getLocalizedErrorStringResource(errorCodeEnum))
+                    .setIcon(android.R.drawable.stat_notify_error)
+                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            self.finish();
+                        }
+                    }).show();
+        }
     }
 
     private void callGetAllPhotoMetadataService() {

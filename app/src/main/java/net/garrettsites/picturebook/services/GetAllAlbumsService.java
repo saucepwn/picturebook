@@ -5,6 +5,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -12,6 +13,7 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 
 import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.model.ErrorCodes;
 
 import org.joda.time.DateTime;
 import org.json.JSONArray;
@@ -24,6 +26,7 @@ import java.util.ArrayList;
  * Created by Garrett on 11/20/2015.
  */
 public class GetAllAlbumsService extends IntentService {
+    private static final String TAG = GetAllAlbumsService.class.getName();
 
     public static final String ARG_RECEIVER = "receiverTag";
     public static final String ARG_ALBUM_ARRAY_LIST = "albums";
@@ -36,6 +39,15 @@ public class GetAllAlbumsService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         ResultReceiver receiver = intent.getParcelableExtra(ARG_RECEIVER);
+
+        if (AccessToken.getCurrentAccessToken() == null) {
+            Log.w(TAG, "Tried to start slideshow without logged in Facebook account - aborting.");
+            Bundle errorBundle = new Bundle();
+            errorBundle.putInt("ErrorCode", ErrorCodes.Error.NO_LOGGED_IN_ACCOUNT.ordinal());
+
+            receiver.send(Activity.RESULT_CANCELED, new Bundle());
+            return;
+        }
 
         Bundle parameters = new Bundle();
         parameters.putString("fields", "type,name,created_time,updated_time,description");

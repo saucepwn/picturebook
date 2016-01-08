@@ -3,7 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_accounts">AccountsActivity</string>
 
-    <string name="facebook_app_id">1599666040283729</string>
+    <string name="facebook_app_id" translatable="false">1599666040283729</string>
 
     <!-- View Slideshow Activity -->
     <string name="photo_var_of_var">photo %1$d of %2$d</string>
@@ -26,6 +26,10 @@
     <string name="getting_all_albums">Getting all albums…</string>
     <string name="getting_photo_details">Getting photo metadata for album: %1$s…</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Error messages -->
+    <string name="error">Uh oh!</string>
+
+    <string name="error_no_account">There are no Facebook accounts logged in. Please log in with a Facebook account.</string>
+
+    <string name="generic_error">An unknown error has occurred.</string>
 </resources>

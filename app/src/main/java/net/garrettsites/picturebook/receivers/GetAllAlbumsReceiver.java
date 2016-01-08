@@ -1,11 +1,12 @@
 package net.garrettsites.picturebook.receivers;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 
-import net.garrettsites.picturebook.services.GetAllAlbumsService;
 import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.services.GetAllAlbumsService;
 
 import java.util.ArrayList;
 
@@ -20,7 +21,7 @@ public class GetAllAlbumsReceiver extends ResultReceiver {
     }
 
     public interface Receiver {
-        void onReceiveAllAlbums(int resultCode, ArrayList<Album> albums);
+        void onReceiveAllAlbums(int resultCode, int errorCode, ArrayList<Album> albums);
     }
 
     public void setReceiver(Receiver receiver) {
@@ -30,9 +31,15 @@ public class GetAllAlbumsReceiver extends ResultReceiver {
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
         if (mReceiver != null) {
-            // Deserialize the parceled version of our album array.
-            ArrayList<Album> albums = resultData.getParcelableArrayList(GetAllAlbumsService.ARG_ALBUM_ARRAY_LIST);
-            mReceiver.onReceiveAllAlbums(resultCode, albums);
+            if (resultCode == Activity.RESULT_OK) {
+                // Deserialize the parceled version of our album array.
+                ArrayList<Album> albums =
+                        resultData.getParcelableArrayList(GetAllAlbumsService.ARG_ALBUM_ARRAY_LIST);
+                mReceiver.onReceiveAllAlbums(resultCode, -1, albums);
+            } else {
+                int errorCode = resultData.getInt("ErrorCode");
+                mReceiver.onReceiveAllAlbums(resultCode, errorCode, null);
+            }
         }
     }
 }
