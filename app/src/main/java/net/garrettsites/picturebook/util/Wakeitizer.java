@@ -63,7 +63,7 @@ public class Wakeitizer {
         calendar.set(Calendar.SECOND, 0);
 
         // If the alarm is to be set for sometime in the past, set it for tomorrow.
-        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+        if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
             calendar.add(Calendar.DATE, 1);
         }
 
