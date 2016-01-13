@@ -29,4 +29,8 @@ public class MainActivity extends PictureBookActivity {
     public void startSlideshow(View view) {
         sendBroadcast(new Intent(this, StartSlideshowBroadcastReceiver.class));
     }
+
+    public void chooseAlbum(View view) {
+        startActivity(new Intent(this, ChooseAlbumActivity.class));
+    }
 }

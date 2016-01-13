@@ -6,11 +6,26 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:onClick="startSlideshow"
-        android:text="Start Slideshow" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:onClick="startSlideshow"
+            android:text="View Random Album" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:onClick="chooseAlbum"
+            android:text="Choose Album" />
+
+    </LinearLayout>
 
     <fragment
         android:name="net.garrettsites.picturebook.fragments.UserFacebookProfile"

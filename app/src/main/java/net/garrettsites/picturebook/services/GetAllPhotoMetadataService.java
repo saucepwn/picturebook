@@ -59,9 +59,15 @@ public class GetAllPhotoMetadataService extends IntentService {
 
         executeRequestAndAddPhotosToList(request);
 
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList(ARG_PHOTOS_METADATA, mAllPhotos);
-        receiver.send(Activity.RESULT_OK, bundle);
+        // This album has no photos, return failure.
+        if (mAllPhotos.size() == 0) {
+            Log.w(TAG, "Album id " + albumId + " has no photos. Failing.");
+            receiver.send(Activity.RESULT_CANCELED, null);
+        } else {
+            Bundle bundle = new Bundle();
+            bundle.putParcelableArrayList(ARG_PHOTOS_METADATA, mAllPhotos);
+            receiver.send(Activity.RESULT_OK, bundle);
+        }
     }
 
     private void executeRequestAndAddPhotosToList(GraphRequest request) {
