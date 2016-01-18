@@ -8,22 +8,21 @@ import android.widget.TextView;
 
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.fragments.ChooseAlbumFragment.OnListFragmentInteractionListener;
-import net.garrettsites.picturebook.fragments.dummy.DummyContent.DummyItem;
+import net.garrettsites.picturebook.model.Album;
 
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link Album} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
  */
 public class ChooseAlbumRecyclerViewAdapter extends RecyclerView.Adapter<ChooseAlbumRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final List<Album> mAlbums;
     private final OnListFragmentInteractionListener mListener;
 
-    public ChooseAlbumRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
-        mValues = items;
+    public ChooseAlbumRecyclerViewAdapter(List<Album> albums, OnListFragmentInteractionListener listener) {
+        mAlbums = albums;
         mListener = listener;
     }
 
@@ -36,9 +35,9 @@ public class ChooseAlbumRecyclerViewAdapter extends RecyclerView.Adapter<ChooseA
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.mAlbum = mAlbums.get(position);
+        holder.mIdView.setText(mAlbums.get(position).getId());
+        holder.mAlbumNameView.setText(mAlbums.get(position).getName());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,7 +45,7 @@ public class ChooseAlbumRecyclerViewAdapter extends RecyclerView.Adapter<ChooseA
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
+                    mListener.onListFragmentInteraction(holder.mAlbum);
                 }
             }
         });
@@ -54,25 +53,25 @@ public class ChooseAlbumRecyclerViewAdapter extends RecyclerView.Adapter<ChooseA
 
     @Override
     public int getItemCount() {
-        return mValues.size();
+        return mAlbums.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mIdView;
-        public final TextView mContentView;
-        public DummyItem mItem;
+        public final TextView mAlbumNameView;
+        public Album mAlbum;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mIdView = (TextView) view.findViewById(R.id.id);
-            mContentView = (TextView) view.findViewById(R.id.content);
+            mAlbumNameView = (TextView) view.findViewById(R.id.choose_album_album_name);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '" + mAlbumNameView.getText() + "'";
         }
     }
 }
