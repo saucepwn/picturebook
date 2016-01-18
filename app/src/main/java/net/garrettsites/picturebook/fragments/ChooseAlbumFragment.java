@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -86,12 +85,7 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
 
         // Set the adapter
         mRecyclerView = (RecyclerView) view;
-
-        if (mColumnCount <= 1) {
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        } else {
-            mRecyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), mColumnCount));
-        }
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
         return view;
     }

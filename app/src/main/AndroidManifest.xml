@@ -38,7 +38,8 @@
                 android:value=".activities.MainActivity" />
         </activity>
         <activity
-            android:name=".activities.ChooseAlbumActivity">
+            android:name=".activities.ChooseAlbumActivity"
+            android:label="@string/choose_album">
         </activity>
         <activity
             android:name=".activities.FacebookLoginActivity">
