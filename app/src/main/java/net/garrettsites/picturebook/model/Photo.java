@@ -4,7 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -111,13 +110,6 @@ public class Photo implements Parcelable {
 
     public void setTags(ArrayList<Tag> tags) {
         mTags = tags;
-    }
-
-    /**
-     * @return The duration between when the photo was uploaded, and now.
-     */
-    public Period getTimeElapsedSinceCreated() {
-        return new Period(getCreatedTime(), DateTime.now());
     }
 
     @Override

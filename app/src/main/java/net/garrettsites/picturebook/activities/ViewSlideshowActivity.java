@@ -37,6 +37,8 @@ import net.garrettsites.picturebook.util.RandomPhotoOrder;
 import net.garrettsites.picturebook.util.SequentialPhotoOrder;
 import net.garrettsites.picturebook.util.Sleepitizer;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
@@ -162,17 +164,20 @@ public class ViewSlideshowActivity extends Activity implements
     /**
      * Given a Period representing the time between when a photo was taken and now, this method
      * formats a string to show the user the amount of time that's elapsed during the Period.
-     * @param period How much time has elapsed.
+     * @param from The beginning of the time span.
+     * @param to The end of the time span.
      * @return A formatted string for the UI.
      */
-    private String formatTimeSincePhotoCreated(Period period) {
+    private String formatTimeSincePhotoCreated(DateTime from, DateTime to) {
         Resources r = getResources();
 
-        if (period.getYears() != 0) {
-            int years = period.getYears();
+        int years = Math.abs(to.get(DateTimeFieldType.year()) - from.get(DateTimeFieldType.year()));
+        if (years > 0) {
             return r.getQuantityString(R.plurals.var_years_ago, years, years);
+        }
 
-        } else if (period.getMonths() != 0) {
+        Period period = new Period(from, to);
+        if (period.getMonths() != 0) {
             int months = period.getMonths();
             return r.getQuantityString(R.plurals.var_months_ago, months, months);
 
@@ -369,7 +374,7 @@ public class ViewSlideshowActivity extends Activity implements
         }
 
         // {age} days/months/years ago.
-        photoTimeAgo.setText(formatTimeSincePhotoCreated(photo.getTimeElapsedSinceCreated()));
+        photoTimeAgo.setText(formatTimeSincePhotoCreated(photo.getCreatedTime(), DateTime.now()));
 
         // The name of the place where the photo was taken.
         if (photo.getPlaceName() == null || photo.getPlaceName().length() == 0) {
