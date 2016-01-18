@@ -20,7 +20,7 @@ public class Sleepitizer {
         calendar.set(Calendar.SECOND, 0);
 
         // If the time to sleep has occurred in the past, increment our mSleepTime timer to the next day.
-        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+        if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
             calendar.add(Calendar.DATE, 1);
         }
 

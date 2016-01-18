@@ -7,11 +7,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 import net.garrettsites.picturebook.cache.PhotoDiskCache;
 import net.garrettsites.picturebook.model.Photo;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -19,6 +21,7 @@ import java.net.URL;
  * Created by Garrett on 11/28/2015.
  */
 public class GetPhotoBitmapService extends IntentService {
+    private static final String TAG = GetPhotoBitmapService.class.getName();
 
     // Calling arguments
     public static final String ARG_RECEIVER = "receiverTag";
@@ -48,10 +51,12 @@ public class GetPhotoBitmapService extends IntentService {
         if (mCache.doesPhotoExist(fbImageId)) {
             // Photo exists in cache. Serve from cache.
             imageLocation = mCache.getReadablePhotoFile(fbImageId);
+            Log.v(TAG, "Getting photo from cache.");
         } else {
             // Photo does not exist in cache. Get from network, save to cache, then serve from cache.
             URL fbImageUrl = photo.getImageUrl();
             Bitmap photoBitmap = getBitmapFromInternet(fbImageUrl);
+            Log.v(TAG, "Getting photo from internet. Saving to cache.");
 
             imageLocation = mCache.savePhotoToCache(fbImageId, photoBitmap);
         }
@@ -74,7 +79,7 @@ public class GetPhotoBitmapService extends IntentService {
         try {
             InputStream in = (InputStream) photoUrl.getContent();
             return BitmapFactory.decodeStream(in);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

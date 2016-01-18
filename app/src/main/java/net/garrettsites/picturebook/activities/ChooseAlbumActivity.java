@@ -1,6 +1,7 @@
 package net.garrettsites.picturebook.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 import net.garrettsites.picturebook.R;
@@ -20,6 +21,10 @@ public class ChooseAlbumActivity extends Activity
 
     @Override
     public void onListFragmentInteraction(Album album) {
+        // Start ViewSlideshowActivity with the album argument.
+        Intent i = new Intent(this, ViewSlideshowActivity.class);
+        i.putExtra(ViewSlideshowActivity.ARG_ALBUM, album);
 
+        startActivity(i);
     }
 }

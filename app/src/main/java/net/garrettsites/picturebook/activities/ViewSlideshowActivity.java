@@ -57,7 +57,7 @@ public class ViewSlideshowActivity extends Activity implements
     private static final int PHOTO_TRANSITION_MS = 750;
     private static final String TAG = ViewSlideshowActivity.class.getName();
 
-    private Album mAlbum;
+    private Album mAlbum = null;
     private PhotoOrder mPhotoOrder;
     private Photo mNextPhoto;
     private Photo mThisPhoto;
@@ -98,10 +98,7 @@ public class ViewSlideshowActivity extends Activity implements
         Album albumToShow = getIntent().getParcelableExtra(ARG_ALBUM);
         if (albumToShow != null) {
             // Display the album that we've been passed.
-            setAlbum(albumToShow);
-        } else {
-            // Find a random album to display.
-            beginRetrieveAlbumSequence();
+            mAlbum = albumToShow;
         }
     }
 
@@ -114,8 +111,16 @@ public class ViewSlideshowActivity extends Activity implements
         int uiOptions = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
         decorView.setSystemUiVisibility(uiOptions);
 
-        if (mAlbum != null) {
-            mHandler.postDelayed(this, mUserPreferences.getPhotoDelaySeconds() * 1000);
+        if (mAlbum == null) {
+            // If we have no album at all, get a random album then populate its photos.
+            beginRetrieveAlbumSequence();
+        } else if (mAlbum.getPhotos() == null) {
+            // If we have an Album object but no photos, call getAllPhotoMetadataService to populate
+            // the photos.
+            callGetAllPhotoMetadataService();
+        } else {
+            // If we have an Album object with photos, begin displaying photos.
+            run();
         }
 
         if (mUserPreferences.isSleeperWakerEnabled()) {
@@ -292,14 +297,14 @@ public class ViewSlideshowActivity extends Activity implements
      * of retrieving the photo happens on a background thread.
      */
     private void beginLoadNewPhoto() {
-        Log.v(TAG, "Begin load new photo");
         mNextPhoto = mAlbum.getPhotos().get(mPhotoOrder.getNextPhotoIdx());
+        Log.v(TAG, "Begin load new photo ID: " + mNextPhoto.getId());
 
         Intent getBitmapIntent = new Intent(this, GetPhotoBitmapService.class);
         getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_PHOTO_OBJ, mNextPhoto);
         getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_RECEIVER, mPhotoBitmapReceiver);
         startService(getBitmapIntent);
-        Log.v(TAG, "End load new photo");
+        Log.v(TAG, "End loading photo: " + mNextPhoto.getId());
     }
 
     @Override
@@ -317,6 +322,8 @@ public class ViewSlideshowActivity extends Activity implements
 
             // Populate the UI with additional photo information.
             populateUiWithPhotoInfo(mThisPhoto);
+        } else {
+            Log.e(TAG, "Did not get RESULT_OK from GetPhotoBitmapService, photo ID: " + mNextPhoto.getId());
         }
 
         // Queue up another photo.
