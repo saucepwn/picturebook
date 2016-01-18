@@ -3,6 +3,8 @@ package net.garrettsites.picturebook.activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -19,6 +21,7 @@ import com.flaviofaria.kenburnsview.KenBurnsView;
 import net.garrettsites.picturebook.PicturebookApplication;
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.model.ErrorCodes;
 import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.model.UserPreferences;
 import net.garrettsites.picturebook.receivers.GetAllAlbumsReceiver;
@@ -66,6 +69,8 @@ public class ViewSlideshowActivity extends Activity implements
 
     private UserPreferences mUserPreferences;
 
+    public static final String ARG_ALBUM = "album";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,7 +91,16 @@ public class ViewSlideshowActivity extends Activity implements
 
         mUserPreferences = ((PicturebookApplication) getApplication()).preferences;
 
-        beginRetrieveAlbumSequence();
+        // If an album was passed to this activity, display it. Otherwise, choose a random album
+        // to show.
+        Album albumToShow = getIntent().getParcelableExtra(ARG_ALBUM);
+        if (albumToShow != null) {
+            // Display the album that we've been passed.
+            setAlbum(albumToShow);
+        } else {
+            // Find a random album to display.
+            beginRetrieveAlbumSequence();
+        }
     }
 
     @Override
@@ -194,13 +208,26 @@ public class ViewSlideshowActivity extends Activity implements
     }
 
     @Override
-    public void onReceiveAllAlbums(int resultCode, ArrayList<Album> albums) {
-        Log.v(TAG, "Got results from GetAllAlbumsService");
-        ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
-        mAlbum = albumRandomizer.selectRandomAlbum();
+    public void onReceiveAllAlbums(int resultCode, int errorCode, ArrayList<Album> albums) {
+        if (resultCode == Activity.RESULT_OK) {
+            Log.v(TAG, "Got results from GetAllAlbumsService");
+            ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
 
-        // Step 2: Get the photo metadata for all of the photos in this album.
-        callGetAllPhotoMetadataService();
+            setAlbum(albumRandomizer.selectRandomAlbum());
+        } else {
+            // Show the user an error if we received an error code.
+            final Activity self = this;
+
+            new AlertDialog.Builder(this).setTitle(R.string.error)
+                    .setMessage(ErrorCodes.getLocalizedErrorStringResource(errorCode))
+                    .setIcon(android.R.drawable.stat_notify_error)
+                    .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            self.finish();
+                        }
+                    }).show();
+        }
     }
 
     private void callGetAllPhotoMetadataService() {
@@ -221,6 +248,15 @@ public class ViewSlideshowActivity extends Activity implements
     @Override
     public void onReceiveAllPhotoMetadata(int resultCode, ArrayList<Photo> photos) {
         Log.v(TAG, "Got results from GetAllPhotoMetadataService");
+
+        if (resultCode != Activity.RESULT_OK) {
+            Log.e(TAG, "Error retrieving photo metadata for album: " + mAlbum.getName() +
+                    ". Randomly choosing another album.");
+
+            beginRetrieveAlbumSequence();
+            return;
+        }
+
         mAlbum.setPhotos(photos);
 
         // Create the ordering scheme for the photos.
@@ -346,4 +382,16 @@ public class ViewSlideshowActivity extends Activity implements
     /**
      * END sequence
      */
+
+    /**
+     * Sets the active album for this Slideshow. It then calls callGetAllPhotoMetadataService in
+     * order to populate this album's photo metadata.
+     * @param album The album to show.
+     */
+    private void setAlbum(Album album) {
+        mAlbum = album;
+
+        // Get the photo metadata for all of the photos in this album.
+        callGetAllPhotoMetadataService();
+    }
 }

@@ -38,6 +38,9 @@
                 android:value=".activities.MainActivity" />
         </activity>
         <activity
+            android:name=".activities.ChooseAlbumActivity">
+        </activity>
+        <activity
             android:name=".activities.FacebookLoginActivity">
         </activity>
         <activity
@@ -47,7 +50,7 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <service
-            android:name=".services.GetAlbumAndStartSlideshowService"
+            android:name=".services.StartSlideshowService"
             android:exported="false" />
         <service
             android:name=".services.GetAllAlbumsService"

@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import net.garrettsites.picturebook.activities.ViewSlideshowActivity;
+import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.receivers.StartSlideshowBroadcastReceiver;
 
 /**
@@ -11,16 +12,24 @@ import net.garrettsites.picturebook.receivers.StartSlideshowBroadcastReceiver;
  * the photos, and start the ViewSlideshowActivity with the album. All of the below methods are
  * called IN ORDER. Please keep that in mind when editing this file.
  */
-public class GetAlbumAndStartSlideshowService extends IntentService {
-    private static final String TAG = GetAlbumAndStartSlideshowService.class.getName();
+public class StartSlideshowService extends IntentService {
+    private static final String TAG = StartSlideshowService.class.getName();
 
-    public GetAlbumAndStartSlideshowService() {
-        super(GetAlbumAndStartSlideshowService.class.getName());
+    public static final String ARG_ALBUM = "album";
+
+    public StartSlideshowService() {
+        super(StartSlideshowService.class.getName());
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         Intent viewSlideshowActivity = new Intent(getApplicationContext(), ViewSlideshowActivity.class);
+
+        if (intent.getParcelableExtra(ARG_ALBUM) != null) {
+            Album album = intent.getParcelableExtra(ARG_ALBUM);
+            viewSlideshowActivity.putExtra(ViewSlideshowActivity.ARG_ALBUM, album);
+        }
+
         viewSlideshowActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(viewSlideshowActivity);
 

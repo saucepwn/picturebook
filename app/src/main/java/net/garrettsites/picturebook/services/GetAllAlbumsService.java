@@ -5,6 +5,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -12,6 +13,7 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 
 import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.model.ErrorCodes;
 
 import org.joda.time.DateTime;
 import org.json.JSONArray;
@@ -24,6 +26,7 @@ import java.util.ArrayList;
  * Created by Garrett on 11/20/2015.
  */
 public class GetAllAlbumsService extends IntentService {
+    private static final String TAG = GetAllAlbumsService.class.getName();
 
     public static final String ARG_RECEIVER = "receiverTag";
     public static final String ARG_ALBUM_ARRAY_LIST = "albums";
@@ -37,6 +40,17 @@ public class GetAllAlbumsService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         ResultReceiver receiver = intent.getParcelableExtra(ARG_RECEIVER);
 
+        // Fail with an error code if the user is not logged in.
+        if (AccessToken.getCurrentAccessToken() == null) {
+            Log.w(TAG, "Tried to start slideshow without logged in Facebook account - aborting.");
+
+            Bundle errorBundle = new Bundle();
+            errorBundle.putInt("ErrorCode", ErrorCodes.Error.NO_LOGGED_IN_ACCOUNT.ordinal());
+
+            receiver.send(Activity.RESULT_CANCELED, errorBundle);
+            return;
+        }
+
         Bundle parameters = new Bundle();
         parameters.putString("fields", "type,name,created_time,updated_time,description");
         parameters.putString("limit", "50");
@@ -48,6 +62,17 @@ public class GetAllAlbumsService extends IntentService {
                 HttpMethod.GET);
 
         executeRequestAndAddAlbumsToList(request);
+
+        // Fail with an error code if the user has no albums.
+        if (allAlbums.size() == 0) {
+            Log.w(TAG, "User has no albums, so we have nothing to display. Aborting.");
+
+            Bundle errorBundle = new Bundle();
+            errorBundle.putInt("ErrorCode", ErrorCodes.Error.NO_ALBUMS.ordinal());
+
+            receiver.send(Activity.RESULT_CANCELED, errorBundle);
+            return;
+        }
 
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList(ARG_ALBUM_ARRAY_LIST, allAlbums);

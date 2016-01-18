@@ -2,19 +2,15 @@ package net.garrettsites.picturebook.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginBehavior;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
@@ -61,7 +57,7 @@ public class FacebookLoginActivity extends PictureBookActivity {
                 }
             });
             
-            loginManager.logInWithReadPermissions(this, Arrays.asList("user_photos", "public_profile", "user_posts", "user_tagged_places"));
+            loginManager.logInWithReadPermissions(this, Arrays.asList("user_photos", "public_profile", "user_tagged_places"));
         } else {
             // Log out the user.
             new AlertDialog.Builder(this).setTitle("Confirm Log Out")
