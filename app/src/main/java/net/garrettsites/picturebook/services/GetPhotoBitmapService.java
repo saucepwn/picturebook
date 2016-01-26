@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
 
+import com.microsoft.applicationinsights.library.TelemetryClient;
+
 import net.garrettsites.picturebook.cache.PhotoDiskCache;
 import net.garrettsites.picturebook.model.Photo;
 
@@ -16,12 +18,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
 
 /**
  * Created by Garrett on 11/28/2015.
  */
 public class GetPhotoBitmapService extends IntentService {
     private static final String TAG = GetPhotoBitmapService.class.getName();
+    private TelemetryClient mLogger = TelemetryClient.getInstance();
 
     // Calling arguments
     public static final String ARG_RECEIVER = "receiverTag";
@@ -77,9 +81,17 @@ public class GetPhotoBitmapService extends IntentService {
      */
     private Bitmap getBitmapFromInternet(URL photoUrl) {
         try {
+            long start = System.currentTimeMillis();
             InputStream in = (InputStream) photoUrl.getContent();
+            long end = System.currentTimeMillis();
+
+            HashMap<String, String> properties = new HashMap<>();
+            properties.put("Path", photoUrl.getPath());
+            mLogger.trackMetric("FacebookQuery", (double) (end - start), properties);
+
             return BitmapFactory.decodeStream(in);
         } catch (IOException e) {
+            mLogger.trackHandledException(e);
             e.printStackTrace();
         }
 

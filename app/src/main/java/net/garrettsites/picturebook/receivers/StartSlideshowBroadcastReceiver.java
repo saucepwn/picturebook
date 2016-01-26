@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
+import com.microsoft.applicationinsights.library.TelemetryClient;
+
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.UserPreferences;
 import net.garrettsites.picturebook.services.StartSlideshowService;
@@ -21,6 +23,9 @@ public class StartSlideshowBroadcastReceiver extends WakefulBroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        TelemetryClient logger = TelemetryClient.getInstance();
+
+        logger.trackEvent("StartSlideshowBroadcastReceiver received broadcast.");
         Log.i(TAG, "Received broadcast, starting StartSlideshowService");
 
         Intent startSlideshowServiceIntent = new Intent(context, StartSlideshowService.class);

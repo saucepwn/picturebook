@@ -27,7 +27,7 @@ public class Photo implements Parcelable {
 
     public Photo(String id, int order, String name, String uploadedBy, String uploadedById, URL imageUrl, URL postUrl, DateTime createdTime) {
         this.mId = id;
-        this.mOrder= order;
+        this.mOrder = order;
         this.mName = name;
         this.mUploadedBy = uploadedBy;
         this.mUploadedById = uploadedById;

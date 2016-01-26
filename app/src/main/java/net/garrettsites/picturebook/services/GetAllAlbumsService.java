@@ -11,6 +11,7 @@ import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
+import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.ErrorCodes;
@@ -21,12 +22,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Garrett on 11/20/2015.
  */
 public class GetAllAlbumsService extends IntentService {
     private static final String TAG = GetAllAlbumsService.class.getName();
+    private TelemetryClient mLogger = TelemetryClient.getInstance();
 
     public static final String ARG_RECEIVER = "receiverTag";
     public static final String ARG_ALBUM_ARRAY_LIST = "albums";
@@ -43,6 +46,7 @@ public class GetAllAlbumsService extends IntentService {
         // Fail with an error code if the user is not logged in.
         if (AccessToken.getCurrentAccessToken() == null) {
             Log.w(TAG, "Tried to start slideshow without logged in Facebook account - aborting.");
+            mLogger.trackEvent("WARN: GetAllAlbumsService called without a Facebook account.");
 
             Bundle errorBundle = new Bundle();
             errorBundle.putInt("ErrorCode", ErrorCodes.Error.NO_LOGGED_IN_ACCOUNT.ordinal());
@@ -62,6 +66,7 @@ public class GetAllAlbumsService extends IntentService {
                 HttpMethod.GET);
 
         executeRequestAndAddAlbumsToList(request);
+        mLogger.trackMetric("NumAlbums", allAlbums.size());
 
         // Fail with an error code if the user has no albums.
         if (allAlbums.size() == 0) {
@@ -80,7 +85,13 @@ public class GetAllAlbumsService extends IntentService {
     }
 
     private void executeRequestAndAddAlbumsToList(GraphRequest request) {
+        long start = System.currentTimeMillis();
         GraphResponse response = request.executeAndWait();
+        long end = System.currentTimeMillis();
+
+        HashMap<String, String> properties = new HashMap<>();
+        properties.put("Path", request.getGraphPath());
+        mLogger.trackMetric("FacebookQuery", (double) (end - start), properties);
 
         try {
             JSONArray albumListJson = response.getJSONObject().getJSONArray("data");
@@ -103,6 +114,7 @@ public class GetAllAlbumsService extends IntentService {
                 allAlbums.add(album);
             }
         } catch (JSONException e) {
+            mLogger.trackHandledException(e);
             e.printStackTrace();
         }
 

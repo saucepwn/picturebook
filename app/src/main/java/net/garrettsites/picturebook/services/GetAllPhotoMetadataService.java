@@ -11,6 +11,7 @@ import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
+import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.model.Tag;
@@ -23,6 +24,7 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -30,6 +32,7 @@ import java.util.Locale;
  */
 public class GetAllPhotoMetadataService extends IntentService {
     private static final String TAG = GetAllPhotoMetadataService.class.getName();
+    private TelemetryClient mLogger = TelemetryClient.getInstance();
 
     public static final String ARG_RECEIVER = "receiverTag";
     public static final String ARG_ALBUM_ID = "albumId";
@@ -71,7 +74,13 @@ public class GetAllPhotoMetadataService extends IntentService {
     }
 
     private void executeRequestAndAddPhotosToList(GraphRequest request) {
+        long start = System.currentTimeMillis();
         GraphResponse response = request.executeAndWait();
+        long end = System.currentTimeMillis();
+
+        HashMap<String, String> properties = new HashMap<>();
+        properties.put("Path", request.getGraphPath());
+        mLogger.trackMetric("FacebookQuery", (double) (end - start), properties);
 
         try {
             JSONArray photosListJson = response.getJSONObject().getJSONArray("data");
@@ -95,6 +104,7 @@ public class GetAllPhotoMetadataService extends IntentService {
                 try {
                     imageUrl = new URL(imageUrlStr);
                 } catch (MalformedURLException e) {
+                    mLogger.trackHandledException(e);
                     e.printStackTrace();
                 }
 
@@ -102,6 +112,7 @@ public class GetAllPhotoMetadataService extends IntentService {
                 try {
                     postUrl = new URL(postUrlStr);
                 } catch (MalformedURLException e) {
+                    mLogger.trackHandledException(e);
                     e.printStackTrace();
                 }
 
@@ -143,6 +154,7 @@ public class GetAllPhotoMetadataService extends IntentService {
 
                             tags.add(new Tag(taggedUserId, taggedUserName, tagCreated, tagX, tagY));
                         } catch (JSONException e) {
+                            mLogger.trackHandledException(e);
                             Log.w(TAG, "Could not add tag for photo with ID: " + photo.getId(), e);
                         }
                     }
@@ -153,6 +165,7 @@ public class GetAllPhotoMetadataService extends IntentService {
                 mAllPhotos.add(photo);
             }
         } catch (JSONException e) {
+            mLogger.trackHandledException(e);
             e.printStackTrace();
         }
 

@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
 
+import com.microsoft.applicationinsights.library.TelemetryClient;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -20,6 +22,7 @@ public class PhotoDiskCache {
     private final int JpegQualityLevel = 75;
 
     private Context mAppContext;
+    private TelemetryClient mLogger = TelemetryClient.getInstance();
 
     public PhotoDiskCache(Context appContext) {
         mAppContext = appContext;
@@ -51,6 +54,7 @@ public class PhotoDiskCache {
         try {
             outputStream = new FileOutputStream(writeLocation);
         } catch (FileNotFoundException e) {
+            mLogger.trackHandledException(e);
             e.printStackTrace();
         }
 
@@ -59,6 +63,7 @@ public class PhotoDiskCache {
         try {
             outputStream.close();
         } catch (IOException e) {
+            mLogger.trackHandledException(e);
             e.printStackTrace();
         }
 

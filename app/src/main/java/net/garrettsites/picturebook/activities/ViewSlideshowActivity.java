@@ -17,6 +17,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.flaviofaria.kenburnsview.KenBurnsView;
+import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.PicturebookApplication;
 import net.garrettsites.picturebook.R;
@@ -70,6 +71,7 @@ public class ViewSlideshowActivity extends Activity implements
     private GetPhotoBitmapReceiver mPhotoBitmapReceiver = new GetPhotoBitmapReceiver(mHandler);
 
     private UserPreferences mUserPreferences;
+    private TelemetryClient mLogger = TelemetryClient.getInstance();
 
     public static final String ARG_ALBUM = "album";
 
@@ -139,7 +141,7 @@ public class ViewSlideshowActivity extends Activity implements
     public void run() {
         // Check if we should put the device to sleep (by finishing the activity).
         if (mUserPreferences.isSleeperWakerEnabled() && mSleeper.timeToSleep()) {
-            Log.i(TAG, "Finishing slideshow per user's configuration.");
+            mLogger.trackEvent("Sleeper finishing ViewSlideshowActivity");
             mHandler.removeCallbacks(this);
             finish();
         } else {
@@ -201,7 +203,7 @@ public class ViewSlideshowActivity extends Activity implements
      */
     protected void beginRetrieveAlbumSequence() {
         // Step 1: Get the metadata for all of this user's Facebook albums.
-        Log.i(TAG, "Starting retrieve album sequence");
+        Log.v(TAG, "Starting retrieve album sequence");
         callGetAllAlbumsService();
     }
 
@@ -226,10 +228,13 @@ public class ViewSlideshowActivity extends Activity implements
             setAlbum(albumRandomizer.selectRandomAlbum());
         } else {
             // Show the user an error if we received an error code.
-            final Activity self = this;
+            int errorStringResourceId = ErrorCodes.getLocalizedErrorStringResource(errorCode);
+            String errorString = getResources().getString(errorStringResourceId);
+            mLogger.trackManagedException("ReceiveAllAlbumsError", errorString, "", false);
 
+            final Activity self = this;
             new AlertDialog.Builder(this).setTitle(R.string.error)
-                    .setMessage(ErrorCodes.getLocalizedErrorStringResource(errorCode))
+                    .setMessage(errorString)
                     .setIcon(android.R.drawable.stat_notify_error)
                     .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
@@ -260,8 +265,11 @@ public class ViewSlideshowActivity extends Activity implements
         Log.v(TAG, "Got results from GetAllPhotoMetadataService");
 
         if (resultCode != Activity.RESULT_OK) {
-            Log.e(TAG, "Error retrieving photo metadata for album: " + mAlbum.getName() +
-                    ". Randomly choosing another album.");
+            String errorStr = "Error retrieving photo metadata for album: " + mAlbum.getName() +
+                    ". Randomly choosing another album.";
+
+            mLogger.trackManagedException("ReceiveAllPhotoMetadataError", errorStr, "", true);
+            Log.e(TAG, errorStr);
 
             beginRetrieveAlbumSequence();
             return;
@@ -323,7 +331,11 @@ public class ViewSlideshowActivity extends Activity implements
             // Populate the UI with additional photo information.
             populateUiWithPhotoInfo(mThisPhoto);
         } else {
-            Log.e(TAG, "Did not get RESULT_OK from GetPhotoBitmapService, photo ID: " + mNextPhoto.getId());
+            String errorStr = "Did not get RESULT_OK from GetPhotoBitmapService, photo ID: " +
+                    mNextPhoto.getId();
+
+            mLogger.trackManagedException("ReceivePhotoBitmapError", errorStr, "", true);
+            Log.e(TAG, errorStr);
         }
 
         // Queue up another photo.

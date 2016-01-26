@@ -7,9 +7,12 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
+import com.microsoft.applicationinsights.library.TelemetryClient;
+
 import net.garrettsites.picturebook.receivers.StartSlideshowBroadcastReceiver;
 
 import java.util.Calendar;
+import java.util.HashMap;
 
 /**
  * Created by Garrett on 12/15/2015.
@@ -20,6 +23,7 @@ public class Wakeitizer {
 
     private AlarmManager mAlarmManager;
     private PendingIntent mWakerIntent;
+    private TelemetryClient mLogger = TelemetryClient.getInstance();
 
     private Context mAppContext;
 
@@ -43,9 +47,11 @@ public class Wakeitizer {
     public void cancelWaker() {
         if (mAlarmManager != null) {
             mAlarmManager.cancel(mWakerIntent);
-            Log.i(TAG, "Cancelling wake alarm.");
+            mLogger.trackEvent("Cancelling Wake Alarm");
+            Log.i(TAG, "Cancelling wake alarm");
         } else {
-            Log.w(TAG, "Could not cancel wake alarm, mAlarmManager is null.");
+            mLogger.trackEvent("Could not cancel wake alarm, mAlarmManager is null");
+            Log.w(TAG, "Could not cancel wake alarm, mAlarmManager is null");
         }
     }
 
@@ -77,8 +83,15 @@ public class Wakeitizer {
                     mWakerIntent);
         }
 
-        Log.i(TAG, "Setting wake alarm for " + hourOfDay + ":" + minute + " on " +
+        String logStr = "Setting wake alarm for " + hourOfDay + ":" + minute + " on " +
                 (calendar.get(Calendar.MONTH) + 1) + "/" +
-                calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.YEAR));
+                calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.YEAR);
+
+        HashMap<String, String> properties = new HashMap<>();
+        properties.put("WakeTime", calendar.toString());
+        properties.put("String", logStr);
+        mLogger.trackEvent("Setting wake alarm", properties);
+
+        Log.i(TAG, logStr);
     }
 }

@@ -1,14 +1,18 @@
 package net.garrettsites.picturebook.util;
 
+import com.microsoft.applicationinsights.library.TelemetryClient;
+
 import org.joda.time.DateTime;
 
 import java.util.Calendar;
+import java.util.HashMap;
 
 /**
  * Created by Garrett on 12/17/2015.
  */
 public class Sleepitizer {
     private static final String TAG = Sleepitizer.class.getName();
+    private TelemetryClient mLogger = TelemetryClient.getInstance();
 
     private DateTime mSleepTime;
 
@@ -23,6 +27,10 @@ public class Sleepitizer {
         if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
             calendar.add(Calendar.DATE, 1);
         }
+
+        HashMap<String, String> properties = new HashMap<>();
+        properties.put("SleepTime", calendar.toString());
+        mLogger.trackEvent("Setting sleep time", properties);
 
         mSleepTime = new DateTime(calendar.getTimeInMillis());
     }

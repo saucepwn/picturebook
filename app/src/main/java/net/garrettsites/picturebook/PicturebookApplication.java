@@ -4,6 +4,8 @@ import android.app.Application;
 import android.util.Log;
 
 import com.facebook.FacebookSdk;
+import com.facebook.Profile;
+import com.microsoft.applicationinsights.library.ApplicationInsights;
 
 import net.garrettsites.picturebook.model.UserPreferences;
 
@@ -22,7 +24,16 @@ public class PicturebookApplication extends Application {
         // Load all preferences into the UserPreferences object.
         preferences = new UserPreferences(getApplicationContext());
 
-        Log.v(TAG, "Initializing Facebook SDK and UserPreferences.");
+        Log.v(TAG, "Initializing Facebook SDK, UserPreferences, and AppInsights.");
         FacebookSdk.sdkInitialize(getApplicationContext());
+
+        ApplicationInsights.setup(getApplicationContext(), this);
+
+        Profile profile = Profile.getCurrentProfile();
+        if (profile != null) {
+            ApplicationInsights.getTelemetryContext().setAuthenticatedUserId(profile.getId());
+        }
+
+        ApplicationInsights.start();
     }
 }

@@ -14,6 +14,8 @@ import com.facebook.FacebookException;
 import com.facebook.login.LoginBehavior;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.microsoft.applicationinsights.library.ApplicationInsights;
+import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.R;
 
@@ -39,6 +41,7 @@ public class FacebookLoginActivity extends PictureBookActivity {
                 @Override
                 public void onSuccess(LoginResult loginResult) {
                     // Show the user a thank you screen.
+                    ApplicationInsights.getTelemetryContext().setAuthenticatedUserId(loginResult.getAccessToken().getUserId());
                     findViewById(R.id.facebook_login_thank_you_layout).setVisibility(View.VISIBLE);
                 }
 
@@ -48,6 +51,8 @@ public class FacebookLoginActivity extends PictureBookActivity {
 
                 @Override
                 public void onError(FacebookException error) {
+                    TelemetryClient.getInstance().trackHandledException(error);
+
                     new AlertDialog.Builder(self)
                             .setTitle("Facebook Error")
                             .setMessage(error.getLocalizedMessage())
@@ -72,6 +77,7 @@ public class FacebookLoginActivity extends PictureBookActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             loginManager.logOut();
+                            ApplicationInsights.getTelemetryContext().setAuthenticatedUserId(null);
                             self.finish();
                         }
                     })
