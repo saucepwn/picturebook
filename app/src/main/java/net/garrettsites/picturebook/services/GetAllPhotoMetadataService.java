@@ -145,18 +145,29 @@ public class GetAllPhotoMetadataService extends IntentService {
                     for (int j = 0; j < tagsArray.length(); j++) {
                         JSONObject thisTag = tagsArray.getJSONObject(j);
 
-                        try {
-                            String taggedUserId = thisTag.getString("id");
-                            String taggedUserName = thisTag.getString("name");
-                            DateTime tagCreated = new DateTime(thisTag.getString("created_time"));
-                            double tagX = thisTag.getDouble("x");
-                            double tagY = thisTag.getDouble("y");
-
-                            tags.add(new Tag(taggedUserId, taggedUserName, tagCreated, tagX, tagY));
-                        } catch (JSONException e) {
-                            mLogger.trackHandledException(e);
-                            Log.w(TAG, "Could not add tag for photo with ID: " + photo.getId(), e);
+                        // A tag must contain an id and a name to be useful to us.
+                        if (thisTag == null || !thisTag.has("id") || !thisTag.has("name")) {
+                            Log.v(TAG, "Skipping tag for photo " + id + ". Tag missing info.");
+                            continue;
                         }
+
+                        String taggedUserId = thisTag.getString("id");
+                        String taggedUserName = thisTag.getString("name");
+
+                        DateTime tagCreated = null;
+                        double tagX = -1;
+                        double tagY = -1;
+
+                        if (thisTag.has("created_time"))
+                            tagCreated = new DateTime(thisTag.getString("created_time"));
+
+                        if (thisTag.has("x"))
+                            tagX = thisTag.getDouble("x");
+
+                        if (thisTag.has("y"))
+                            tagY = thisTag.getDouble("y");
+
+                        tags.add(new Tag(taggedUserId, taggedUserName, tagCreated, tagX, tagY));
                     }
                 }
 

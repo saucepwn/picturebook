@@ -20,13 +20,11 @@ public class PicturebookApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.v(TAG, "Initializing Facebook SDK, UserPreferences, and AppInsights.");
 
         // Load all preferences into the UserPreferences object.
         preferences = new UserPreferences(getApplicationContext());
-
-        Log.v(TAG, "Initializing Facebook SDK, UserPreferences, and AppInsights.");
         FacebookSdk.sdkInitialize(getApplicationContext());
-
         ApplicationInsights.setup(getApplicationContext(), this);
 
         Profile profile = Profile.getCurrentProfile();
