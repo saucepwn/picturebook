@@ -66,7 +66,7 @@ public class GetAllAlbumsService extends IntentService {
                 HttpMethod.GET);
 
         executeRequestAndAddAlbumsToList(request);
-        mLogger.trackMetric("NumAlbums", allAlbums.size());
+        mLogger.trackMetric("NumAlbums", allAlbums.size(), new HashMap<String, String>());
 
         // Fail with an error code if the user has no albums.
         if (allAlbums.size() == 0) {

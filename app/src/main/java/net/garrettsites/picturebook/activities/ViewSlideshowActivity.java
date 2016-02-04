@@ -43,6 +43,7 @@ import org.joda.time.DateTimeFieldType;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Garrett on 11/29/2015.
@@ -101,6 +102,11 @@ public class ViewSlideshowActivity extends Activity implements
         if (albumToShow != null) {
             // Display the album that we've been passed.
             mAlbum = albumToShow;
+
+            HashMap<String, String> properties = new HashMap<>();
+            properties.put("AlbumId", mAlbum.getId());
+            properties.put("AlbumName", mAlbum.getName());
+            mLogger.trackTrace("Displaying specific album.", properties);
         }
     }
 
@@ -225,7 +231,15 @@ public class ViewSlideshowActivity extends Activity implements
             Log.v(TAG, "Got results from GetAllAlbumsService");
             ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
 
-            setAlbum(albumRandomizer.selectRandomAlbum());
+            mAlbum = albumRandomizer.selectRandomAlbum();
+
+            HashMap<String, String> properties = new HashMap<>();
+            properties.put("AlbumId", mAlbum.getId());
+            properties.put("AlbumName", mAlbum.getName());
+            mLogger.trackTrace("Displaying random album.", properties);
+
+            // Get the photo metadata for all of the photos in this album.
+            callGetAllPhotoMetadataService();
         } else {
             // Show the user an error if we received an error code.
             int errorStringResourceId = ErrorCodes.getLocalizedErrorStringResource(errorCode);
@@ -406,16 +420,4 @@ public class ViewSlideshowActivity extends Activity implements
     /**
      * END sequence
      */
-
-    /**
-     * Sets the active album for this Slideshow. It then calls callGetAllPhotoMetadataService in
-     * order to populate this album's photo metadata.
-     * @param album The album to show.
-     */
-    private void setAlbum(Album album) {
-        mAlbum = album;
-
-        // Get the photo metadata for all of the photos in this album.
-        callGetAllPhotoMetadataService();
-    }
 }
