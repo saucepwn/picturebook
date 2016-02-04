@@ -194,6 +194,10 @@ public class ViewSlideshowActivity extends Activity implements
             int months = period.getMonths();
             return r.getQuantityString(R.plurals.var_months_ago, months, months);
 
+        } else if (period.getWeeks() != 0) {
+            int weeks = period.getWeeks();
+            return r.getQuantityString(R.plurals.var_weeks_ago, weeks, weeks);
+
         } else if (period.getDays() != 0) {
             int days = period.getDays();
             return r.getQuantityString(R.plurals.var_days_ago, days, days);
