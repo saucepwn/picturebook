@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/view_slideshow_root_layout"
     android:layout_width="match_parent" android:layout_height="match_parent">
 
+    <!-- There are 2 KenBurnsView viewports. We load the current image in one
+    and the next image to be displayed in the other, hidden, view. When it's time
+    to transition between photos, we fade the foreground out and the background in
+    over a period of time. This creates a "dissolve" transition effect. -->
     <com.flaviofaria.kenburnsview.KenBurnsView
         android:id="@+id/image_viewport_1"
         android:layout_width="match_parent"
@@ -111,5 +116,8 @@
             style="@style/PictureBook.MediumTextAppearance"/>
 
     </LinearLayout>
+
+    <!-- Overlay is shown when the user taps the slideshow. -->
+    <include layout="@layout/layout_view_slideshow_overlay" />
 
 </RelativeLayout>

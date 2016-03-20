@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -64,6 +65,8 @@ public class ViewSlideshowActivity extends Activity implements
     private Photo mNextPhoto;
     private Photo mThisPhoto;
 
+    private OverlayLayoutHelper overlayHelper;
+
     private KenBurnsView mActiveKenBurnsView;
     private KenBurnsView mBackgroundKenBurnsView;
 
@@ -95,6 +98,16 @@ public class ViewSlideshowActivity extends Activity implements
         mBackgroundKenBurnsView = (KenBurnsView) findViewById(R.id.image_viewport_2);
 
         mUserPreferences = ((PicturebookApplication) getApplication()).preferences;
+
+        // Show overlay UI when the user taps the screen during the slideshow.
+        View overlayRootLayout = findViewById(R.id.view_slideshow_overlay_root_layout);
+        overlayHelper = new OverlayLayoutHelper(overlayRootLayout);
+        findViewById(R.id.view_slideshow_root_layout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                overlayHelper.showOverlay();
+            }
+        });
 
         // If an album was passed to this activity, display it. Otherwise, choose a random album
         // to show.
@@ -162,6 +175,9 @@ public class ViewSlideshowActivity extends Activity implements
         final View splashScreen = findViewById(R.id.photo_splash_screen);
 
         if (splashScreen.getVisibility() == View.VISIBLE) {
+            // Allow the UI overlay once the splash screen disappears.
+            overlayHelper.setOverlayAllowed();
+
             splashScreen.animate()
                     .alpha(0f)
                     .setDuration(SPLASH_SCREEN_FADE_OUT_MS)
