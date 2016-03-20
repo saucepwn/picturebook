@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -32,6 +31,8 @@ import net.garrettsites.picturebook.services.GetAllAlbumsService;
 import net.garrettsites.picturebook.services.GetAllPhotoMetadataService;
 import net.garrettsites.picturebook.services.GetPhotoBitmapService;
 import net.garrettsites.picturebook.util.ChooseRandomAlbum;
+import net.garrettsites.picturebook.util.OverlayLayoutHelper;
+import net.garrettsites.picturebook.util.PhotoDateFormatter;
 import net.garrettsites.picturebook.util.PhotoOrder;
 import net.garrettsites.picturebook.util.PhotoTagsTransitionGenerator;
 import net.garrettsites.picturebook.util.RandomPhotoOrder;
@@ -39,8 +40,6 @@ import net.garrettsites.picturebook.util.SequentialPhotoOrder;
 import net.garrettsites.picturebook.util.Sleepitizer;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeFieldType;
-import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,6 +63,11 @@ public class ViewSlideshowActivity extends Activity implements
     private Photo mNextPhoto;
     private Photo mThisPhoto;
 
+    private boolean mIsPaused = false;
+    private long mCurrentPhotoDisplayedTimeMillis; // When the current photo was first displayed.
+    private long mPausedPhotoDisplayedDurationMillis; // How long the current photo was displayed before it was paused.
+
+    private PhotoDateFormatter mPhotoDateFormatter = new PhotoDateFormatter(getResources());
     private OverlayLayoutHelper overlayHelper;
 
     private KenBurnsView mActiveKenBurnsView;
@@ -197,43 +201,10 @@ public class ViewSlideshowActivity extends Activity implements
     }
 
     /**
-     * Given a Period representing the time between when a photo was taken and now, this method
-     * formats a string to show the user the amount of time that's elapsed during the Period.
-     * @param from The beginning of the time span.
-     * @param to The end of the time span.
-     * @return A formatted string for the UI.
-     */
-    private String formatTimeSincePhotoCreated(DateTime from, DateTime to) {
-        Resources r = getResources();
-
-        int years = Math.abs(to.get(DateTimeFieldType.year()) - from.get(DateTimeFieldType.year()));
-        if (years > 0) {
-            return r.getQuantityString(R.plurals.var_years_ago, years, years);
-        }
-
-        Period period = new Period(from, to);
-        if (period.getMonths() != 0) {
-            int months = period.getMonths();
-            return r.getQuantityString(R.plurals.var_months_ago, months, months);
-
-        } else if (period.getWeeks() != 0) {
-            int weeks = period.getWeeks();
-            return r.getQuantityString(R.plurals.var_weeks_ago, weeks, weeks);
-
-        } else if (period.getDays() != 0) {
-            int days = period.getDays();
-            return r.getQuantityString(R.plurals.var_days_ago, days, days);
-
-        } else {
-            return getString(R.string.just_now);
-        }
-    }
-
-    /**
      * From here until the below comment, the following methods should be called IN ORDER to
      * retrieve the photo album.
      */
-    protected void beginRetrieveAlbumSequence() {
+    private void beginRetrieveAlbumSequence() {
         // Step 1: Get the metadata for all of this user's Facebook albums.
         Log.v(TAG, "Starting retrieve album sequence");
         callGetAllAlbumsService();
@@ -379,7 +350,8 @@ public class ViewSlideshowActivity extends Activity implements
         }
 
         // Queue up another photo.
-        mHandler.postDelayed(this, mUserPreferences.getPhotoDelaySeconds() * 1000);
+        if (!mIsPaused)
+            mHandler.postDelayed(this, mUserPreferences.getPhotoDelaySeconds() * 1000);
     }
 
     private void setupKenBurnsTransition(String imageFilePath) {
@@ -412,6 +384,8 @@ public class ViewSlideshowActivity extends Activity implements
         KenBurnsView temp = mActiveKenBurnsView;
         mActiveKenBurnsView = mBackgroundKenBurnsView;
         mBackgroundKenBurnsView = temp;
+
+        mCurrentPhotoDisplayedTimeMillis = System.currentTimeMillis();
     }
 
     private void populateUiWithPhotoInfo(Photo photo) {
@@ -433,7 +407,8 @@ public class ViewSlideshowActivity extends Activity implements
         }
 
         // {age} days/months/years ago.
-        photoTimeAgo.setText(formatTimeSincePhotoCreated(photo.getCreatedTime(), DateTime.now()));
+        photoTimeAgo.setText(mPhotoDateFormatter.formatTimeSincePhotoCreated(
+                        photo.getCreatedTime(), DateTime.now()));
 
         // The name of the place where the photo was taken.
         if (photo.getPlaceName() == null || photo.getPlaceName().length() == 0) {
@@ -446,4 +421,34 @@ public class ViewSlideshowActivity extends Activity implements
     /**
      * END sequence
      */
+
+    /**
+     * Pauses the slideshow. Stops the Ken Burns animation and stops the photo advance timer.
+     */
+    public void pauseSlideshow() {
+        mIsPaused = true;
+        mActiveKenBurnsView.pause();
+        mHandler.removeCallbacks(this);
+
+        mPausedPhotoDisplayedDurationMillis = System.currentTimeMillis() - mCurrentPhotoDisplayedTimeMillis;
+    }
+
+    /**
+     * Resumes a slideshow that has been paused.
+     */
+    public void resumeSlideshow() {
+        mIsPaused = false;
+        mActiveKenBurnsView.resume();
+
+        int photoDelayMillis = mUserPreferences.getPhotoDelaySeconds() * 1000;
+        long remainingTime = photoDelayMillis - mPausedPhotoDisplayedDurationMillis;
+
+        // If less than 3 seconds remain on the current photo, show it for at least 3 more seconds
+        // so that it doesn't seem like the slideshow is jumpy.
+        if (remainingTime < 3000) {
+            remainingTime = 3000;
+        }
+
+        mHandler.postDelayed(this, remainingTime);
+    }
 }

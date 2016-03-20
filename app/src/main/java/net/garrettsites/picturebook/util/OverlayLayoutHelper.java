@@ -1,20 +1,22 @@
-package net.garrettsites.picturebook.activities;
+package net.garrettsites.picturebook.util;
 
 import android.view.MotionEvent;
 import android.view.View;
 
 import net.garrettsites.picturebook.R;
+import net.garrettsites.picturebook.activities.ViewSlideshowActivity;
 
 /**
  * Created by garrett on 3/20/2016.
  */
 public class OverlayLayoutHelper implements View.OnTouchListener {
-    private boolean isOverlayAllowed = false;
+    private boolean mIsOverlayAllowed = false;
     private View overlayRootView;
-    private final ViewSlideshowActivity viewSlideshowActivity;
+    private final ViewSlideshowActivity mViewSlideshowActivity;
 
     /**
-     * Creates a new instance of the OverlayLayoutHelper class.
+     * Creates a new instance of the OverlayLayoutHelper class. This class supports the UI overlay
+     * that's shown when a user taps the View Slideshow activity.
      * @param slideshowActivity The ViewSlideshow activity. The Activity reference must be passed so
      *                          the overlay can finish the activity if the user requests it.
      * @param overlayRootView The root View of the overlay.
@@ -22,7 +24,7 @@ public class OverlayLayoutHelper implements View.OnTouchListener {
     public OverlayLayoutHelper(ViewSlideshowActivity slideshowActivity, View overlayRootView) {
         if (overlayRootView == null) throw new IllegalArgumentException("overlayRootView");
 
-        this.viewSlideshowActivity = slideshowActivity;
+        this.mViewSlideshowActivity = slideshowActivity;
         this.overlayRootView = overlayRootView;
 
         // Hide overlay UI if the user taps it.
@@ -33,7 +35,7 @@ public class OverlayLayoutHelper implements View.OnTouchListener {
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        viewSlideshowActivity.finishSlideshow();
+                        mViewSlideshowActivity.finishSlideshow();
                     }
                 });
     }
@@ -42,22 +44,16 @@ public class OverlayLayoutHelper implements View.OnTouchListener {
      * Sets the overlay allowed flag to true, meaning the overlay is now able to be displayed.
      */
     public void setOverlayAllowed() {
-        isOverlayAllowed = true;
-    }
-
-    /**
-     * @return Whether or not the overlay is allowed at this time.
-     */
-    public boolean isOverlayAllowed() {
-        return isOverlayAllowed;
+        mIsOverlayAllowed = true;
     }
 
     /**
      * Shows the overlay if the overlay is allowed to be shown.
      */
     public void showOverlay() {
-        if (!isOverlayAllowed) return;
+        if (!mIsOverlayAllowed) return;
 
+        mViewSlideshowActivity.pauseSlideshow();
         overlayRootView.setVisibility(View.VISIBLE);
     }
 
@@ -72,7 +68,9 @@ public class OverlayLayoutHelper implements View.OnTouchListener {
         View overlayView = v.findViewById(R.id.view_slideshow_overlay_root_layout);
         overlayView.setVisibility(View.GONE);
 
-        // Prevent the event from propegating downward.
+        mViewSlideshowActivity.resumeSlideshow();
+
+        // Prevent the event from propagating downward.
         return true;
     }
 }
