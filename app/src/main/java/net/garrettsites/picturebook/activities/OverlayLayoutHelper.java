@@ -11,18 +11,31 @@ import net.garrettsites.picturebook.R;
 public class OverlayLayoutHelper implements View.OnTouchListener {
     private boolean isOverlayAllowed = false;
     private View overlayRootView;
+    private final ViewSlideshowActivity viewSlideshowActivity;
 
     /**
      * Creates a new instance of the OverlayLayoutHelper class.
+     * @param slideshowActivity The ViewSlideshow activity. The Activity reference must be passed so
+     *                          the overlay can finish the activity if the user requests it.
      * @param overlayRootView The root View of the overlay.
      */
-    public OverlayLayoutHelper(View overlayRootView) {
+    public OverlayLayoutHelper(ViewSlideshowActivity slideshowActivity, View overlayRootView) {
         if (overlayRootView == null) throw new IllegalArgumentException("overlayRootView");
 
+        this.viewSlideshowActivity = slideshowActivity;
         this.overlayRootView = overlayRootView;
 
         // Hide overlay UI if the user taps it.
         overlayRootView.setOnTouchListener(this);
+
+        // Hook up the "Exit Slideshow" button.
+        overlayRootView.findViewById(R.id.overlay_exit_slideshow_layout)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        viewSlideshowActivity.finishSlideshow();
+                    }
+                });
     }
 
     /**
@@ -41,7 +54,6 @@ public class OverlayLayoutHelper implements View.OnTouchListener {
 
     /**
      * Shows the overlay if the overlay is allowed to be shown.
-     * @param overlayRootView The root view of the overlay layout.
      */
     public void showOverlay() {
         if (!isOverlayAllowed) return;

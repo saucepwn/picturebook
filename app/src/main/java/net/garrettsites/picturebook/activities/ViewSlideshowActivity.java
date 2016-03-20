@@ -12,7 +12,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -101,7 +100,7 @@ public class ViewSlideshowActivity extends Activity implements
 
         // Show overlay UI when the user taps the screen during the slideshow.
         View overlayRootLayout = findViewById(R.id.view_slideshow_overlay_root_layout);
-        overlayHelper = new OverlayLayoutHelper(overlayRootLayout);
+        overlayHelper = new OverlayLayoutHelper(this, overlayRootLayout);
         findViewById(R.id.view_slideshow_root_layout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -161,11 +160,18 @@ public class ViewSlideshowActivity extends Activity implements
         // Check if we should put the device to sleep (by finishing the activity).
         if (mUserPreferences.isSleeperWakerEnabled() && mSleeper.timeToSleep()) {
             mLogger.trackEvent("Sleeper finishing ViewSlideshowActivity");
-            mHandler.removeCallbacks(this);
-            finish();
+            finishSlideshow();
         } else {
             beginLoadNewPhoto();
         }
+    }
+
+    /**
+     * Finishes the activity and removes all handler callbacks.
+     */
+    public void finishSlideshow() {
+        mHandler.removeCallbacks(this);
+        finish();
     }
 
     /**

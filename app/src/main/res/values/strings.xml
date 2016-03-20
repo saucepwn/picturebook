@@ -31,6 +31,10 @@
     <string name="getting_all_albums">Getting all albums…</string>
     <string name="getting_photo_details">Getting photo metadata for album: %1$s…</string>
 
+    <!-- View Slideshow Overlay -->
+    <string name="exit_slideshow">Exit Slideshow</string>
+    <string name="close">Close</string>
+
     <!-- Error messages -->
     <string name="error">Uh oh!</string>
     <string name="ok">OK</string>
