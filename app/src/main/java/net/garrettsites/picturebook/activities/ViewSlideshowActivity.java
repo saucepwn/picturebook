@@ -67,7 +67,7 @@ public class ViewSlideshowActivity extends Activity implements
     private long mCurrentPhotoDisplayedTimeMillis; // When the current photo was first displayed.
     private long mPausedPhotoDisplayedDurationMillis; // How long the current photo was displayed before it was paused.
 
-    private PhotoDateFormatter mPhotoDateFormatter = new PhotoDateFormatter(getResources());
+    private PhotoDateFormatter mPhotoDateFormatter;
     private OverlayLayoutHelper overlayHelper;
 
     private KenBurnsView mActiveKenBurnsView;
@@ -101,6 +101,8 @@ public class ViewSlideshowActivity extends Activity implements
         mBackgroundKenBurnsView = (KenBurnsView) findViewById(R.id.image_viewport_2);
 
         mUserPreferences = ((PicturebookApplication) getApplication()).preferences;
+
+        mPhotoDateFormatter = new PhotoDateFormatter(getResources());
 
         // Show overlay UI when the user taps the screen during the slideshow.
         View overlayRootLayout = findViewById(R.id.view_slideshow_overlay_root_layout);
@@ -426,17 +428,23 @@ public class ViewSlideshowActivity extends Activity implements
      * Pauses the slideshow. Stops the Ken Burns animation and stops the photo advance timer.
      */
     public void pauseSlideshow() {
+        if (mIsPaused) return;
+
+        Log.i(TAG, "Pausing slideshow");
         mIsPaused = true;
         mActiveKenBurnsView.pause();
         mHandler.removeCallbacks(this);
 
-        mPausedPhotoDisplayedDurationMillis = System.currentTimeMillis() - mCurrentPhotoDisplayedTimeMillis;
+        mPausedPhotoDisplayedDurationMillis = System.currentTimeMillis() -
+                mCurrentPhotoDisplayedTimeMillis;
     }
 
     /**
      * Resumes a slideshow that has been paused.
      */
     public void resumeSlideshow() {
+        if (!mIsPaused) return;
+
         mIsPaused = false;
         mActiveKenBurnsView.resume();
 
@@ -449,6 +457,7 @@ public class ViewSlideshowActivity extends Activity implements
             remainingTime = 3000;
         }
 
+        Log.i(TAG, "Resuming slideshow, next photo in " + (remainingTime / 1000) + " seconds");
         mHandler.postDelayed(this, remainingTime);
     }
 }
