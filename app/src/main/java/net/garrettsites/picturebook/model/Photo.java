@@ -1,144 +1,57 @@
 package net.garrettsites.picturebook.model;
 
-import android.os.Parcel;
 import android.os.Parcelable;
 
 import org.joda.time.DateTime;
 
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 
 /**
- * Created by Garrett on 11/28/2015.
+ * Created by Garrett on 3/20/2016.
  */
-public class Photo implements Parcelable {
-    private String mId;
-    private int mOrder = 0;
-    private String mName;
-    private String mUploadedBy;
-    private String mUploadedById;
-    private String mPlaceName;
-    private URL mImageUrl;
-    private URL mPostUrl;
-    private DateTime mCreatedTime;
-
-    private ArrayList<Tag> mTags;
-
-    public Photo(String id, int order, String name, String uploadedBy, String uploadedById, URL imageUrl, URL postUrl, DateTime createdTime) {
-        this.mId = id;
-        this.mOrder = order;
-        this.mName = name;
-        this.mUploadedBy = uploadedBy;
-        this.mUploadedById = uploadedById;
-        this.mImageUrl = imageUrl;
-        this.mPostUrl = postUrl;
-        this.mCreatedTime = createdTime;
-    }
-
-    private Photo(Parcel in) {
-        mId = in.readString();
-        mOrder = in.readInt();
-        mName = in.readString();
-        mUploadedBy = in.readString();
-        mUploadedById = in.readString();
-        mPlaceName = in.readString();
-
-        try {
-            mImageUrl = new URL(in.readString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            mPostUrl = new URL(in.readString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-        mCreatedTime = new DateTime(in.readString());
-        mTags = in.readArrayList(getClass().getClassLoader());
-    }
-
-    public String getId() {
-        return mId;
-    }
-
-    public int getOrder() {
-        return mOrder;
-    }
-
-    public String getName() {
-        return mName;
-    }
-
-    public String getUploadedBy() {
-        return mUploadedBy;
-    }
-
-    public String getUploadedById() {
-        return mUploadedById;
-    }
+public interface Photo extends Parcelable {
+    /**
+     * @return A unique ID for the photo. Used when generating the photo's cached name. It may be
+     * modified by the app, so getId() should not be used when calling the photo hosting service.
+     */
+    String getId();
 
     /**
-     * Set the name of the place this photo was taken.
-     * @param placeName The name of the place this photo was taken.
+     * @return This photo's position in the album it belongs to.
      */
-    public void setPlaceName(String placeName) {
-        mPlaceName = placeName;
-    }
+    int getOrder();
 
-    public String getPlaceName() {
-        return mPlaceName;
-    }
+    /**
+     * @return The name or short description of this photo.
+     */
+    String getName();
 
-    public URL getImageUrl() {
-        return mImageUrl;
-    }
+    /**
+     * @return The name of the place where this photo was taken.
+     */
+    String getPlaceName();
 
-    public URL getPostUrl() {
-        return mPostUrl;
-    }
+    /**
+     * @return A URL where this image can be downloaded. The app will use this URL to retrieve the
+     * actual photo, so it must return an image and not HTML.
+     */
+    URL getImageUrl();
 
-    public DateTime getCreatedTime() {
-        return mCreatedTime;
-    }
+    /**
+     * @return When this photo was taken. This will be displayed to the user, so ideally the date
+     * would reflect when the photo was taken, but most online galleries will only let us retrieve
+     * the date the photo was uploaded.
+     */
+    DateTime getCreatedTime();
 
-    public ArrayList<Tag> getTags() {
-        return mTags;
-    }
+    /**
+     * @return A key value pair of extra information about the photo. This extra information is
+     * displayed if the user taps the photo during a slideshow.
+     */
+    PhotoInsights getPhotoInsights();
 
-    public void setTags(ArrayList<Tag> tags) {
-        mTags = tags;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(mId);
-        dest.writeInt(mOrder);
-        dest.writeString(mName);
-        dest.writeString(mUploadedBy);
-        dest.writeString(mUploadedById);
-        dest.writeString(mPlaceName);
-        dest.writeString(mImageUrl.toString());
-        dest.writeString(mPostUrl.toString());
-        dest.writeString(mCreatedTime.toString());
-
-        dest.writeList(mTags);
-    }
-
-    public static final Parcelable.Creator<Photo> CREATOR = new Parcelable.Creator<Photo>() {
-        public Photo createFromParcel(Parcel in) {
-            return new Photo(in);
-        }
-
-        public Photo[] newArray(int size) {
-            return new Photo[size];
-        }
-    };
+    /**
+     * @return The number of people in this photograph. Use 0 if the number of people is unknown.
+     */
+    int getNumPeopleInPhoto();
 }

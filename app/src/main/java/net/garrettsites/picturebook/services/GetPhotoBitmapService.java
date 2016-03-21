@@ -49,20 +49,20 @@ public class GetPhotoBitmapService extends IntentService {
 
         Photo photo = intent.getParcelableExtra(ARG_PHOTO_OBJ);
 
-        String fbImageId = photo.getId();
+        String imageId = photo.getId();
         File imageLocation = null;
 
-        if (mCache.doesPhotoExist(fbImageId)) {
-            // Photo exists in cache. Serve from cache.
-            imageLocation = mCache.getReadablePhotoFile(fbImageId);
+        if (mCache.doesPhotoExist(imageId)) {
+            // FacebookPhoto exists in cache. Serve from cache.
+            imageLocation = mCache.getReadablePhotoFile(imageId);
             Log.v(TAG, "Getting photo from cache.");
         } else {
-            // Photo does not exist in cache. Get from network, save to cache, then serve from cache.
+            // FacebookPhoto does not exist in cache. Get from network, save to cache, then serve from cache.
             URL fbImageUrl = photo.getImageUrl();
             Bitmap photoBitmap = getBitmapFromInternet(fbImageUrl);
             Log.v(TAG, "Getting photo from internet. Saving to cache.");
 
-            imageLocation = mCache.savePhotoToCache(fbImageId, photoBitmap);
+            imageLocation = mCache.savePhotoToCache(imageId, photoBitmap);
         }
 
         Bundle retVal = new Bundle();
@@ -87,7 +87,7 @@ public class GetPhotoBitmapService extends IntentService {
 
             HashMap<String, String> properties = new HashMap<>();
             properties.put("Path", photoUrl.getPath());
-            mLogger.trackMetric("FacebookQuery", (double) (end - start), properties);
+            mLogger.trackMetric("GetPhotoQuery", (double) (end - start), properties);
 
             return BitmapFactory.decodeStream(in);
         } catch (IOException e) {

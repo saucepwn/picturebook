@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -28,10 +27,12 @@ import net.garrettsites.picturebook.model.UserPreferences;
 import net.garrettsites.picturebook.receivers.GetAllAlbumsReceiver;
 import net.garrettsites.picturebook.receivers.GetAllPhotoMetadataReceiver;
 import net.garrettsites.picturebook.receivers.GetPhotoBitmapReceiver;
-import net.garrettsites.picturebook.services.GetAllAlbumsService;
-import net.garrettsites.picturebook.services.GetAllPhotoMetadataService;
+import net.garrettsites.picturebook.services.GetAllFacebookAlbumsService;
+import net.garrettsites.picturebook.services.GetAllFacebookPhotoMetadataService;
 import net.garrettsites.picturebook.services.GetPhotoBitmapService;
 import net.garrettsites.picturebook.util.ChooseRandomAlbum;
+import net.garrettsites.picturebook.util.OverlayLayoutHelper;
+import net.garrettsites.picturebook.util.PhotoDateFormatter;
 import net.garrettsites.picturebook.util.PhotoOrder;
 import net.garrettsites.picturebook.util.PhotoTagsTransitionGenerator;
 import net.garrettsites.picturebook.util.RandomPhotoOrder;
@@ -39,8 +40,6 @@ import net.garrettsites.picturebook.util.SequentialPhotoOrder;
 import net.garrettsites.picturebook.util.Sleepitizer;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeFieldType;
-import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,6 +63,13 @@ public class ViewSlideshowActivity extends Activity implements
     private Photo mNextPhoto;
     private Photo mThisPhoto;
 
+    private boolean mIsPaused = false;
+    private long mCurrentPhotoDisplayedTimeMillis; // When the current photo was first displayed.
+    private long mPausedPhotoDisplayedDurationMillis; // How long the current photo was displayed before it was paused.
+
+    private PhotoDateFormatter mPhotoDateFormatter;
+    private OverlayLayoutHelper overlayHelper;
+
     private KenBurnsView mActiveKenBurnsView;
     private KenBurnsView mBackgroundKenBurnsView;
 
@@ -78,6 +84,14 @@ public class ViewSlideshowActivity extends Activity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Sometimes we can be viewing a slideshow when a StartSlideshowBroadcastReceiver receives
+        // an intent to start another slideshow. Usually, we want to start another slideshow.
+        // However, if the user has paused the current slideshow, don't start a new one.
+        if (mIsPaused) {
+            mLogger.trackEvent("Entered ViewSlideshowActivity.onCreate while current slideshow was paused.");
+            return;
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_slideshow);
 
@@ -95,6 +109,18 @@ public class ViewSlideshowActivity extends Activity implements
         mBackgroundKenBurnsView = (KenBurnsView) findViewById(R.id.image_viewport_2);
 
         mUserPreferences = ((PicturebookApplication) getApplication()).preferences;
+
+        mPhotoDateFormatter = new PhotoDateFormatter(getResources());
+
+        // Show overlay UI when the user taps the screen during the slideshow.
+        View overlayRootLayout = findViewById(R.id.view_slideshow_overlay_root_layout);
+        overlayHelper = new OverlayLayoutHelper(this, overlayRootLayout);
+        findViewById(R.id.view_slideshow_root_layout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                overlayHelper.showOverlay();
+            }
+        });
 
         // If an album was passed to this activity, display it. Otherwise, choose a random album
         // to show.
@@ -148,11 +174,18 @@ public class ViewSlideshowActivity extends Activity implements
         // Check if we should put the device to sleep (by finishing the activity).
         if (mUserPreferences.isSleeperWakerEnabled() && mSleeper.timeToSleep()) {
             mLogger.trackEvent("Sleeper finishing ViewSlideshowActivity");
-            mHandler.removeCallbacks(this);
-            finish();
+            finishSlideshow();
         } else {
             beginLoadNewPhoto();
         }
+    }
+
+    /**
+     * Finishes the activity and removes all handler callbacks.
+     */
+    public void finishSlideshow() {
+        mHandler.removeCallbacks(this);
+        finish();
     }
 
     /**
@@ -162,6 +195,9 @@ public class ViewSlideshowActivity extends Activity implements
         final View splashScreen = findViewById(R.id.photo_splash_screen);
 
         if (splashScreen.getVisibility() == View.VISIBLE) {
+            // Allow the UI overlay once the splash screen disappears.
+            overlayHelper.setOverlayAllowed();
+
             splashScreen.animate()
                     .alpha(0f)
                     .setDuration(SPLASH_SCREEN_FADE_OUT_MS)
@@ -175,43 +211,10 @@ public class ViewSlideshowActivity extends Activity implements
     }
 
     /**
-     * Given a Period representing the time between when a photo was taken and now, this method
-     * formats a string to show the user the amount of time that's elapsed during the Period.
-     * @param from The beginning of the time span.
-     * @param to The end of the time span.
-     * @return A formatted string for the UI.
-     */
-    private String formatTimeSincePhotoCreated(DateTime from, DateTime to) {
-        Resources r = getResources();
-
-        int years = Math.abs(to.get(DateTimeFieldType.year()) - from.get(DateTimeFieldType.year()));
-        if (years > 0) {
-            return r.getQuantityString(R.plurals.var_years_ago, years, years);
-        }
-
-        Period period = new Period(from, to);
-        if (period.getMonths() != 0) {
-            int months = period.getMonths();
-            return r.getQuantityString(R.plurals.var_months_ago, months, months);
-
-        } else if (period.getWeeks() != 0) {
-            int weeks = period.getWeeks();
-            return r.getQuantityString(R.plurals.var_weeks_ago, weeks, weeks);
-
-        } else if (period.getDays() != 0) {
-            int days = period.getDays();
-            return r.getQuantityString(R.plurals.var_days_ago, days, days);
-
-        } else {
-            return getString(R.string.just_now);
-        }
-    }
-
-    /**
      * From here until the below comment, the following methods should be called IN ORDER to
      * retrieve the photo album.
      */
-    protected void beginRetrieveAlbumSequence() {
+    private void beginRetrieveAlbumSequence() {
         // Step 1: Get the metadata for all of this user's Facebook albums.
         Log.v(TAG, "Starting retrieve album sequence");
         callGetAllAlbumsService();
@@ -222,17 +225,17 @@ public class ViewSlideshowActivity extends Activity implements
         GetAllAlbumsReceiver getAllAlbumsReceiver = new GetAllAlbumsReceiver(mHandler);
         getAllAlbumsReceiver.setReceiver(this);
 
-        Intent getAllAlbumsIntent = new Intent(this, GetAllAlbumsService.class);
-        getAllAlbumsIntent.putExtra(GetAllAlbumsService.ARG_RECEIVER, getAllAlbumsReceiver);
+        Intent getAllAlbumsIntent = new Intent(this, GetAllFacebookAlbumsService.class);
+        getAllAlbumsIntent.putExtra(GetAllFacebookAlbumsService.ARG_RECEIVER, getAllAlbumsReceiver);
 
-        Log.v(TAG, "Calling GetAllAlbumsService");
+        Log.v(TAG, "Calling GetAllFacebookAlbumsService");
         startService(getAllAlbumsIntent);
     }
 
     @Override
     public void onReceiveAllAlbums(int resultCode, int errorCode, ArrayList<Album> albums) {
         if (resultCode == Activity.RESULT_OK) {
-            Log.v(TAG, "Got results from GetAllAlbumsService");
+            Log.v(TAG, "Got results from GetAllFacebookAlbumsService");
             ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
 
             mAlbum = albumRandomizer.selectRandomAlbum();
@@ -270,17 +273,17 @@ public class ViewSlideshowActivity extends Activity implements
         GetAllPhotoMetadataReceiver allPhotosReceiver = new GetAllPhotoMetadataReceiver(mHandler);
         allPhotosReceiver.setReceiver(this);
 
-        Intent getAllPhotoMetadataIntent = new Intent(this, GetAllPhotoMetadataService.class);
-        getAllPhotoMetadataIntent.putExtra(GetAllPhotoMetadataService.ARG_RECEIVER, allPhotosReceiver);
-        getAllPhotoMetadataIntent.putExtra(GetAllPhotoMetadataService.ARG_ALBUM_ID, mAlbum.getId());
+        Intent getAllPhotoMetadataIntent = new Intent(this, GetAllFacebookPhotoMetadataService.class);
+        getAllPhotoMetadataIntent.putExtra(GetAllFacebookPhotoMetadataService.ARG_RECEIVER, allPhotosReceiver);
+        getAllPhotoMetadataIntent.putExtra(GetAllFacebookPhotoMetadataService.ARG_ALBUM_ID, mAlbum.getId());
 
-        Log.v(TAG, "Calling GetAllPhotoMetadataService");
+        Log.v(TAG, "Calling GetAllFacebookPhotoMetadataService");
         startService(getAllPhotoMetadataIntent);
     }
 
     @Override
     public void onReceiveAllPhotoMetadata(int resultCode, ArrayList<Photo> photos) {
-        Log.v(TAG, "Got results from GetAllPhotoMetadataService");
+        Log.v(TAG, "Got results from GetAllFacebookPhotoMetadataService");
 
         if (resultCode != Activity.RESULT_OK) {
             String errorStr = "Error retrieving photo metadata for album: " + mAlbum.getName() +
@@ -357,7 +360,8 @@ public class ViewSlideshowActivity extends Activity implements
         }
 
         // Queue up another photo.
-        mHandler.postDelayed(this, mUserPreferences.getPhotoDelaySeconds() * 1000);
+        if (!mIsPaused)
+            mHandler.postDelayed(this, mUserPreferences.getPhotoDelaySeconds() * 1000);
     }
 
     private void setupKenBurnsTransition(String imageFilePath) {
@@ -366,7 +370,7 @@ public class ViewSlideshowActivity extends Activity implements
         mBackgroundKenBurnsView.setImageBitmap(imageBitmap);
 
         PhotoTagsTransitionGenerator generator = new PhotoTagsTransitionGenerator(
-                mUserPreferences.getPhotoDelaySeconds() * 1000, mThisPhoto.getTags());
+                mUserPreferences.getPhotoDelaySeconds() * 1000, null);
 
         mBackgroundKenBurnsView.setTransitionGenerator(generator);
 
@@ -390,6 +394,8 @@ public class ViewSlideshowActivity extends Activity implements
         KenBurnsView temp = mActiveKenBurnsView;
         mActiveKenBurnsView = mBackgroundKenBurnsView;
         mBackgroundKenBurnsView = temp;
+
+        mCurrentPhotoDisplayedTimeMillis = System.currentTimeMillis();
     }
 
     private void populateUiWithPhotoInfo(Photo photo) {
@@ -397,21 +403,20 @@ public class ViewSlideshowActivity extends Activity implements
         TextView photoTimeAgo = (TextView) findViewById(R.id.photo_time_ago);
         TextView photoPlaceName = (TextView) findViewById(R.id.photo_place_name);
         TextView photoOrder = (TextView) findViewById(R.id.photo_album_photo_count);
+        View numPeopleInPhotoLayout = findViewById(R.id.photo_num_people_layout);
+        TextView numPeopleInPhoto = (TextView) findViewById(R.id.photo_num_people);
 
         // photo {num} of {num}.
         String numPhotosStr = getString(R.string.photo_var_of_var, photo.getOrder(), mAlbum.getPhotos().size());
         photoOrder.setText(numPhotosStr);
 
-        // Uploader's comment of this photo.
-        if (photo.getName() == null || photo.getName().length() == 0) {
-            photoDescription.setVisibility(View.INVISIBLE);
+        // Number of people tagged in the photo.
+        if (photo.getNumPeopleInPhoto() > 0) {
+            numPeopleInPhotoLayout.setVisibility(View.VISIBLE);
+            numPeopleInPhoto.setText(String.format("%d", photo.getNumPeopleInPhoto()));
         } else {
-            photoDescription.setText(photo.getName());
-            photoDescription.setVisibility(View.VISIBLE);
+            numPeopleInPhotoLayout.setVisibility(View.GONE);
         }
-
-        // {age} days/months/years ago.
-        photoTimeAgo.setText(formatTimeSincePhotoCreated(photo.getCreatedTime(), DateTime.now()));
 
         // The name of the place where the photo was taken.
         if (photo.getPlaceName() == null || photo.getPlaceName().length() == 0) {
@@ -420,8 +425,64 @@ public class ViewSlideshowActivity extends Activity implements
             photoPlaceName.setText(getString(R.string.at_var, photo.getPlaceName()));
             photoPlaceName.setVisibility(View.VISIBLE);
         }
+
+        // {age} days/months/years ago.
+        photoTimeAgo.setText(mPhotoDateFormatter.formatTimeSincePhotoCreated(
+                photo.getCreatedTime(), DateTime.now()));
+
+        // Uploader's comment of this photo.
+        if (photo.getName() == null || photo.getName().length() == 0) {
+            photoDescription.setVisibility(View.INVISIBLE);
+        } else {
+            photoDescription.setText(photo.getName());
+            photoDescription.setVisibility(View.VISIBLE);
+        }
     }
     /**
      * END sequence
      */
+
+    /**
+     * @return The photo currently on screen.
+     */
+    public Photo getCurrentPhoto() {
+        return mThisPhoto;
+    }
+
+    /**
+     * Pauses the slideshow. Stops the Ken Burns animation and stops the photo advance timer.
+     */
+    public void pauseSlideshow() {
+        if (mIsPaused) return;
+
+        Log.i(TAG, "Pausing slideshow");
+        mIsPaused = true;
+        mActiveKenBurnsView.pause();
+        mHandler.removeCallbacks(this);
+
+        mPausedPhotoDisplayedDurationMillis = System.currentTimeMillis() -
+                mCurrentPhotoDisplayedTimeMillis;
+    }
+
+    /**
+     * Resumes a slideshow that has been paused.
+     */
+    public void resumeSlideshow() {
+        if (!mIsPaused) return;
+
+        mIsPaused = false;
+        mActiveKenBurnsView.resume();
+
+        int photoDelayMillis = mUserPreferences.getPhotoDelaySeconds() * 1000;
+        long remainingTime = photoDelayMillis - mPausedPhotoDisplayedDurationMillis;
+
+        // If less than 3 seconds remain on the current photo, show it for at least 3 more seconds
+        // so that it doesn't seem like the slideshow is jumpy.
+        if (remainingTime < 3000) {
+            remainingTime = 3000;
+        }
+
+        Log.i(TAG, "Resuming slideshow, next photo in " + (remainingTime / 1000) + " seconds");
+        mHandler.postDelayed(this, remainingTime);
+    }
 }
