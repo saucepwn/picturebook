@@ -10,22 +10,25 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.TreeMap;
 
 /**
  * Created by Garrett on 3/20/2016.
  */
 public class PhotoInsights {
     private TelemetryClient mLogger = TelemetryClient.getInstance();
-    private HashMap<InsightKey, String> insights = new HashMap<>();
+    private TreeMap<InsightKey, String> insights = new TreeMap<>();
 
     public enum InsightKey {
-        // The photo's width.
-        WIDTH,
+        // A list of people in the photo.
+        PEOPLE,
 
-        // The photo's height.
-        HEIGHT,
+        // A short description of the photo.
+        COMMENT,
+
+        // Where the photo was taken.
+        PLACE,
 
         // The photo's date.
         DATE,
@@ -33,17 +36,14 @@ public class PhotoInsights {
         // The time the photo was taken.
         TIME,
 
-        // A short description of the photo.
-        COMMENT,
-
-        // A list of people in the photo.
-        PEOPLE,
-
-        // Where the photo was taken.
-        PLACE,
-
         // Where this photo was from. Ex) Facebook, Tumblr
-        SOURCE
+        SOURCE,
+
+        // The photo's width.
+        WIDTH,
+
+        // The photo's height.
+        HEIGHT
     }
 
     /**
@@ -58,15 +58,18 @@ public class PhotoInsights {
     }
 
     /**
-     * Gets a localized key value pair of this photo's insights.
+     * Gets a localized and sorted key value pair of this photo's insights. The insights are sorted
+     * in the order the enum is defined.
      * @param resources The application's resources object to get localized strings.
      * @return A localized map of key value pairs that can be displayed to the user.
      */
-    public HashMap<String, String> getLocalizedInsights(Resources resources) {
-        HashMap<String, String> localizedInsights = new HashMap<>(insights.size());
+    public LinkedHashMap<String, String> getLocalizedInsights(Resources resources) {
+        LinkedHashMap<String, String> localizedInsights = new LinkedHashMap<>();
 
-        for (Map.Entry<InsightKey, String> entry : insights.entrySet()) {
-            localizedInsights.put(getLocalizedKeyName(resources, entry.getKey()), entry.getValue());
+        for (InsightKey key : InsightKey.values()) {
+            if (insights.containsKey(key)) {
+                localizedInsights.put(getLocalizedKeyName(resources, key), insights.get(key));
+            }
         }
 
         return localizedInsights;
