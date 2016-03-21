@@ -126,6 +126,14 @@ public class FacebookPhoto implements IPhoto {
         mTags = tags;
     }
 
+    public int getNumPeopleInPhoto() {
+        if (mTags != null) {
+            return mTags.size();
+        } else {
+            return 0;
+        }
+    }
+
     public PhotoInsights getPhotoInsights() {
         PhotoInsights insights = new PhotoInsights();
         insights.addInsight(PhotoInsights.InsightKey.WIDTH, Integer.toString(getWidth()) + "px");
@@ -133,9 +141,13 @@ public class FacebookPhoto implements IPhoto {
         insights.addInsight(PhotoInsights.InsightKey.COMMENT, getName());
         insights.addInsight(PhotoInsights.InsightKey.PLACE, getPlaceName());
 
-        if (getCreatedTime() != null)
+        if (getCreatedTime() != null) {
             insights.addInsight(PhotoInsights.InsightKey.DATE,
-                    PhotoInsights.formatDateTime(getCreatedTime()));
+                    PhotoInsights.formatDate(getCreatedTime()));
+
+            insights.addInsight(PhotoInsights.InsightKey.TIME,
+                    PhotoInsights.formatTime(getCreatedTime()));
+        }
 
         if (getTags() != null && getTags().size() > 0) {
             StringBuilder people = new StringBuilder();

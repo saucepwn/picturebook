@@ -27,6 +27,7 @@
         android:orientation="horizontal"
         android:background="@android:color/transparent">
 
+        <!-- Album title and photo order count -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -50,34 +51,65 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-
         </LinearLayout>
 
+        <!-- Photo place and date -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:paddingStart="@dimen/view_slideshow_bottom_bar_element_margin"
             android:paddingEnd="@dimen/view_slideshow_bottom_bar_element_margin"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:gravity="center"
             android:alpha="0.85"
             android:background="@android:color/holo_purple">
 
-            <TextView
-                android:id="@+id/photo_time_ago"
+            <LinearLayout
+                android:id="@+id/photo_num_people_layout"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/PictureBook.MediumTextAppearance" />
+                android:layout_height="match_parent"
+                android:paddingEnd="@dimen/view_slideshow_bottom_bar_element_margin"
+                android:orientation="vertical"
+                android:gravity="center">
 
-            <TextView
-                android:id="@+id/photo_place_name"
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_menu_myplaces"/>
+
+                <TextView
+                    android:id="@+id/photo_num_people"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/PictureBook.MediumTextAppearance" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                style="@style/PictureBook.MediumTextAppearance" />
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/photo_time_ago"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/PictureBook.MediumTextAppearance" />
+
+                <TextView
+                    android:id="@+id/photo_place_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    style="@style/PictureBook.MediumTextAppearance" />
+
+            </LinearLayout>
+
 
         </LinearLayout>
 
+        <!-- Photo description (if exists) -->
         <TextView
             android:id="@+id/photo_description"
             android:layout_width="wrap_content"

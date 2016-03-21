@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/insight_key"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="5dp"
+        android:textSize="@dimen/overlay_standard_text_size" />
+
+    <TextView
+        android:id="@+id/insight_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:textSize="@dimen/overlay_standard_text_size" />
+
+</LinearLayout>

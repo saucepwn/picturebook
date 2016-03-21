@@ -395,22 +395,20 @@ public class ViewSlideshowActivity extends Activity implements
         TextView photoTimeAgo = (TextView) findViewById(R.id.photo_time_ago);
         TextView photoPlaceName = (TextView) findViewById(R.id.photo_place_name);
         TextView photoOrder = (TextView) findViewById(R.id.photo_album_photo_count);
+        View numPeopleInPhotoLayout = findViewById(R.id.photo_num_people_layout);
+        TextView numPeopleInPhoto = (TextView) findViewById(R.id.photo_num_people);
 
         // photo {num} of {num}.
         String numPhotosStr = getString(R.string.photo_var_of_var, photo.getOrder(), mAlbum.getPhotos().size());
         photoOrder.setText(numPhotosStr);
 
-        // Uploader's comment of this photo.
-        if (photo.getName() == null || photo.getName().length() == 0) {
-            photoDescription.setVisibility(View.INVISIBLE);
+        // Number of people tagged in the photo.
+        if (photo.getNumPeopleInPhoto() > 0) {
+            numPeopleInPhotoLayout.setVisibility(View.VISIBLE);
+            numPeopleInPhoto.setText(String.format("%d", photo.getNumPeopleInPhoto()));
         } else {
-            photoDescription.setText(photo.getName());
-            photoDescription.setVisibility(View.VISIBLE);
+            numPeopleInPhotoLayout.setVisibility(View.GONE);
         }
-
-        // {age} days/months/years ago.
-        photoTimeAgo.setText(mPhotoDateFormatter.formatTimeSincePhotoCreated(
-                        photo.getCreatedTime(), DateTime.now()));
 
         // The name of the place where the photo was taken.
         if (photo.getPlaceName() == null || photo.getPlaceName().length() == 0) {
@@ -418,6 +416,18 @@ public class ViewSlideshowActivity extends Activity implements
         } else {
             photoPlaceName.setText(getString(R.string.at_var, photo.getPlaceName()));
             photoPlaceName.setVisibility(View.VISIBLE);
+        }
+
+        // {age} days/months/years ago.
+        photoTimeAgo.setText(mPhotoDateFormatter.formatTimeSincePhotoCreated(
+                photo.getCreatedTime(), DateTime.now()));
+
+        // Uploader's comment of this photo.
+        if (photo.getName() == null || photo.getName().length() == 0) {
+            photoDescription.setVisibility(View.INVISIBLE);
+        } else {
+            photoDescription.setText(photo.getName());
+            photoDescription.setVisibility(View.VISIBLE);
         }
     }
     /**

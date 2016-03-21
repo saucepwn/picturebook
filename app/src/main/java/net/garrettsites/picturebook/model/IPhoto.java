@@ -49,4 +49,9 @@ public interface IPhoto extends Parcelable {
      * displayed if the user taps the photo during a slideshow.
      */
     PhotoInsights getPhotoInsights();
+
+    /**
+     * @return The number of people in this photograph. Use 0 if the number of people is unknown.
+     */
+    int getNumPeopleInPhoto();
 }

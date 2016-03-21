@@ -30,6 +30,9 @@ public class PhotoInsights {
         // The photo's date.
         DATE,
 
+        // The time the photo was taken.
+        TIME,
+
         // A short description of the photo.
         COMMENT,
 
@@ -72,10 +75,20 @@ public class PhotoInsights {
     /**
      * Formats a DateTime object into a string that can be displayed to the user as a photo insight.
      * @param dateTime The DateTime object to format.
-     * @return A string of the formatted DateTime.
+     * @return A string of the formatted photo date.
      */
-    public static String formatDateTime(DateTime dateTime) {
+    public static String formatDate(DateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormat.forPattern("EEEE MMMM dd, yyyy");
+        return formatter.print(dateTime);
+    }
+
+    /**
+     * Formats a DateTime object into a string that can be displayed to the user as a photo insight.
+     * @param dateTime The DateTime object to format.
+     * @return A string of the formatted photo time.
+     */
+    public static String formatTime(DateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("h:mm aa zzz");
         return formatter.print(dateTime);
     }
 
@@ -93,10 +106,14 @@ public class PhotoInsights {
                 return resources.getString(R.string.height);
             case DATE:
                 return resources.getString(R.string.date);
+            case TIME:
+                return resources.getString(R.string.time);
             case COMMENT:
                 return resources.getString(R.string.comment);
             case PEOPLE:
                 return resources.getString(R.string.people);
+            case PLACE:
+                return resources.getString(R.string.place);
             case SOURCE:
                 return resources.getString(R.string.soruce);
             default:
