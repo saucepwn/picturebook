@@ -13,7 +13,7 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
-import net.garrettsites.picturebook.model.Photo;
+import net.garrettsites.picturebook.model.FacebookPhoto;
 import net.garrettsites.picturebook.model.Tag;
 
 import org.joda.time.DateTime;
@@ -30,17 +30,17 @@ import java.util.Locale;
 /**
  * Created by Garrett on 11/28/2015.
  */
-public class GetAllPhotoMetadataService extends IntentService {
-    private static final String TAG = GetAllPhotoMetadataService.class.getName();
+public class GetAllFacebookPhotoMetadataService extends IntentService {
+    private static final String TAG = GetAllFacebookPhotoMetadataService.class.getName();
     private TelemetryClient mLogger = TelemetryClient.getInstance();
 
     public static final String ARG_RECEIVER = "receiverTag";
     public static final String ARG_ALBUM_ID = "albumId";
     public static final String ARG_PHOTOS_METADATA = "photos_metadata";
-    private ArrayList<Photo> mAllPhotos = new ArrayList<>();
+    private ArrayList<FacebookPhoto> mAllPhotos = new ArrayList<>();
 
-    public GetAllPhotoMetadataService() {
-        super(GetAllPhotoMetadataService.class.getName());
+    public GetAllFacebookPhotoMetadataService() {
+        super(GetAllFacebookPhotoMetadataService.class.getName());
     }
 
     @Override
@@ -49,7 +49,7 @@ public class GetAllPhotoMetadataService extends IntentService {
         String albumId = intent.getStringExtra(ARG_ALBUM_ID);
 
         if (albumId == null)
-            throw new IllegalArgumentException("Must pass album ID to GetAllPhotosMetadata.");
+            throw new IllegalArgumentException("Must pass album ID to GetAllFacebookPhotoMetadataService");
 
         Bundle parameters = new Bundle();
         parameters.putString("fields", "created_time,id,from,images,link,name,place,tags");
@@ -96,7 +96,33 @@ public class GetAllPhotoMetadataService extends IntentService {
 
                 String uploadedBy = thisPhoto.getJSONObject("from").getString("name");
                 String uploadedById = thisPhoto.getJSONObject("from").getString("id");
-                String imageUrlStr = thisPhoto.getJSONArray("images").getJSONObject(0).getString("source");
+
+                // Facebook returns an array of different sized representations of the same image.
+                // We want to pick the largest image to download.
+                JSONArray images = thisPhoto.getJSONArray("images");
+                int maxHeightIdx = 0;
+                int maxHeight = 0;
+                for (int j = 0; j < images.length(); j++) {
+                    JSONObject image = images.getJSONObject(j);
+
+                    if (!image.has("source")) continue;
+
+                    if (image.has("height") && image.getInt("height") > maxHeight) {
+                        maxHeight = image.getInt("height");
+                        maxHeightIdx = j;
+                    }
+                }
+
+                String imageUrlStr = images.getJSONObject(maxHeightIdx).getString("source");
+
+                int imageHeight = 0;
+                if (images.getJSONObject(maxHeightIdx).has("height"))
+                    imageHeight = images.getJSONObject(maxHeightIdx).getInt("height");
+
+                int imageWidth = 0;
+                if (images.getJSONObject(maxHeightIdx).has("width"))
+                    imageWidth = images.getJSONObject(maxHeightIdx).getInt("width");
+
                 String postUrlStr = thisPhoto.getString("link");
                 DateTime createdTime = new DateTime(thisPhoto.getString("created_time"));
 
@@ -116,12 +142,14 @@ public class GetAllPhotoMetadataService extends IntentService {
                     e.printStackTrace();
                 }
 
-                Photo photo = new Photo(
+                FacebookPhoto photo = new FacebookPhoto(
                         id,
                         mAllPhotos.size() + 1, // order
                         name,
                         uploadedBy,
                         uploadedById,
+                        imageWidth,
+                        imageHeight,
                         imageUrl,
                         postUrl,
                         createdTime);

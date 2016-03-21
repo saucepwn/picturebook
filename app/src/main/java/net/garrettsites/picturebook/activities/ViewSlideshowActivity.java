@@ -22,13 +22,13 @@ import net.garrettsites.picturebook.PicturebookApplication;
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.ErrorCodes;
-import net.garrettsites.picturebook.model.Photo;
+import net.garrettsites.picturebook.model.IPhoto;
 import net.garrettsites.picturebook.model.UserPreferences;
 import net.garrettsites.picturebook.receivers.GetAllAlbumsReceiver;
 import net.garrettsites.picturebook.receivers.GetAllPhotoMetadataReceiver;
 import net.garrettsites.picturebook.receivers.GetPhotoBitmapReceiver;
-import net.garrettsites.picturebook.services.GetAllAlbumsService;
-import net.garrettsites.picturebook.services.GetAllPhotoMetadataService;
+import net.garrettsites.picturebook.services.GetAllFacebookAlbumsService;
+import net.garrettsites.picturebook.services.GetAllFacebookPhotoMetadataService;
 import net.garrettsites.picturebook.services.GetPhotoBitmapService;
 import net.garrettsites.picturebook.util.ChooseRandomAlbum;
 import net.garrettsites.picturebook.util.OverlayLayoutHelper;
@@ -60,8 +60,8 @@ public class ViewSlideshowActivity extends Activity implements
 
     private Album mAlbum = null;
     private PhotoOrder mPhotoOrder;
-    private Photo mNextPhoto;
-    private Photo mThisPhoto;
+    private IPhoto mNextPhoto;
+    private IPhoto mThisPhoto;
 
     private boolean mIsPaused = false;
     private long mCurrentPhotoDisplayedTimeMillis; // When the current photo was first displayed.
@@ -217,17 +217,17 @@ public class ViewSlideshowActivity extends Activity implements
         GetAllAlbumsReceiver getAllAlbumsReceiver = new GetAllAlbumsReceiver(mHandler);
         getAllAlbumsReceiver.setReceiver(this);
 
-        Intent getAllAlbumsIntent = new Intent(this, GetAllAlbumsService.class);
-        getAllAlbumsIntent.putExtra(GetAllAlbumsService.ARG_RECEIVER, getAllAlbumsReceiver);
+        Intent getAllAlbumsIntent = new Intent(this, GetAllFacebookAlbumsService.class);
+        getAllAlbumsIntent.putExtra(GetAllFacebookAlbumsService.ARG_RECEIVER, getAllAlbumsReceiver);
 
-        Log.v(TAG, "Calling GetAllAlbumsService");
+        Log.v(TAG, "Calling GetAllFacebookAlbumsService");
         startService(getAllAlbumsIntent);
     }
 
     @Override
     public void onReceiveAllAlbums(int resultCode, int errorCode, ArrayList<Album> albums) {
         if (resultCode == Activity.RESULT_OK) {
-            Log.v(TAG, "Got results from GetAllAlbumsService");
+            Log.v(TAG, "Got results from GetAllFacebookAlbumsService");
             ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
 
             mAlbum = albumRandomizer.selectRandomAlbum();
@@ -265,17 +265,17 @@ public class ViewSlideshowActivity extends Activity implements
         GetAllPhotoMetadataReceiver allPhotosReceiver = new GetAllPhotoMetadataReceiver(mHandler);
         allPhotosReceiver.setReceiver(this);
 
-        Intent getAllPhotoMetadataIntent = new Intent(this, GetAllPhotoMetadataService.class);
-        getAllPhotoMetadataIntent.putExtra(GetAllPhotoMetadataService.ARG_RECEIVER, allPhotosReceiver);
-        getAllPhotoMetadataIntent.putExtra(GetAllPhotoMetadataService.ARG_ALBUM_ID, mAlbum.getId());
+        Intent getAllPhotoMetadataIntent = new Intent(this, GetAllFacebookPhotoMetadataService.class);
+        getAllPhotoMetadataIntent.putExtra(GetAllFacebookPhotoMetadataService.ARG_RECEIVER, allPhotosReceiver);
+        getAllPhotoMetadataIntent.putExtra(GetAllFacebookPhotoMetadataService.ARG_ALBUM_ID, mAlbum.getId());
 
-        Log.v(TAG, "Calling GetAllPhotoMetadataService");
+        Log.v(TAG, "Calling GetAllFacebookPhotoMetadataService");
         startService(getAllPhotoMetadataIntent);
     }
 
     @Override
-    public void onReceiveAllPhotoMetadata(int resultCode, ArrayList<Photo> photos) {
-        Log.v(TAG, "Got results from GetAllPhotoMetadataService");
+    public void onReceiveAllPhotoMetadata(int resultCode, ArrayList<IPhoto> photos) {
+        Log.v(TAG, "Got results from GetAllFacebookPhotoMetadataService");
 
         if (resultCode != Activity.RESULT_OK) {
             String errorStr = "Error retrieving photo metadata for album: " + mAlbum.getName() +
@@ -362,7 +362,7 @@ public class ViewSlideshowActivity extends Activity implements
         mBackgroundKenBurnsView.setImageBitmap(imageBitmap);
 
         PhotoTagsTransitionGenerator generator = new PhotoTagsTransitionGenerator(
-                mUserPreferences.getPhotoDelaySeconds() * 1000, mThisPhoto.getTags());
+                mUserPreferences.getPhotoDelaySeconds() * 1000, null);
 
         mBackgroundKenBurnsView.setTransitionGenerator(generator);
 
@@ -390,7 +390,7 @@ public class ViewSlideshowActivity extends Activity implements
         mCurrentPhotoDisplayedTimeMillis = System.currentTimeMillis();
     }
 
-    private void populateUiWithPhotoInfo(Photo photo) {
+    private void populateUiWithPhotoInfo(IPhoto photo) {
         TextView photoDescription = (TextView) findViewById(R.id.photo_description);
         TextView photoTimeAgo = (TextView) findViewById(R.id.photo_time_ago);
         TextView photoPlaceName = (TextView) findViewById(R.id.photo_place_name);
@@ -423,6 +423,13 @@ public class ViewSlideshowActivity extends Activity implements
     /**
      * END sequence
      */
+
+    /**
+     * @return The photo currently on screen.
+     */
+    public IPhoto getCurrentPhoto() {
+        return mThisPhoto;
+    }
 
     /**
      * Pauses the slideshow. Stops the Ken Burns animation and stops the photo advance timer.

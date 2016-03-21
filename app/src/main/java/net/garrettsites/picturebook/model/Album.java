@@ -18,7 +18,7 @@ public class Album implements Parcelable {
     private DateTime mUpdatedTime;
     private String mId;
 
-    private ArrayList<Photo> mPhotos;
+    private ArrayList<IPhoto> mPhotos;
 
     public Album(String type, String name, String description, DateTime createdTime, DateTime updatedTime, String id) {
         mType = type;
@@ -64,11 +64,11 @@ public class Album implements Parcelable {
         return mId;
     }
 
-    public void setPhotos(ArrayList<Photo> photos) {
+    public void setPhotos(ArrayList<IPhoto> photos) {
         mPhotos = photos;
     }
 
-    public ArrayList<Photo> getPhotos() {
+    public ArrayList<IPhoto> getPhotos() {
         return mPhotos;
     }
 

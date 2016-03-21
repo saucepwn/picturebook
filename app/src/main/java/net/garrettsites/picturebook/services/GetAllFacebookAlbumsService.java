@@ -27,16 +27,16 @@ import java.util.HashMap;
 /**
  * Created by Garrett on 11/20/2015.
  */
-public class GetAllAlbumsService extends IntentService {
-    private static final String TAG = GetAllAlbumsService.class.getName();
+public class GetAllFacebookAlbumsService extends IntentService {
+    private static final String TAG = GetAllFacebookAlbumsService.class.getName();
     private TelemetryClient mLogger = TelemetryClient.getInstance();
 
     public static final String ARG_RECEIVER = "receiverTag";
     public static final String ARG_ALBUM_ARRAY_LIST = "albums";
     private ArrayList<Album> allAlbums = new ArrayList<>();
 
-    public GetAllAlbumsService() {
-        super(GetAllAlbumsService.class.getName());
+    public GetAllFacebookAlbumsService() {
+        super(GetAllFacebookAlbumsService.class.getName());
     }
 
     @Override
@@ -46,7 +46,7 @@ public class GetAllAlbumsService extends IntentService {
         // Fail with an error code if the user is not logged in.
         if (AccessToken.getCurrentAccessToken() == null) {
             Log.w(TAG, "Tried to start slideshow without logged in Facebook account - aborting.");
-            mLogger.trackEvent("WARN: GetAllAlbumsService called without a Facebook account.");
+            mLogger.trackEvent("WARN: GetAllFacebookAlbumsService called without a Facebook account.");
 
             Bundle errorBundle = new Bundle();
             errorBundle.putInt("ErrorCode", ErrorCodes.Error.NO_LOGGED_IN_ACCOUNT.ordinal());

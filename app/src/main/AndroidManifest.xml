@@ -59,10 +59,10 @@
             android:name=".services.StartSlideshowService"
             android:exported="false" />
         <service
-            android:name=".services.GetAllAlbumsService"
+            android:name=".services.GetAllFacebookAlbumsService"
             android:exported="false" />
         <service
-            android:name=".services.GetAllPhotoMetadataService"
+            android:name=".services.GetAllFacebookPhotoMetadataService"
             android:exported="false" />
         <service
             android:name=".services.GetPhotoBitmapService"

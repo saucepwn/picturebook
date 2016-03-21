@@ -1,10 +1,18 @@
 package net.garrettsites.picturebook.util;
 
+import android.content.res.Resources;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.activities.ViewSlideshowActivity;
+import net.garrettsites.picturebook.model.IPhoto;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by garrett on 3/20/2016.
@@ -54,7 +62,45 @@ public class OverlayLayoutHelper implements View.OnTouchListener {
         if (!mIsOverlayAllowed) return;
 
         mViewSlideshowActivity.pauseSlideshow();
+        writeInsightsToUi(mViewSlideshowActivity.getCurrentPhoto());
         overlayRootView.setVisibility(View.VISIBLE);
+    }
+
+    private void writeInsightsToUi(IPhoto photo) {
+        Resources r = mViewSlideshowActivity.getResources();
+
+        LinearLayout insightsContainer =
+                (LinearLayout) overlayRootView.findViewById(R.id.overlay_photo_insights_container);
+
+        // Remove any old insights in the UI.
+        insightsContainer.removeAllViews();
+
+        HashMap<String, String> insightsMap = photo.getPhotoInsights().getLocalizedInsights(r);
+
+        for (Map.Entry<String, String> entry : insightsMap.entrySet()) {
+            LinearLayout insightRow = new LinearLayout(mViewSlideshowActivity);
+            insightRow.setOrientation(LinearLayout.HORIZONTAL);
+
+            TextView insightKey = new TextView(mViewSlideshowActivity);
+            TextView insightValue = new TextView(mViewSlideshowActivity);
+
+            insightKey.setPadding(0, 2, 5, 2);
+            insightValue.setPadding(0, 2, 5, 2);
+
+            insightKey.setTextColor(r.getColor(android.R.color.white));
+            insightValue.setTextColor(r.getColor(android.R.color.white));
+
+            insightKey.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+            insightValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+
+            insightKey.setText(entry.getKey() + ":");
+            insightValue.setText(entry.getValue());
+
+            insightRow.addView(insightKey);
+            insightRow.addView(insightValue);
+
+            insightsContainer.addView(insightRow);
+        }
     }
 
     /**
