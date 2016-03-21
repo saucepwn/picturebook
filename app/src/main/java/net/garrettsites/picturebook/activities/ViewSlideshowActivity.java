@@ -84,6 +84,14 @@ public class ViewSlideshowActivity extends Activity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Sometimes we can be viewing a slideshow when a StartSlideshowBroadcastReceiver receives
+        // an intent to start another slideshow. Usually, we want to start another slideshow.
+        // However, if the user has paused the current slideshow, don't start a new one.
+        if (mIsPaused) {
+            mLogger.trackEvent("Entered ViewSlideshowActivity.onCreate while current slideshow was paused.");
+            return;
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_slideshow);
 
