@@ -12,7 +12,7 @@ import android.util.Log;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.cache.PhotoDiskCache;
-import net.garrettsites.picturebook.model.IPhoto;
+import net.garrettsites.picturebook.model.Photo;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class GetPhotoBitmapService extends IntentService {
         // Check if the photo exists in the app's disk cache. If not, get from network.
         mCache = new PhotoDiskCache(getApplicationContext());
 
-        IPhoto photo = intent.getParcelableExtra(ARG_PHOTO_OBJ);
+        Photo photo = intent.getParcelableExtra(ARG_PHOTO_OBJ);
 
         String imageId = photo.getId();
         File imageLocation = null;

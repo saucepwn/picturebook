@@ -12,7 +12,7 @@ import java.util.ArrayList;
 /**
  * Created by Garrett on 11/28/2015.
  */
-public class FacebookPhoto implements IPhoto {
+public class FacebookPhoto implements Photo {
     private String mId;
     private int mOrder = 0;
     private String mName;
@@ -140,6 +140,7 @@ public class FacebookPhoto implements IPhoto {
         insights.addInsight(PhotoInsights.InsightKey.HEIGHT, Integer.toString(getHeight()) + "px");
         insights.addInsight(PhotoInsights.InsightKey.COMMENT, getName());
         insights.addInsight(PhotoInsights.InsightKey.PLACE, getPlaceName());
+        insights.addInsight(PhotoInsights.InsightKey.SOURCE, "Facebook");
 
         if (getCreatedTime() != null) {
             insights.addInsight(PhotoInsights.InsightKey.DATE,

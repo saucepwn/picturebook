@@ -15,6 +15,7 @@ import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.ErrorCodes;
+import net.garrettsites.picturebook.model.FacebookAlbum;
 
 import org.joda.time.DateTime;
 import org.json.JSONArray;
@@ -109,7 +110,7 @@ public class GetAllFacebookAlbumsService extends IntentService {
                     description = thisAlbum.getString("description");
                 }
 
-                Album album = new Album(type, name, description, createdTime, updatedTime, id);
+                Album album = new FacebookAlbum(type, name, description, createdTime, updatedTime, id);
 
                 allAlbums.add(album);
             }

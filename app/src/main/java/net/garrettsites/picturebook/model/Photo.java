@@ -9,7 +9,7 @@ import java.net.URL;
 /**
  * Created by Garrett on 3/20/2016.
  */
-public interface IPhoto extends Parcelable {
+public interface Photo extends Parcelable {
     /**
      * @return A unique ID for the photo. Used when generating the photo's cached name. It may be
      * modified by the app, so getId() should not be used when calling the photo hosting service.

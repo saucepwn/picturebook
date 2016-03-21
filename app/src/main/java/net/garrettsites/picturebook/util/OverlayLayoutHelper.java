@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.activities.ViewSlideshowActivity;
-import net.garrettsites.picturebook.model.IPhoto;
+import net.garrettsites.picturebook.model.Photo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,7 +67,7 @@ public class OverlayLayoutHelper implements View.OnTouchListener {
         overlayRootView.setVisibility(View.VISIBLE);
     }
 
-    private void writeInsightsToUi(IPhoto photo) {
+    private void writeInsightsToUi(Photo photo) {
         Resources r = mViewSlideshowActivity.getResources();
         LayoutInflater inflater = (LayoutInflater)
                 mViewSlideshowActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

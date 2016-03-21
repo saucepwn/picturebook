@@ -22,7 +22,7 @@ import net.garrettsites.picturebook.PicturebookApplication;
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.ErrorCodes;
-import net.garrettsites.picturebook.model.IPhoto;
+import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.model.UserPreferences;
 import net.garrettsites.picturebook.receivers.GetAllAlbumsReceiver;
 import net.garrettsites.picturebook.receivers.GetAllPhotoMetadataReceiver;
@@ -60,8 +60,8 @@ public class ViewSlideshowActivity extends Activity implements
 
     private Album mAlbum = null;
     private PhotoOrder mPhotoOrder;
-    private IPhoto mNextPhoto;
-    private IPhoto mThisPhoto;
+    private Photo mNextPhoto;
+    private Photo mThisPhoto;
 
     private boolean mIsPaused = false;
     private long mCurrentPhotoDisplayedTimeMillis; // When the current photo was first displayed.
@@ -274,7 +274,7 @@ public class ViewSlideshowActivity extends Activity implements
     }
 
     @Override
-    public void onReceiveAllPhotoMetadata(int resultCode, ArrayList<IPhoto> photos) {
+    public void onReceiveAllPhotoMetadata(int resultCode, ArrayList<Photo> photos) {
         Log.v(TAG, "Got results from GetAllFacebookPhotoMetadataService");
 
         if (resultCode != Activity.RESULT_OK) {
@@ -390,7 +390,7 @@ public class ViewSlideshowActivity extends Activity implements
         mCurrentPhotoDisplayedTimeMillis = System.currentTimeMillis();
     }
 
-    private void populateUiWithPhotoInfo(IPhoto photo) {
+    private void populateUiWithPhotoInfo(Photo photo) {
         TextView photoDescription = (TextView) findViewById(R.id.photo_description);
         TextView photoTimeAgo = (TextView) findViewById(R.id.photo_time_ago);
         TextView photoPlaceName = (TextView) findViewById(R.id.photo_place_name);
@@ -437,7 +437,7 @@ public class ViewSlideshowActivity extends Activity implements
     /**
      * @return The photo currently on screen.
      */
-    public IPhoto getCurrentPhoto() {
+    public Photo getCurrentPhoto() {
         return mThisPhoto;
     }
 
