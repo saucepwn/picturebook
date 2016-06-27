@@ -67,6 +67,8 @@ public class ViewSlideshowActivity extends Activity implements
     private long mCurrentPhotoDisplayedTimeMillis; // When the current photo was first displayed.
     private long mPausedPhotoDisplayedDurationMillis; // How long the current photo was displayed before it was paused.
 
+    int serviceInvocationCode;
+
     private PhotoDateFormatter mPhotoDateFormatter;
     private OverlayLayoutHelper overlayHelper;
 
@@ -74,8 +76,8 @@ public class ViewSlideshowActivity extends Activity implements
     private KenBurnsView mBackgroundKenBurnsView;
 
     private Sleepitizer mSleeper = new Sleepitizer();
-    private Handler mHandler = new Handler();
-    private GetPhotoBitmapReceiver mPhotoBitmapReceiver = new GetPhotoBitmapReceiver(mHandler);
+    private Handler mHandler;
+    private GetPhotoBitmapReceiver mPhotoBitmapReceiver;
 
     private UserPreferences mUserPreferences;
     private TelemetryClient mLogger = TelemetryClient.getInstance();
@@ -103,10 +105,6 @@ public class ViewSlideshowActivity extends Activity implements
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        // Hook up the receiver from the GetPhotoBitmap service.
-        mPhotoBitmapReceiver = new GetPhotoBitmapReceiver(mHandler);
-        mPhotoBitmapReceiver.setReceiver(this);
-
         mActiveKenBurnsView = (KenBurnsView) findViewById(R.id.image_viewport_1);
         mBackgroundKenBurnsView = (KenBurnsView) findViewById(R.id.image_viewport_2);
 
@@ -126,6 +124,7 @@ public class ViewSlideshowActivity extends Activity implements
 
         // If an album was passed to this activity, display it. Otherwise, choose a random album
         // to show.
+        mAlbum = null;
         Album albumToShow = getIntent().getParcelableExtra(ARG_ALBUM);
         if (albumToShow != null) {
             // Display the album that we've been passed.
@@ -142,6 +141,12 @@ public class ViewSlideshowActivity extends Activity implements
     public void onResume() {
         Log.d(TAG, "onResume called");
         super.onResume();
+
+        mHandler = new Handler();
+
+        // Hook up the receiver from the GetPhotoBitmap service.
+        mPhotoBitmapReceiver = new GetPhotoBitmapReceiver(mHandler);
+        mPhotoBitmapReceiver.setReceiver(this);
 
         // Hide the navigation bar.
         View decorView = getWindow().getDecorView();
@@ -171,6 +176,7 @@ public class ViewSlideshowActivity extends Activity implements
         Log.d(TAG, "onPause called");
         super.onPause();
         mHandler.removeCallbacks(this);
+        mHandler = null;
     }
 
     @Override
@@ -232,12 +238,14 @@ public class ViewSlideshowActivity extends Activity implements
         Intent getAllAlbumsIntent = new Intent(this, GetAllFacebookAlbumsService.class);
         getAllAlbumsIntent.putExtra(GetAllFacebookAlbumsService.ARG_RECEIVER, getAllAlbumsReceiver);
 
-        Log.v(TAG, "Calling GetAllFacebookAlbumsService");
-        startService(getAllAlbumsIntent);
+        Log.v(TAG, "Calling GetAllFacebookAlbumsService" + serviceInvocationCode);
+        startServiceInternal(getAllAlbumsIntent);
     }
 
     @Override
-    public void onReceiveAllAlbums(int resultCode, int errorCode, ArrayList<Album> albums) {
+    public void onReceiveAllAlbums(int resultCode, int errorCode, int invocationCode, ArrayList<Album> albums) {
+        if (!validateInvocationCode(invocationCode)) return;
+
         if (resultCode == Activity.RESULT_OK) {
             Log.v(TAG, "Got results from GetAllFacebookAlbumsService");
             ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
@@ -282,11 +290,14 @@ public class ViewSlideshowActivity extends Activity implements
         getAllPhotoMetadataIntent.putExtra(GetAllFacebookPhotoMetadataService.ARG_ALBUM_ID, mAlbum.getId());
 
         Log.v(TAG, "Calling GetAllFacebookPhotoMetadataService");
-        startService(getAllPhotoMetadataIntent);
+        startServiceInternal(getAllPhotoMetadataIntent);
     }
 
     @Override
-    public void onReceiveAllPhotoMetadata(int resultCode, ArrayList<Photo> photos) {
+    public void onReceiveAllPhotoMetadata(
+            int resultCode, int invocationCode, ArrayList<Photo> photos) {
+        if (!validateInvocationCode(invocationCode)) return;
+
         Log.v(TAG, "Got results from GetAllFacebookPhotoMetadataService");
 
         if (resultCode != Activity.RESULT_OK) {
@@ -336,12 +347,14 @@ public class ViewSlideshowActivity extends Activity implements
         Intent getBitmapIntent = new Intent(this, GetPhotoBitmapService.class);
         getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_PHOTO_OBJ, mNextPhoto);
         getBitmapIntent.putExtra(GetPhotoBitmapService.ARG_RECEIVER, mPhotoBitmapReceiver);
-        startService(getBitmapIntent);
+        startServiceInternal(getBitmapIntent);
         Log.v(TAG, "End loading photo: " + mNextPhoto.getId());
     }
 
     @Override
-    public void onReceivePhotoBitmap(int resultCode, String imageFilePath) {
+    public void onReceivePhotoBitmap(int resultCode, int invocationCode, String imageFilePath) {
+        if (!validateInvocationCode(invocationCode)) return;
+
         // Only update the photo if the last operation completed successfully. If it didn't, try it
         // again.
         if (resultCode == Activity.RESULT_OK) {
@@ -488,5 +501,31 @@ public class ViewSlideshowActivity extends Activity implements
 
         Log.i(TAG, "Resuming slideshow, next photo in " + (remainingTime / 1000) + " seconds");
         mHandler.postDelayed(this, remainingTime);
+    }
+
+    /**
+     * Validates that the received invocation code matches the invocation code we started the service
+     * with. This prevents duplicate service calls from being made.
+     * @param receivedCode The code to validate.
+     * @return True if this is the response we are expecting, false if it is not.
+     */
+    private boolean validateInvocationCode(int receivedCode) {
+        if (receivedCode != serviceInvocationCode) {
+            Log.w(TAG, "Received message with incorrect invocation code. Dropping message.");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Adds an invocation code to the intent and starts the service described by it.
+     * @param intent The intent to start.
+     */
+    private void startServiceInternal(Intent intent) {
+        serviceInvocationCode = (int) (Math.random() * Integer.MAX_VALUE);
+        intent.putExtra("code", serviceInvocationCode);
+
+        startService(intent);
     }
 }

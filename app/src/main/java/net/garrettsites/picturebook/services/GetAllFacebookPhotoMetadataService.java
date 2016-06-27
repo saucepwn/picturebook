@@ -33,7 +33,9 @@ import java.util.Locale;
 public class GetAllFacebookPhotoMetadataService extends IntentService {
     private static final String TAG = GetAllFacebookPhotoMetadataService.class.getName();
     private TelemetryClient mLogger = TelemetryClient.getInstance();
+    private int invocationCode;
 
+    public static final String ARG_CODE = "code";
     public static final String ARG_RECEIVER = "receiverTag";
     public static final String ARG_ALBUM_ID = "albumId";
     public static final String ARG_PHOTOS_METADATA = "photos_metadata";
@@ -45,6 +47,7 @@ public class GetAllFacebookPhotoMetadataService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        invocationCode = intent.getIntExtra(ARG_CODE, -1);
         ResultReceiver receiver = intent.getParcelableExtra(ARG_RECEIVER);
         String albumId = intent.getStringExtra(ARG_ALBUM_ID);
 
@@ -63,11 +66,13 @@ public class GetAllFacebookPhotoMetadataService extends IntentService {
         executeRequestAndAddPhotosToList(request);
 
         // This album has no photos, return failure.
+        Bundle bundle = new Bundle();
+        bundle.putInt(ARG_CODE, invocationCode);
+
         if (mAllPhotos.size() == 0) {
             Log.w(TAG, "Album id " + albumId + " has no photos. Failing.");
-            receiver.send(Activity.RESULT_CANCELED, null);
+            receiver.send(Activity.RESULT_CANCELED, bundle);
         } else {
-            Bundle bundle = new Bundle();
             bundle.putParcelableArrayList(ARG_PHOTOS_METADATA, mAllPhotos);
             receiver.send(Activity.RESULT_OK, bundle);
         }

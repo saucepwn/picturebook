@@ -24,7 +24,7 @@ public class GetAllPhotoMetadataReceiver extends ResultReceiver {
     }
 
     public interface Receiver {
-        void onReceiveAllPhotoMetadata(int resultCode, ArrayList<Photo> albums);
+        void onReceiveAllPhotoMetadata(int resultCode, int invocationCode, ArrayList<Photo> albums);
     }
 
     public void setReceiver(Receiver receiver) {
@@ -33,14 +33,16 @@ public class GetAllPhotoMetadataReceiver extends ResultReceiver {
 
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
+        int invocationCode = resultData.getInt(GetAllFacebookPhotoMetadataService.ARG_CODE);
+
         if (mReceiver != null) {
             if (resultData == null) {
                 Log.w(TAG, "resultData is null. Setting resultCode to RESULT_CANCELED.");
-                mReceiver.onReceiveAllPhotoMetadata(Activity.RESULT_CANCELED, null);
+                mReceiver.onReceiveAllPhotoMetadata(Activity.RESULT_CANCELED, invocationCode, null);
             } else {
                 // Deserialize the parceled version of our album array.
                 ArrayList<Photo> photos = resultData.getParcelableArrayList(GetAllFacebookPhotoMetadataService.ARG_PHOTOS_METADATA);
-                mReceiver.onReceiveAllPhotoMetadata(resultCode, photos);
+                mReceiver.onReceiveAllPhotoMetadata(resultCode, invocationCode, photos);
             }
         }
     }

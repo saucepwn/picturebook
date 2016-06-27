@@ -2,6 +2,7 @@ package net.garrettsites.picturebook.services;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
 import net.garrettsites.picturebook.activities.ViewSlideshowActivity;
 import net.garrettsites.picturebook.model.Album;
@@ -23,6 +24,7 @@ public class StartSlideshowService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        Log.i(TAG, "Incoming intent: desired action is to display slideshow.");
         Intent viewSlideshowActivity = new Intent(getApplicationContext(), ViewSlideshowActivity.class);
 
         if (intent.getParcelableExtra(ARG_ALBUM) != null) {

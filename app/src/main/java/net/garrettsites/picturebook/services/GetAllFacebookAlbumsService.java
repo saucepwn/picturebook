@@ -31,7 +31,9 @@ import java.util.HashMap;
 public class GetAllFacebookAlbumsService extends IntentService {
     private static final String TAG = GetAllFacebookAlbumsService.class.getName();
     private TelemetryClient mLogger = TelemetryClient.getInstance();
+    private int invocationCode;
 
+    public static final String ARG_CODE = "code";
     public static final String ARG_RECEIVER = "receiverTag";
     public static final String ARG_ALBUM_ARRAY_LIST = "albums";
     private ArrayList<Album> allAlbums = new ArrayList<>();
@@ -43,6 +45,7 @@ public class GetAllFacebookAlbumsService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         ResultReceiver receiver = intent.getParcelableExtra(ARG_RECEIVER);
+        invocationCode = intent.getIntExtra(ARG_CODE, -1);
 
         // Fail with an error code if the user is not logged in.
         if (AccessToken.getCurrentAccessToken() == null) {
@@ -82,6 +85,7 @@ public class GetAllFacebookAlbumsService extends IntentService {
 
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList(ARG_ALBUM_ARRAY_LIST, allAlbums);
+        bundle.putInt(ARG_CODE, invocationCode);
         receiver.send(Activity.RESULT_OK, bundle);
     }
 

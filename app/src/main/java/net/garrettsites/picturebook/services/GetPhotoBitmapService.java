@@ -28,6 +28,7 @@ public class GetPhotoBitmapService extends IntentService {
     private TelemetryClient mLogger = TelemetryClient.getInstance();
 
     // Calling arguments
+    public static final String ARG_CODE = "code";
     public static final String ARG_RECEIVER = "receiverTag";
     public static final String ARG_PHOTO_OBJ = "photo";
 
@@ -35,6 +36,7 @@ public class GetPhotoBitmapService extends IntentService {
     public static final String ARG_IMAGE_PATH = "cache_image_path";
 
     private PhotoDiskCache mCache;
+    private int invocationCode;
 
     public GetPhotoBitmapService() {
         super(GetPhotoBitmapService.class.getName());
@@ -42,6 +44,7 @@ public class GetPhotoBitmapService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        invocationCode = intent.getIntExtra(ARG_CODE, -1);
         ResultReceiver receiver = intent.getParcelableExtra(ARG_RECEIVER);
 
         // Check if the photo exists in the app's disk cache. If not, get from network.
@@ -66,6 +69,8 @@ public class GetPhotoBitmapService extends IntentService {
         }
 
         Bundle retVal = new Bundle();
+        retVal.putInt(ARG_CODE, invocationCode);
+
         if (imageLocation == null) {
             Log.e(TAG, "imageLocation is null. Photo was not successfully retrieved.");
             receiver.send(Activity.RESULT_CANCELED, retVal);

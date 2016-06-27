@@ -17,7 +17,7 @@ public class GetPhotoBitmapReceiver extends ResultReceiver {
     }
 
     public interface Receiver {
-        void onReceivePhotoBitmap(int resultCode, String imageFilePath);
+        void onReceivePhotoBitmap(int resultCode, int invocationCode, String imageFilePath);
     }
 
     public void setReceiver(Receiver receiver) {
@@ -26,9 +26,11 @@ public class GetPhotoBitmapReceiver extends ResultReceiver {
 
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
+        int invocationCode = resultData.getInt(GetPhotoBitmapService.ARG_CODE);
+
         if (mReceiver != null) {
             String imageFilePath = resultData.getString(GetPhotoBitmapService.ARG_IMAGE_PATH);
-            mReceiver.onReceivePhotoBitmap(resultCode, imageFilePath);
+            mReceiver.onReceivePhotoBitmap(resultCode, invocationCode, imageFilePath);
         }
     }
 }

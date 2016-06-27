@@ -97,7 +97,7 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
     }
 
     @Override
-    public void onReceiveAllAlbums(int resultCode, int errorCode, ArrayList<Album> albums) {
+    public void onReceiveAllAlbums(int resultCode, int errorCode, int invocationCode, ArrayList<Album> albums) {
         if (resultCode == Activity.RESULT_OK) {
             Log.v(TAG, "Got results from GetAllFacebookAlbumsService");
             mRecyclerView.setAdapter(new ChooseAlbumRecyclerViewAdapter(albums, mListener));

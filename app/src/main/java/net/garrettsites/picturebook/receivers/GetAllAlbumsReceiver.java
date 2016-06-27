@@ -21,7 +21,8 @@ public class GetAllAlbumsReceiver extends ResultReceiver {
     }
 
     public interface Receiver {
-        void onReceiveAllAlbums(int resultCode, int errorCode, ArrayList<Album> albums);
+        void onReceiveAllAlbums(
+                int resultCode, int errorCode, int invocationCode, ArrayList<Album> albums);
     }
 
     public void setReceiver(Receiver receiver) {
@@ -30,15 +31,17 @@ public class GetAllAlbumsReceiver extends ResultReceiver {
 
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
+        int invocationCode = resultData.getInt(GetAllFacebookAlbumsService.ARG_CODE);
+
         if (mReceiver != null) {
             if (resultCode == Activity.RESULT_OK) {
                 // Deserialize the parceled version of our album array.
                 ArrayList<Album> albums =
                         resultData.getParcelableArrayList(GetAllFacebookAlbumsService.ARG_ALBUM_ARRAY_LIST);
-                mReceiver.onReceiveAllAlbums(resultCode, -1, albums);
+                mReceiver.onReceiveAllAlbums(resultCode, -1, invocationCode, albums);
             } else {
                 int errorCode = resultData.getInt("ErrorCode");
-                mReceiver.onReceiveAllAlbums(resultCode, errorCode, null);
+                mReceiver.onReceiveAllAlbums(resultCode, errorCode, invocationCode, null);
             }
         }
     }
