@@ -132,11 +132,6 @@ public class SleepScheduleConfig extends Fragment implements View.OnClickListene
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                                 userPreferences.setSleepTime(hourOfDay, minute);
-
-                                if (!mSleepWakeEnable.isChecked()) {
-                                    // TODO: Schedule the sleeper to run at the specified time.
-                                }
-
                                 mSleepTimeLabel.setText(formatTime(hourOfDay, minute));
                             }},
                         sleepHour,
@@ -157,6 +152,8 @@ public class SleepScheduleConfig extends Fragment implements View.OnClickListene
 
         if (hour == 0) {
             hour = 12;
+        } else if (hour == 12) {
+            am = false;
         } else if (hour > 12) {
             am = false;
             hour = hour - 12;
