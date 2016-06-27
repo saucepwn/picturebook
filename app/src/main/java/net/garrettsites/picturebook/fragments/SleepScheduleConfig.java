@@ -77,15 +77,9 @@ public class SleepScheduleConfig extends Fragment implements View.OnClickListene
                     int wakeMinute = userPreferences.getWakeTimeMinute();
 
                     waker.setDailyWakeTime(wakeHour, wakeMinute);
-
-                    // TODO: Enable the sleeper.
-
                     view.findViewById(R.id.edit_sleep_wake_time_container).setVisibility(View.VISIBLE);
                 } else {
                     waker.cancelWaker();
-
-                    // TODO: Disable the sleeper.
-
                     view.findViewById(R.id.edit_sleep_wake_time_container).setVisibility(View.INVISIBLE);
                 }
             }

@@ -84,6 +84,8 @@ public class ViewSlideshowActivity extends Activity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate called");
+
         // Sometimes we can be viewing a slideshow when a StartSlideshowBroadcastReceiver receives
         // an intent to start another slideshow. Usually, we want to start another slideshow.
         // However, if the user has paused the current slideshow, don't start a new one.
@@ -138,6 +140,7 @@ public class ViewSlideshowActivity extends Activity implements
 
     @Override
     public void onResume() {
+        Log.d(TAG, "onResume called");
         super.onResume();
 
         // Hide the navigation bar.
@@ -165,6 +168,7 @@ public class ViewSlideshowActivity extends Activity implements
 
     @Override
     public void onPause() {
+        Log.d(TAG, "onPause called");
         super.onPause();
         mHandler.removeCallbacks(this);
     }

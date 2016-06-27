@@ -67,6 +67,7 @@ public class GetPhotoBitmapService extends IntentService {
 
         Bundle retVal = new Bundle();
         if (imageLocation == null) {
+            Log.e(TAG, "imageLocation is null. Photo was not successfully retrieved.");
             receiver.send(Activity.RESULT_CANCELED, retVal);
         } else {
             retVal.putString(ARG_IMAGE_PATH, imageLocation.getPath());
