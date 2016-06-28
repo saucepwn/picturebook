@@ -67,7 +67,7 @@ public class ViewSlideshowActivity extends Activity implements
     private long mCurrentPhotoDisplayedTimeMillis; // When the current photo was first displayed.
     private long mPausedPhotoDisplayedDurationMillis; // How long the current photo was displayed before it was paused.
 
-    int serviceInvocationCode;
+    private int serviceInvocationCode;
 
     private PhotoDateFormatter mPhotoDateFormatter;
     private OverlayLayoutHelper overlayHelper;
