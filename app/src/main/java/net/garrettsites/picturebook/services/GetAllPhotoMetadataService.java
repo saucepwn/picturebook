@@ -30,8 +30,8 @@ import java.util.Locale;
 /**
  * Created by Garrett on 11/28/2015.
  */
-public class GetAllFacebookPhotoMetadataService extends IntentService {
-    private static final String TAG = GetAllFacebookPhotoMetadataService.class.getName();
+public class GetAllPhotoMetadataService extends IntentService {
+    private static final String TAG = GetAllPhotoMetadataService.class.getName();
     private TelemetryClient mLogger = TelemetryClient.getInstance();
     private int invocationCode;
 
@@ -41,8 +41,8 @@ public class GetAllFacebookPhotoMetadataService extends IntentService {
     public static final String ARG_PHOTOS_METADATA = "photos_metadata";
     private ArrayList<FacebookPhoto> mAllPhotos = new ArrayList<>();
 
-    public GetAllFacebookPhotoMetadataService() {
-        super(GetAllFacebookPhotoMetadataService.class.getName());
+    public GetAllPhotoMetadataService() {
+        super(GetAllPhotoMetadataService.class.getName());
     }
 
     @Override
@@ -52,7 +52,7 @@ public class GetAllFacebookPhotoMetadataService extends IntentService {
         String albumId = intent.getStringExtra(ARG_ALBUM_ID);
 
         if (albumId == null)
-            throw new IllegalArgumentException("Must pass album ID to GetAllFacebookPhotoMetadataService");
+            throw new IllegalArgumentException("Must pass album ID to GetAllPhotoMetadataService");
 
         Bundle parameters = new Bundle();
         parameters.putString("fields", "created_time,id,from,images,link,name,place,tags");

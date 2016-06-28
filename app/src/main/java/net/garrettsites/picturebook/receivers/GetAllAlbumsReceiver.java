@@ -6,7 +6,7 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 
 import net.garrettsites.picturebook.model.Album;
-import net.garrettsites.picturebook.services.GetAllFacebookAlbumsService;
+import net.garrettsites.picturebook.services.GetAllAlbumsService;
 
 import java.util.ArrayList;
 
@@ -31,13 +31,13 @@ public class GetAllAlbumsReceiver extends ResultReceiver {
 
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
-        int invocationCode = resultData.getInt(GetAllFacebookAlbumsService.ARG_CODE);
+        int invocationCode = resultData.getInt(GetAllAlbumsService.ARG_CODE);
 
         if (mReceiver != null) {
             if (resultCode == Activity.RESULT_OK) {
                 // Deserialize the parceled version of our album array.
                 ArrayList<Album> albums =
-                        resultData.getParcelableArrayList(GetAllFacebookAlbumsService.ARG_ALBUM_ARRAY_LIST);
+                        resultData.getParcelableArrayList(GetAllAlbumsService.ARG_ALBUM_ARRAY_LIST);
                 mReceiver.onReceiveAllAlbums(resultCode, -1, invocationCode, albums);
             } else {
                 int errorCode = resultData.getInt("ErrorCode");

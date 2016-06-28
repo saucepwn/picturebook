@@ -27,8 +27,8 @@ import net.garrettsites.picturebook.model.UserPreferences;
 import net.garrettsites.picturebook.receivers.GetAllAlbumsReceiver;
 import net.garrettsites.picturebook.receivers.GetAllPhotoMetadataReceiver;
 import net.garrettsites.picturebook.receivers.GetPhotoBitmapReceiver;
-import net.garrettsites.picturebook.services.GetAllFacebookAlbumsService;
-import net.garrettsites.picturebook.services.GetAllFacebookPhotoMetadataService;
+import net.garrettsites.picturebook.services.GetAllAlbumsService;
+import net.garrettsites.picturebook.services.GetAllPhotoMetadataService;
 import net.garrettsites.picturebook.services.GetPhotoBitmapService;
 import net.garrettsites.picturebook.util.ChooseRandomAlbum;
 import net.garrettsites.picturebook.util.OverlayLayoutHelper;
@@ -225,7 +225,7 @@ public class ViewSlideshowActivity extends Activity implements
      * retrieve the photo album.
      */
     private void beginRetrieveAlbumSequence() {
-        // Step 1: Get the metadata for all of this user's Facebook albums.
+        // Step 1: Get the metadata for all of this user's photo albums.
         Log.v(TAG, "Starting retrieve album sequence");
         callGetAllAlbumsService();
     }
@@ -235,10 +235,10 @@ public class ViewSlideshowActivity extends Activity implements
         GetAllAlbumsReceiver getAllAlbumsReceiver = new GetAllAlbumsReceiver(mHandler);
         getAllAlbumsReceiver.setReceiver(this);
 
-        Intent getAllAlbumsIntent = new Intent(this, GetAllFacebookAlbumsService.class);
-        getAllAlbumsIntent.putExtra(GetAllFacebookAlbumsService.ARG_RECEIVER, getAllAlbumsReceiver);
+        Intent getAllAlbumsIntent = new Intent(this, GetAllAlbumsService.class);
+        getAllAlbumsIntent.putExtra(GetAllAlbumsService.ARG_RECEIVER, getAllAlbumsReceiver);
 
-        Log.v(TAG, "Calling GetAllFacebookAlbumsService" + serviceInvocationCode);
+        Log.v(TAG, "Calling GetAllAlbumsService" + serviceInvocationCode);
         startServiceInternal(getAllAlbumsIntent);
     }
 
@@ -247,7 +247,7 @@ public class ViewSlideshowActivity extends Activity implements
         if (!validateInvocationCode(invocationCode)) return;
 
         if (resultCode == Activity.RESULT_OK) {
-            Log.v(TAG, "Got results from GetAllFacebookAlbumsService");
+            Log.v(TAG, "Got results from GetAllAlbumsService");
             ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
 
             mAlbum = albumRandomizer.selectRandomAlbum();
@@ -285,11 +285,11 @@ public class ViewSlideshowActivity extends Activity implements
         GetAllPhotoMetadataReceiver allPhotosReceiver = new GetAllPhotoMetadataReceiver(mHandler);
         allPhotosReceiver.setReceiver(this);
 
-        Intent getAllPhotoMetadataIntent = new Intent(this, GetAllFacebookPhotoMetadataService.class);
-        getAllPhotoMetadataIntent.putExtra(GetAllFacebookPhotoMetadataService.ARG_RECEIVER, allPhotosReceiver);
-        getAllPhotoMetadataIntent.putExtra(GetAllFacebookPhotoMetadataService.ARG_ALBUM_ID, mAlbum.getId());
+        Intent getAllPhotoMetadataIntent = new Intent(this, GetAllPhotoMetadataService.class);
+        getAllPhotoMetadataIntent.putExtra(GetAllPhotoMetadataService.ARG_RECEIVER, allPhotosReceiver);
+        getAllPhotoMetadataIntent.putExtra(GetAllPhotoMetadataService.ARG_ALBUM_ID, mAlbum.getId());
 
-        Log.v(TAG, "Calling GetAllFacebookPhotoMetadataService");
+        Log.v(TAG, "Calling GetAllPhotoMetadataService");
         startServiceInternal(getAllPhotoMetadataIntent);
     }
 
@@ -298,7 +298,7 @@ public class ViewSlideshowActivity extends Activity implements
             int resultCode, int invocationCode, ArrayList<Photo> photos) {
         if (!validateInvocationCode(invocationCode)) return;
 
-        Log.v(TAG, "Got results from GetAllFacebookPhotoMetadataService");
+        Log.v(TAG, "Got results from GetAllPhotoMetadataService");
 
         if (resultCode != Activity.RESULT_OK) {
             String errorStr = "Error retrieving photo metadata for album: " + mAlbum.getName() +
@@ -337,8 +337,8 @@ public class ViewSlideshowActivity extends Activity implements
 
     /**
      * Begin the process of displaying a new photo. This calls GetPhotoBitmapService which will
-     * either acquire the photo from Facebook (using the internet) or locally from cache. The act
-     * of retrieving the photo happens on a background thread.
+     * either acquire the photo from the internet or locally from cache. The act of retrieving the
+     * photo happens on a background thread.
      */
     private void beginLoadNewPhoto() {
         mNextPhoto = mAlbum.getPhotos().get(mPhotoOrder.getNextPhotoIdx());

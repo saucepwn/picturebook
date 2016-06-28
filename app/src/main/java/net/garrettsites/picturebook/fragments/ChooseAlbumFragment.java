@@ -18,7 +18,7 @@ import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.ErrorCodes;
 import net.garrettsites.picturebook.receivers.GetAllAlbumsReceiver;
-import net.garrettsites.picturebook.services.GetAllFacebookAlbumsService;
+import net.garrettsites.picturebook.services.GetAllAlbumsService;
 
 import java.util.ArrayList;
 
@@ -64,10 +64,10 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
         GetAllAlbumsReceiver getAllAlbumsReceiver = new GetAllAlbumsReceiver(new Handler());
         getAllAlbumsReceiver.setReceiver(this);
 
-        Intent getAllAlbumsIntent = new Intent(context, GetAllFacebookAlbumsService.class);
-        getAllAlbumsIntent.putExtra(GetAllFacebookAlbumsService.ARG_RECEIVER, getAllAlbumsReceiver);
+        Intent getAllAlbumsIntent = new Intent(context, GetAllAlbumsService.class);
+        getAllAlbumsIntent.putExtra(GetAllAlbumsService.ARG_RECEIVER, getAllAlbumsReceiver);
 
-        Log.v(TAG, "Calling GetAllFacebookAlbumsService");
+        Log.v(TAG, "Calling GetAllAlbumsService");
         context.startService(getAllAlbumsIntent);
 
         if (context instanceof OnListFragmentInteractionListener) {
@@ -99,7 +99,7 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
     @Override
     public void onReceiveAllAlbums(int resultCode, int errorCode, int invocationCode, ArrayList<Album> albums) {
         if (resultCode == Activity.RESULT_OK) {
-            Log.v(TAG, "Got results from GetAllFacebookAlbumsService");
+            Log.v(TAG, "Got results from GetAllAlbumsService");
             mRecyclerView.setAdapter(new ChooseAlbumRecyclerViewAdapter(albums, mListener));
         } else {
             // Show the user an error if we received an error code.
