@@ -5,25 +5,20 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.util.Log;
 
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.model.Album;
-import net.garrettsites.picturebook.model.ErrorCodes;
-import net.garrettsites.picturebook.model.FacebookAlbum;
-
-import org.joda.time.DateTime;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import net.garrettsites.picturebook.photoproviders.facebook.FacebookPhotoProvider;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Created by Garrett on 11/20/2015.
@@ -36,7 +31,6 @@ public class GetAllAlbumsService extends IntentService {
     public static final String ARG_CODE = "code";
     public static final String ARG_RECEIVER = "receiverTag";
     public static final String ARG_ALBUM_ARRAY_LIST = "albums";
-    private ArrayList<Album> allAlbums = new ArrayList<>();
 
     public GetAllAlbumsService() {
         super(GetAllAlbumsService.class.getName());
@@ -47,86 +41,37 @@ public class GetAllAlbumsService extends IntentService {
         ResultReceiver receiver = intent.getParcelableExtra(ARG_RECEIVER);
         invocationCode = intent.getIntExtra(ARG_CODE, -1);
 
-        // Fail with an error code if the user is not logged in.
-        if (AccessToken.getCurrentAccessToken() == null) {
-            Log.w(TAG, "Tried to start slideshow without logged in Facebook account - aborting.");
-            mLogger.trackEvent("WARN: GetAllAlbumsService called without a Facebook account.");
+        ArrayList<Album> allAlbums = new ArrayList<>();
 
-            Bundle errorBundle = new Bundle();
-            errorBundle.putInt("ErrorCode", ErrorCodes.Error.NO_LOGGED_IN_ACCOUNT.ordinal());
+        FacebookPhotoProvider facebookProvider = new FacebookPhotoProvider();
 
-            receiver.send(Activity.RESULT_CANCELED, errorBundle);
-            return;
+        // Call all of our services here and get all albums from each logged in service.
+
+        // TODO: Add a photo provider manager class to add/remove photo providers.
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        Set<Future<ArrayList<Album>>> set = new HashSet<>();
+
+        // Submit the Callables to the executor service and keep a set to track their results.
+        Callable<ArrayList<Album>> facebookGetAllAlbums = facebookProvider.GetAllAlbumsCommand();
+        set.add(executor.submit(facebookGetAllAlbums));
+
+        // Await all callables.
+        // TODO: Add a timeout here for each provider.
+        for (Future<ArrayList<Album>> future : set) {
+            try {
+                allAlbums.addAll(future.get());
+            } catch (InterruptedException | ExecutionException e) {
+                // TODO: We did not get the albums this time. Log, and continue.
+                e.printStackTrace();
+            }
         }
 
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "type,name,created_time,updated_time,description");
-        parameters.putString("limit", "50");
-
-        GraphRequest request = new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                "/me/albums",
-                parameters,
-                HttpMethod.GET);
-
-        executeRequestAndAddAlbumsToList(request);
-        mLogger.trackMetric("NumAlbums", allAlbums.size(), new HashMap<String, String>());
-
-        // Fail with an error code if the user has no albums.
-        if (allAlbums.size() == 0) {
-            Log.w(TAG, "User has no albums, so we have nothing to display. Aborting.");
-
-            Bundle errorBundle = new Bundle();
-            errorBundle.putInt("ErrorCode", ErrorCodes.Error.NO_ALBUMS.ordinal());
-
-            receiver.send(Activity.RESULT_CANCELED, errorBundle);
-            return;
-        }
+        executor.shutdown();
 
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList(ARG_ALBUM_ARRAY_LIST, allAlbums);
         bundle.putInt(ARG_CODE, invocationCode);
         receiver.send(Activity.RESULT_OK, bundle);
-    }
-
-    private void executeRequestAndAddAlbumsToList(GraphRequest request) {
-        long start = System.currentTimeMillis();
-        GraphResponse response = request.executeAndWait();
-        long end = System.currentTimeMillis();
-
-        HashMap<String, String> properties = new HashMap<>();
-        properties.put("Path", request.getGraphPath());
-        mLogger.trackMetric("FacebookQuery", (double) (end - start), properties);
-
-        try {
-            JSONArray albumListJson = response.getJSONObject().getJSONArray("data");
-            for (int i = 0; i < albumListJson.length(); i++) {
-                JSONObject thisAlbum = albumListJson.getJSONObject(i);
-
-                String type = thisAlbum.getString("type");
-                String name = thisAlbum.getString("name");
-                DateTime createdTime = new DateTime(thisAlbum.getString("created_time"));
-                DateTime updatedTime = new DateTime(thisAlbum.getString("updated_time"));
-                String id = thisAlbum.getString("id");
-
-                String description = null;
-                if (thisAlbum.has("description")) {
-                    description = thisAlbum.getString("description");
-                }
-
-                Album album = new FacebookAlbum(type, name, description, createdTime, updatedTime, id);
-
-                allAlbums.add(album);
-            }
-        } catch (JSONException e) {
-            mLogger.trackHandledException(e);
-            e.printStackTrace();
-        }
-
-        // If there are additional albums, grab them.
-        GraphRequest nextPage = response.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
-        if (nextPage != null) {
-            executeRequestAndAddAlbumsToList(nextPage);
-        }
     }
 }
