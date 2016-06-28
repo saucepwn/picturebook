@@ -54,4 +54,9 @@ public interface Photo extends Parcelable {
      * @return The number of people in this photograph. Use 0 if the number of people is unknown.
      */
     int getNumPeopleInPhoto();
+
+    /**
+     * @return The service that provides this photo. Ex) "facebook", "onedrive"
+     */
+    String getProvider();
 }

@@ -51,13 +51,11 @@ public class GetPhotoBitmapService extends IntentService {
         mCache = new PhotoDiskCache(getApplicationContext());
 
         Photo photo = intent.getParcelableExtra(ARG_PHOTO_OBJ);
-
-        String imageId = photo.getId();
         File imageLocation = null;
 
-        if (mCache.doesPhotoExist(imageId)) {
+        if (mCache.doesPhotoExist(photo)) {
             // FacebookPhoto exists in cache. Serve from cache.
-            imageLocation = mCache.getReadablePhotoFile(imageId);
+            imageLocation = mCache.getReadablePhotoFile(photo);
             Log.v(TAG, "Getting photo from cache.");
         } else {
             // FacebookPhoto does not exist in cache. Get from network, save to cache, then serve from cache.
@@ -65,7 +63,7 @@ public class GetPhotoBitmapService extends IntentService {
             Bitmap photoBitmap = getBitmapFromInternet(fbImageUrl);
             Log.v(TAG, "Getting photo from internet. Saving to cache.");
 
-            imageLocation = mCache.savePhotoToCache(imageId, photoBitmap);
+            imageLocation = mCache.savePhotoToCache(photo, photoBitmap);
         }
 
         Bundle retVal = new Bundle();

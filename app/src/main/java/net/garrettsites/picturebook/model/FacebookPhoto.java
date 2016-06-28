@@ -187,6 +187,11 @@ public class FacebookPhoto implements Photo {
         dest.writeList(mTags);
     }
 
+    @Override
+    public String getProvider() {
+        return "FB";
+    }
+
     public static final Parcelable.Creator<FacebookPhoto> CREATOR = new Parcelable.Creator<FacebookPhoto>() {
         public FacebookPhoto createFromParcel(Parcel in) {
             return new FacebookPhoto(in);

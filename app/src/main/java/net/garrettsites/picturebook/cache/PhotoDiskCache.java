@@ -7,6 +7,8 @@ import android.util.Log;
 
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
+import net.garrettsites.picturebook.model.Photo;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -28,22 +30,27 @@ public class PhotoDiskCache {
         mAppContext = appContext;
     }
 
-    public boolean doesPhotoExist(String photoId) {
-        return getReadablePhotoFile(photoId).exists();
+    /**
+     * Checks to see if a photo exists in the cache.
+     * @param photo The photo to check.
+     * @return True if the photo is cached, false otherwise.
+     */
+    public boolean doesPhotoExist(Photo photo) {
+        return getReadablePhotoFile(photo).exists();
     }
 
     /**
      * Saves the provided photo to the cache.
-     * @param photoId The Facebook ID of the photo to save. Used when determining the filename.
-     * @param photo The photo to save.
+     * @param photo The photo object containing metadata about the photo.
+     * @param bitmap The photo bitmap to save.
      * @return A File reference to the image that was just saved.
      */
-    public File savePhotoToCache(String photoId, Bitmap photo) {
+    public File savePhotoToCache(Photo photo, Bitmap bitmap) {
         if (photo == null) {
             return null;
         }
 
-        File writeLocation = getWritablePhotoFile(photoId);
+        File writeLocation = getWritablePhotoFile(photo);
 
         // Remove the file if it currently exists.
         if (writeLocation.exists()) {
@@ -58,7 +65,7 @@ public class PhotoDiskCache {
             e.printStackTrace();
         }
 
-        boolean saved = photo.compress(Bitmap.CompressFormat.JPEG, JpegQualityLevel, outputStream);
+        boolean saved = bitmap.compress(Bitmap.CompressFormat.JPEG, JpegQualityLevel, outputStream);
 
         try {
             outputStream.close();
@@ -76,29 +83,31 @@ public class PhotoDiskCache {
 
     /**
      * Gets a reference to a File in the cache for a given photo ID.
-     * @param photoId Facebook's ID for the photo to retrieve.
+     * @param photo The photo object to retrieve. The photo ID and provider are read to determine
+     *              the photo's filename in cache.
      * @return A File handle pointing to the given photo. It may or may not exist.
      */
-    public File getReadablePhotoFile(String photoId) {
-        return new File(getPreferredCacheForRead().getPath() + '/' + getPhotoFilename(photoId));
+    public File getReadablePhotoFile(Photo photo) {
+        return new File(getPreferredCacheForRead().getPath() + '/' + getPhotoFilename(photo));
     }
 
     /**
      * Gets a reference to a File in the cache for a given photo ID.
-     * @param photoId Facebook's ID for the photo to retrieve.
+     * @param photo The photo object to retrieve. The photo ID and provider are read to determine
+     *              the photo's filename in cache.
      * @return A File handle pointing to the given photo. It may or may not exist.
      */
-    private File getWritablePhotoFile(String photoId) {
-        return new File(getPreferredCacheForWrite().getPath() + '/' + getPhotoFilename(photoId));
+    private File getWritablePhotoFile(Photo photo) {
+        return new File(getPreferredCacheForWrite().getPath() + '/' + getPhotoFilename(photo));
     }
 
     /**
      * Photos are represented in the cache by using their ID with the .jpg extension.
-     * @param photoId The facebook ID of the photo.
+     * @param photo The photo object to get the cached filename for.
      * @return A filename which can be used to access this photo in the app's photo cache.
      */
-    private String getPhotoFilename(String photoId) {
-        return photoId + ".jpg";
+    private String getPhotoFilename(Photo photo) {
+        return photo.getProvider() + "_" + photo.getId() + ".jpg";
     }
 
     private File getPreferredCacheForRead() {
