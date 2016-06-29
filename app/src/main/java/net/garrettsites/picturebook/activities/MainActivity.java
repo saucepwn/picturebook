@@ -24,8 +24,8 @@ public class MainActivity extends PictureBookActivity {
         FragmentManager fm = getFragmentManager();
         ManageAccountsFragment userInfoFragment  = (ManageAccountsFragment) fm.findFragmentById(R.id.accounts_profile_fragment_container);
 
-        // TODO: The layout needs to update each time onResume is called.
-        //userInfoFragment.updateRowLayout(findViewById(R.id.accounts_profile_fragment_container));
+        // The layout needs to update each time onResume is called.
+        userInfoFragment.updateAllRows(findViewById(R.id.accounts_profile_fragment_container));
     }
 
     public void startSlideshow(View view) {
