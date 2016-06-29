@@ -62,7 +62,7 @@
             android:name=".services.GetAllAlbumsService"
             android:exported="false" />
         <service
-            android:name=".services.GetAllPhotoMetadataService"
+            android:name=".services.GetAlbumPhotoDataService"
             android:exported="false" />
         <service
             android:name=".services.GetPhotoBitmapService"

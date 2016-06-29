@@ -27,8 +27,8 @@ import net.garrettsites.picturebook.model.UserPreferences;
 import net.garrettsites.picturebook.receivers.GetAllAlbumsReceiver;
 import net.garrettsites.picturebook.receivers.GetAllPhotoMetadataReceiver;
 import net.garrettsites.picturebook.receivers.GetPhotoBitmapReceiver;
+import net.garrettsites.picturebook.services.GetAlbumPhotoDataService;
 import net.garrettsites.picturebook.services.GetAllAlbumsService;
-import net.garrettsites.picturebook.services.GetAllPhotoMetadataService;
 import net.garrettsites.picturebook.services.GetPhotoBitmapService;
 import net.garrettsites.picturebook.util.ChooseRandomAlbum;
 import net.garrettsites.picturebook.util.OverlayLayoutHelper;
@@ -285,11 +285,11 @@ public class ViewSlideshowActivity extends Activity implements
         GetAllPhotoMetadataReceiver allPhotosReceiver = new GetAllPhotoMetadataReceiver(mHandler);
         allPhotosReceiver.setReceiver(this);
 
-        Intent getAllPhotoMetadataIntent = new Intent(this, GetAllPhotoMetadataService.class);
-        getAllPhotoMetadataIntent.putExtra(GetAllPhotoMetadataService.ARG_RECEIVER, allPhotosReceiver);
-        getAllPhotoMetadataIntent.putExtra(GetAllPhotoMetadataService.ARG_ALBUM_ID, mAlbum.getId());
+        Intent getAllPhotoMetadataIntent = new Intent(this, GetAlbumPhotoDataService.class);
+        getAllPhotoMetadataIntent.putExtra(GetAlbumPhotoDataService.ARG_RECEIVER, allPhotosReceiver);
+        getAllPhotoMetadataIntent.putExtra(GetAlbumPhotoDataService.ARG_ALBUM, mAlbum);
 
-        Log.v(TAG, "Calling GetAllPhotoMetadataService");
+        Log.v(TAG, "Calling GetAlbumPhotoDataService");
         startServiceInternal(getAllPhotoMetadataIntent);
     }
 
@@ -298,7 +298,7 @@ public class ViewSlideshowActivity extends Activity implements
             int resultCode, int invocationCode, ArrayList<Photo> photos) {
         if (!validateInvocationCode(invocationCode)) return;
 
-        Log.v(TAG, "Got results from GetAllPhotoMetadataService");
+        Log.v(TAG, "Got results from GetAlbumPhotoDataService");
 
         if (resultCode != Activity.RESULT_OK) {
             String errorStr = "Error retrieving photo metadata for album: " + mAlbum.getName() +

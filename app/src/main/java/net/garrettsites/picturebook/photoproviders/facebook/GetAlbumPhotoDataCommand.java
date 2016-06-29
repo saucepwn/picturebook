@@ -1,10 +1,6 @@
-package net.garrettsites.picturebook.services;
+package net.garrettsites.picturebook.photoproviders.facebook;
 
-import android.app.Activity;
-import android.app.IntentService;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.facebook.AccessToken;
@@ -13,7 +9,10 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
+import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.model.FacebookAlbum;
 import net.garrettsites.picturebook.model.FacebookPhoto;
+import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.model.Tag;
 
 import org.joda.time.DateTime;
@@ -28,54 +27,40 @@ import java.util.HashMap;
 import java.util.Locale;
 
 /**
- * Created by Garrett on 11/28/2015.
+ * Created by Garrett on 6/28/2016.
  */
-public class GetAllPhotoMetadataService extends IntentService {
-    private static final String TAG = GetAllPhotoMetadataService.class.getName();
-    private TelemetryClient mLogger = TelemetryClient.getInstance();
-    private int invocationCode;
+public class GetAlbumPhotoDataCommand {
+    private static final String TAG = GetAlbumPhotoDataCommand.class.getName();
 
-    public static final String ARG_CODE = "code";
-    public static final String ARG_RECEIVER = "receiverTag";
-    public static final String ARG_ALBUM_ID = "albumId";
-    public static final String ARG_PHOTOS_METADATA = "photos_metadata";
-    private ArrayList<FacebookPhoto> mAllPhotos = new ArrayList<>();
+    private TelemetryClient mLogger;
+    private AccessToken mAccessToken;
 
-    public GetAllPhotoMetadataService() {
-        super(GetAllPhotoMetadataService.class.getName());
+    private ArrayList<Photo> mAllPhotos = new ArrayList<>();
+
+    public GetAlbumPhotoDataCommand(TelemetryClient logger, AccessToken accessToken) {
+        mLogger = logger;
+        mAccessToken = accessToken;
     }
 
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        invocationCode = intent.getIntExtra(ARG_CODE, -1);
-        ResultReceiver receiver = intent.getParcelableExtra(ARG_RECEIVER);
-        String albumId = intent.getStringExtra(ARG_ALBUM_ID);
+    public Album execute(FacebookAlbum album) {
+        String albumId = album.getId();
 
         if (albumId == null)
-            throw new IllegalArgumentException("Must pass album ID to GetAllPhotoMetadataService");
+            throw new IllegalArgumentException("Must pass album ID");
 
         Bundle parameters = new Bundle();
         parameters.putString("fields", "created_time,id,from,images,link,name,place,tags");
 
         GraphRequest request = new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
+                mAccessToken,
                 String.format(Locale.ENGLISH, "/%s/photos", albumId),
                 parameters,
                 HttpMethod.GET);
 
         executeRequestAndAddPhotosToList(request);
 
-        // This album has no photos, return failure.
-        Bundle bundle = new Bundle();
-        bundle.putInt(ARG_CODE, invocationCode);
-
-        if (mAllPhotos.size() == 0) {
-            Log.w(TAG, "Album id " + albumId + " has no photos. Failing.");
-            receiver.send(Activity.RESULT_CANCELED, bundle);
-        } else {
-            bundle.putParcelableArrayList(ARG_PHOTOS_METADATA, mAllPhotos);
-            receiver.send(Activity.RESULT_OK, bundle);
-        }
+        album.setPhotos(mAllPhotos);
+        return album;
     }
 
     private void executeRequestAndAddPhotosToList(GraphRequest request) {

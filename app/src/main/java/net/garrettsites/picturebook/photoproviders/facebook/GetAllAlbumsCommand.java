@@ -26,8 +26,8 @@ import java.util.concurrent.Callable;
 /**
  * Created by Garrett on 6/28/2016.
  */
-public class FacebookGetAllAlbumsCommand implements Callable<ArrayList<Album>> {
-    private static String TAG = FacebookGetAllAlbumsCommand.class.getName();
+public class GetAllAlbumsCommand implements Callable<ArrayList<Album>> {
+    private static String TAG = GetAllAlbumsCommand.class.getName();
 
     private ArrayList<Album> mAllAlbums = new ArrayList<>();
 
@@ -40,7 +40,7 @@ public class FacebookGetAllAlbumsCommand implements Callable<ArrayList<Album>> {
      * @param logger Logger object.
      * @param accessToken Facebook access token to authenticate Facebook calls.
      */
-    public FacebookGetAllAlbumsCommand(TelemetryClient logger, AccessToken accessToken) {
+    public GetAllAlbumsCommand(TelemetryClient logger, AccessToken accessToken) {
         mLogger = logger;
         mAccessToken = accessToken;
     }
@@ -106,7 +106,8 @@ public class FacebookGetAllAlbumsCommand implements Callable<ArrayList<Album>> {
                     description = thisAlbum.getString("description");
                 }
 
-                Album album = new FacebookAlbum(type, name, description, createdTime, updatedTime, id);
+                FacebookAlbum album =
+                        new FacebookAlbum(type, name, description, createdTime, updatedTime, id);
 
                 mAllAlbums.add(album);
             }

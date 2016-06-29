@@ -53,7 +53,7 @@ public class GetAllAlbumsService extends IntentService {
         Set<Future<ArrayList<Album>>> set = new HashSet<>();
 
         // Submit the Callables to the executor service and keep a set to track their results.
-        Callable<ArrayList<Album>> facebookGetAllAlbums = facebookProvider.GetAllAlbumsCommand();
+        Callable<ArrayList<Album>> facebookGetAllAlbums = facebookProvider.getAllAlbumsCommand();
         set.add(executor.submit(facebookGetAllAlbums));
 
         // Await all callables.

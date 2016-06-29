@@ -4,6 +4,7 @@ import com.facebook.AccessToken;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.model.FacebookAlbum;
 import net.garrettsites.picturebook.photoproviders.PhotoProvider;
 
 import java.util.ArrayList;
@@ -17,7 +18,21 @@ public class FacebookPhotoProvider implements PhotoProvider {
     private TelemetryClient mLogger = TelemetryClient.getInstance();
 
     @Override
-    public Callable<ArrayList<Album>> GetAllAlbumsCommand() {
-        return new FacebookGetAllAlbumsCommand(mLogger, AccessToken.getCurrentAccessToken());
+    public Callable<ArrayList<Album>> getAllAlbumsCommand() {
+        return new GetAllAlbumsCommand(mLogger, getCurrentAccessToken());
+    }
+
+    @Override
+    public Album getAlbumPhotoData(Album album) throws Exception {
+        if (!(album instanceof FacebookAlbum)) {
+            throw new Exception("Album not an instance of FacebookAlbum");
+        }
+
+        return new GetAlbumPhotoDataCommand(mLogger, getCurrentAccessToken())
+                .execute((FacebookAlbum) album);
+    }
+
+    private AccessToken getCurrentAccessToken() {
+        return AccessToken.getCurrentAccessToken();
     }
 }
