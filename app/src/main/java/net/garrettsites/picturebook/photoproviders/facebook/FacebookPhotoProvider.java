@@ -4,7 +4,6 @@ import com.facebook.AccessToken;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.model.Album;
-import net.garrettsites.picturebook.model.FacebookAlbum;
 import net.garrettsites.picturebook.photoproviders.PhotoProvider;
 
 import java.util.ArrayList;

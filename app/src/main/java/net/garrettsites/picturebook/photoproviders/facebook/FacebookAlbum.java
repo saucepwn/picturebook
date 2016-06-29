@@ -1,7 +1,9 @@
-package net.garrettsites.picturebook.model;
+package net.garrettsites.picturebook.photoproviders.facebook;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import net.garrettsites.picturebook.model.Album;
 
 import org.joda.time.DateTime;
 

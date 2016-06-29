@@ -11,7 +11,6 @@ import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.model.ErrorCodes;
-import net.garrettsites.picturebook.model.FacebookAlbum;
 import net.garrettsites.picturebook.model.PictureBookException;
 
 import org.joda.time.DateTime;

@@ -10,8 +10,6 @@ import com.facebook.HttpMethod;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.model.Album;
-import net.garrettsites.picturebook.model.FacebookAlbum;
-import net.garrettsites.picturebook.model.FacebookPhoto;
 import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.model.Tag;
 

@@ -10,8 +10,8 @@ import android.util.Log;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.model.Album;
-import net.garrettsites.picturebook.model.FacebookAlbum;
 import net.garrettsites.picturebook.photoproviders.PhotoProvider;
+import net.garrettsites.picturebook.photoproviders.facebook.FacebookAlbum;
 import net.garrettsites.picturebook.photoproviders.facebook.FacebookPhotoProvider;
 
 /**
