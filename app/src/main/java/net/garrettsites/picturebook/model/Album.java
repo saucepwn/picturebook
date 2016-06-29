@@ -46,7 +46,7 @@ public abstract class Album implements Parcelable {
     }
 
     /**
-     * Offers any subclasses the opportunity to add their custom properties to the parcel. The base
+     * Offers subclasses the opportunity to add their custom properties to the parcel. The base
      * Album class's data is added to the parcel first.
      * @param dest The parcel to write data to.
      */

@@ -12,70 +12,24 @@ import java.util.ArrayList;
 /**
  * Created by Garrett on 11/28/2015.
  */
-public class FacebookPhoto implements Photo {
-    private String mId;
-    private int mOrder = 0;
-    private String mName;
+public class FacebookPhoto extends Photo {
     private String mUploadedBy;
     private String mUploadedById;
-    private String mPlaceName;
-    private int mWidth;
-    private int mHeight;
-    private URL mImageUrl;
     private URL mPostUrl;
-    private DateTime mCreatedTime;
 
     private ArrayList<Tag> mTags;
 
     public FacebookPhoto(String id, int order, String name, String uploadedBy, String uploadedById, int width, int height, URL imageUrl, URL postUrl, DateTime createdTime) {
-        this.mId = id;
+        super(id, name, width, height, imageUrl, createdTime);
+
         this.mOrder = order;
-        this.mName = name;
         this.mUploadedBy = uploadedBy;
         this.mUploadedById = uploadedById;
-        this.mWidth = width;
-        this.mHeight = height;
-        this.mImageUrl = imageUrl;
         this.mPostUrl = postUrl;
-        this.mCreatedTime = createdTime;
     }
 
     private FacebookPhoto(Parcel in) {
-        mId = in.readString();
-        mOrder = in.readInt();
-        mName = in.readString();
-        mUploadedBy = in.readString();
-        mUploadedById = in.readString();
-        mWidth = in.readInt();
-        mHeight = in.readInt();
-        mPlaceName = in.readString();
-
-        try {
-            mImageUrl = new URL(in.readString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            mPostUrl = new URL(in.readString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-        mCreatedTime = new DateTime(in.readString());
-        mTags = in.readArrayList(getClass().getClassLoader());
-    }
-
-    public String getId() {
-        return "FB_" + mId;
-    }
-
-    public int getOrder() {
-        return mOrder;
-    }
-
-    public String getName() {
-        return mName;
+        super(in);
     }
 
     public String getUploadedBy() {
@@ -86,36 +40,8 @@ public class FacebookPhoto implements Photo {
         return mUploadedById;
     }
 
-    public int getWidth() {
-        return mWidth;
-    }
-
-    public int getHeight() {
-        return mHeight;
-    }
-
-    /**
-     * Set the name of the place this photo was taken.
-     * @param placeName The name of the place this photo was taken.
-     */
-    public void setPlaceName(String placeName) {
-        mPlaceName = placeName;
-    }
-
-    public String getPlaceName() {
-        return mPlaceName;
-    }
-
-    public URL getImageUrl() {
-        return mImageUrl;
-    }
-
     public URL getPostUrl() {
         return mPostUrl;
-    }
-
-    public DateTime getCreatedTime() {
-        return mCreatedTime;
     }
 
     public ArrayList<Tag> getTags() {
@@ -126,14 +52,16 @@ public class FacebookPhoto implements Photo {
         mTags = tags;
     }
 
+    @Override
     public int getNumPeopleInPhoto() {
-        if (mTags != null) {
-            return mTags.size();
-        } else {
+        if (mTags == null) {
             return 0;
+        } else {
+            return mTags.size();
         }
     }
 
+    @Override
     public PhotoInsights getPhotoInsights() {
         PhotoInsights insights = new PhotoInsights();
         insights.addInsight(PhotoInsights.InsightKey.WIDTH, Integer.toString(getWidth()) + "px");
@@ -166,25 +94,26 @@ public class FacebookPhoto implements Photo {
     }
 
     @Override
-    public int describeContents() {
-        return 0;
+    public void doWriteToParcel(Parcel dest) {
+        dest.writeString(getUploadedBy());
+        dest.writeString(getUploadedById());
+        dest.writeString(getPostUrl().toString());
+
+        dest.writeList(mTags);
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(getId());
-        dest.writeInt(getOrder());
-        dest.writeString(getName());
-        dest.writeString(getUploadedBy());
-        dest.writeString(getUploadedById());
-        dest.writeInt(getWidth());
-        dest.writeInt(getHeight());
-        dest.writeString(getPlaceName());
-        dest.writeString(getImageUrl().toString());
-        dest.writeString(getPostUrl().toString());
-        dest.writeString(getCreatedTime().toString());
+    public void doReadFromParcel(Parcel in) {
+        mUploadedBy = in.readString();
+        mUploadedById = in.readString();
 
-        dest.writeList(mTags);
+        try {
+            mPostUrl = new URL(in.readString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        mTags = in.readArrayList(getClass().getClassLoader());
     }
 
     @Override
