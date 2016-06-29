@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -31,16 +32,20 @@ public class ManageAccountsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_user_accounts, container, false);
+        TableLayout table = (TableLayout) view.findViewById(R.id.user_accounts_table_layout);
 
         // Each photo provider gets its own row in the table.
         for (PhotoProvider provider : PhotoProviders.getAllPhotoProviders()) {
-            View table = inflater.inflate(
+            View rootView = inflater.inflate(
                     R.layout.fragment_user_accounts_row,
-                    (ViewGroup) view.findViewById(R.id.user_accounts_table_layout));
+                    (ViewGroup) view.findViewById(R.id.user_accounts_table_layout),
+                    false);
 
-            TableRow row = (TableRow) table.findViewById(R.id.user_accounts_table_row);
+            TableRow row = (TableRow) rootView.findViewById(R.id.user_accounts_table_row);
             initialRowSetup(row, provider);
             updateRowLayout(row, provider);
+
+            table.addView(row);
         }
 
         return view;
@@ -76,6 +81,9 @@ public class ManageAccountsFragment extends Fragment {
     public void updateAllRows(View container) {
         for (PhotoProvider provider : PhotoProviders.getAllPhotoProviders()) {
             TableRow row = (TableRow) container.findViewWithTag(provider.getClass().getName());
+
+            if (row == null) continue;
+
             updateRowLayout(row, provider);
         }
     }

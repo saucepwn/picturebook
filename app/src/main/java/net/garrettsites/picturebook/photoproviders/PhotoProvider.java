@@ -1,5 +1,7 @@
 package net.garrettsites.picturebook.photoproviders;
 
+import android.content.Context;
+
 import net.garrettsites.picturebook.model.Album;
 
 import java.util.ArrayList;
@@ -9,6 +11,13 @@ import java.util.concurrent.Callable;
  * Created by Garrett on 6/28/2016.
  */
 public interface PhotoProvider {
+    /**
+     * Initializes the provider with the application's context. This is called by the application
+     * when it launches.
+     * @param appContext The application's context.
+     */
+    void initialize(Context appContext);
+
     /**
      * Makes a network call to get all albums for a given provider.
      * @return A list of albums hosted by this provider.

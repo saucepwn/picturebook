@@ -33,6 +33,12 @@ public class FacebookAlbum extends Album {
     }
 
     @Override
+    public DateTime getAlbumDate() {
+        // Facebook's most accurate representation of when an album occured is the updated date.
+        return mUpdatedTime;
+    }
+
+    @Override
     protected void doWriteToParcel(Parcel dest) {
         dest.writeString(mType);
     }

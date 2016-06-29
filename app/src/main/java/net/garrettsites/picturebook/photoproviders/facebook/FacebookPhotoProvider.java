@@ -1,6 +1,9 @@
 package net.garrettsites.picturebook.photoproviders.facebook;
 
+import android.content.Context;
+
 import com.facebook.AccessToken;
+import com.facebook.FacebookSdk;
 import com.facebook.Profile;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
@@ -17,6 +20,11 @@ import java.util.concurrent.Callable;
 public class FacebookPhotoProvider implements PhotoProvider {
     private static String TAG = FacebookPhotoProvider.class.getName();
     private TelemetryClient mLogger = TelemetryClient.getInstance();
+
+    @Override
+    public void initialize(Context appContext) {
+        FacebookSdk.sdkInitialize(appContext);
+    }
 
     @Override
     public Callable<ArrayList<Album>> getAllAlbumsCommand() {

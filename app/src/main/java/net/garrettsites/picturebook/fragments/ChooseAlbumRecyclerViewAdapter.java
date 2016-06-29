@@ -36,7 +36,7 @@ public class ChooseAlbumRecyclerViewAdapter extends RecyclerView.Adapter<ChooseA
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mAlbum = mAlbums.get(position);
-        holder.mLastUpdatedView.setText(mAlbums.get(position).getUpdatedTime().toString("MMMM d, yyyy"));
+        holder.mLastUpdatedView.setText(mAlbums.get(position).getAlbumDate().toString("MMMM d, yyyy"));
         holder.mAlbumNameView.setText(mAlbums.get(position).getName());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
