@@ -4,6 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.photoproviders.PhotoProvider;
+import net.garrettsites.picturebook.photoproviders.PhotoProviders;
 
 import org.joda.time.DateTime;
 
@@ -38,6 +40,11 @@ public class FacebookAlbum extends Album {
     @Override
     protected void doReadFromParcel(Parcel in) {
         mType = in.readString();
+    }
+
+    @Override
+    public PhotoProvider getPhotoProvider() {
+        return PhotoProviders.getFacebookPhotoProvider();
     }
 
     public static final Parcelable.Creator<FacebookAlbum> CREATOR = new Parcelable.Creator<FacebookAlbum>() {

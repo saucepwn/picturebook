@@ -46,6 +46,9 @@
     <string name="place">Place</string>
     <string name="soruce">Source</string>
 
+    <!-- Photo provider names -->
+    <string name="provider_facebook">Facebook</string>
+
     <!-- Error messages -->
     <string name="error">Uh oh!</string>
     <string name="ok">OK</string>

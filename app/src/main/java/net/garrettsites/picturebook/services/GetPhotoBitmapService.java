@@ -54,13 +54,13 @@ public class GetPhotoBitmapService extends IntentService {
         File imageLocation = null;
 
         if (mCache.doesPhotoExist(photo)) {
-            // FacebookPhoto exists in cache. Serve from cache.
+            // Photo exists in cache. Serve from cache.
             imageLocation = mCache.getReadablePhotoFile(photo);
             Log.v(TAG, "Getting photo from cache.");
         } else {
-            // FacebookPhoto does not exist in cache. Get from network, save to cache, then serve from cache.
-            URL fbImageUrl = photo.getImageUrl();
-            Bitmap photoBitmap = getBitmapFromInternet(fbImageUrl);
+            // Photo is not cached. Get from network, save to cache, then serve from cache.
+            URL photoUrl = photo.getImageUrl();
+            Bitmap photoBitmap = getBitmapFromInternet(photoUrl);
             Log.v(TAG, "Getting photo from internet. Saving to cache.");
 
             imageLocation = mCache.savePhotoToCache(photo, photoBitmap);

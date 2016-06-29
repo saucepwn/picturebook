@@ -1,8 +1,10 @@
 package net.garrettsites.picturebook.photoproviders.facebook;
 
 import com.facebook.AccessToken;
+import com.facebook.Profile;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
+import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.photoproviders.PhotoProvider;
 
@@ -29,6 +31,25 @@ public class FacebookPhotoProvider implements PhotoProvider {
 
         return new GetAlbumPhotoDataCommand(mLogger, getCurrentAccessToken())
                 .execute((FacebookAlbum) album);
+    }
+
+    @Override
+    public boolean isUserLoggedIn() {
+        return !(Profile.getCurrentProfile() == null);
+    }
+
+    @Override
+    public String getUserName() {
+        if (isUserLoggedIn()) {
+            return Profile.getCurrentProfile().getName();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public int getProviderNameResource() {
+        return R.string.provider_facebook;
     }
 
     private AccessToken getCurrentAccessToken() {

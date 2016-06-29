@@ -10,9 +10,6 @@ import android.util.Log;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.model.Album;
-import net.garrettsites.picturebook.photoproviders.PhotoProvider;
-import net.garrettsites.picturebook.photoproviders.facebook.FacebookAlbum;
-import net.garrettsites.picturebook.photoproviders.facebook.FacebookPhotoProvider;
 
 /**
  * Created by Garrett on 11/28/2015.
@@ -42,12 +39,9 @@ public class GetAlbumPhotoDataService extends IntentService {
 
         try
         {
-            PhotoProvider provider;
-            if (album instanceof FacebookAlbum) {
-                provider = new FacebookPhotoProvider();
-                album = provider.getAlbumPhotoData(album);
-            }
+            album = album.getPhotoProvider().getAlbumPhotoData(album);
         } catch (Exception e) {
+            // TODO: Instead of just logging exceptions here, pass the exception text to the UI.
             mLogger.trackHandledException(e);
             receiver.send(Activity.RESULT_CANCELED, resultBundle);
         }

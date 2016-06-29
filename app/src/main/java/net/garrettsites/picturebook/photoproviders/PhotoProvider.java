@@ -23,4 +23,23 @@ public interface PhotoProvider {
      * the photos in the album, but not the bitmaps themselves.
      */
     Album getAlbumPhotoData(Album album) throws Exception;
+
+    /**
+     * Returns whether or not a user is currently logged in to the photo provider.
+     * @return True if a user is logged in, false otherwise
+     */
+    boolean isUserLoggedIn();
+
+    /**
+     * If a user is logged in, this returns their name. If a user is not logged in, this shall
+     * return null.
+     * @return The name of the user who is logged in.
+     */
+    String getUserName();
+
+    /**
+     * @return A resource that resolves to the photo provider's name. Ex) A string that resolves to
+     * "Facebook".
+     */
+    int getProviderNameResource();
 }

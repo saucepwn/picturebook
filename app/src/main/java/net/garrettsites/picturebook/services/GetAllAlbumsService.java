@@ -9,12 +9,12 @@ import android.os.ResultReceiver;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.model.Album;
-import net.garrettsites.picturebook.photoproviders.facebook.FacebookPhotoProvider;
+import net.garrettsites.picturebook.photoproviders.PhotoProvider;
+import net.garrettsites.picturebook.photoproviders.PhotoProviders;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,20 +41,17 @@ public class GetAllAlbumsService extends IntentService {
         ResultReceiver receiver = intent.getParcelableExtra(ARG_RECEIVER);
         invocationCode = intent.getIntExtra(ARG_CODE, -1);
 
+        // Call all of our services here and get all albums from each logged in service.
+        PhotoProvider[] photoProviders = PhotoProviders.getAllPhotoProviders();
         ArrayList<Album> allAlbums = new ArrayList<>();
 
-        FacebookPhotoProvider facebookProvider = new FacebookPhotoProvider();
-
-        // Call all of our services here and get all albums from each logged in service.
-
-        // TODO: Add a photo provider manager class to add/remove photo providers.
-
-        ExecutorService executor = Executors.newFixedThreadPool(2);
+        ExecutorService executor = Executors.newFixedThreadPool(photoProviders.length);
         Set<Future<ArrayList<Album>>> set = new HashSet<>();
 
-        // Submit the Callables to the executor service and keep a set to track their results.
-        Callable<ArrayList<Album>> facebookGetAllAlbums = facebookProvider.getAllAlbumsCommand();
-        set.add(executor.submit(facebookGetAllAlbums));
+        for (PhotoProvider provider : photoProviders) {
+            // Submit the Callables to the executor service and keep a set to track their results.
+            set.add(executor.submit(provider.getAllAlbumsCommand()));
+        }
 
         // Await all callables.
         // TODO: Add a timeout here for each provider.
@@ -62,7 +59,8 @@ public class GetAllAlbumsService extends IntentService {
             try {
                 allAlbums.addAll(future.get());
             } catch (InterruptedException | ExecutionException e) {
-                // TODO: We did not get the albums this time. Log, and continue.
+                // We did not get the albums this time. Log, and continue.
+                mLogger.trackHandledException(e);
                 e.printStackTrace();
             }
         }

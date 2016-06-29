@@ -3,6 +3,8 @@ package net.garrettsites.picturebook.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import net.garrettsites.picturebook.photoproviders.PhotoProvider;
+
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -70,6 +72,11 @@ public abstract class Album implements Parcelable {
      * @param in The parcel to read from.
      */
     protected abstract void doReadFromParcel(Parcel in);
+
+    /**
+     * @return The PhotoProvider that retrieved this album.
+     */
+    public abstract PhotoProvider getPhotoProvider();
 
     /**
      * @return The album's name.
