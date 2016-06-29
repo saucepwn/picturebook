@@ -38,8 +38,8 @@ public interface PhotoProvider {
     String getUserName();
 
     /**
-     * @return A resource that resolves to the photo provider's name. Ex) A string that resolves to
-     * "Facebook".
+     * @return Statically configured information about the provider, such as the provider's name and
+     * primary color. These are values that are set at compile time and never changed.
      */
-    int getProviderNameResource();
+    ProviderConfiguration getConfiguration();
 }

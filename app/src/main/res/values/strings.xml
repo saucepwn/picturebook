@@ -46,8 +46,14 @@
     <string name="place">Place</string>
     <string name="soruce">Source</string>
 
+    <!-- Manage Accounts fragment -->
+    <string name="accounts">Accounts</string>
+    <string name="link_account">Link Account</string>
+    <string name="unlink_account">Unlink Account</string>
+
     <!-- Photo provider names -->
     <string name="provider_facebook">Facebook</string>
+    <string name="provider_onedrive">OneDrive</string>
 
     <!-- Error messages -->
     <string name="error">Uh oh!</string>

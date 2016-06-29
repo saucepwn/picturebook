@@ -28,11 +28,11 @@
     </LinearLayout>
 
     <fragment
-        android:name="net.garrettsites.picturebook.fragments.UserFacebookProfile"
+        android:name="net.garrettsites.picturebook.fragments.ManageAccountsFragment"
         android:id="@+id/accounts_profile_fragment_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:layout="@layout/fragment_user_facebook_profile" />
+        tools:layout="@layout/fragment_user_accounts" />
 
     <fragment
         android:name="net.garrettsites.picturebook.fragments.SleepScheduleConfig"

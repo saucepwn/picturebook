@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import net.garrettsites.picturebook.R;
-import net.garrettsites.picturebook.fragments.UserFacebookProfile;
+import net.garrettsites.picturebook.fragments.ManageAccountsFragment;
 import net.garrettsites.picturebook.receivers.StartSlideshowBroadcastReceiver;
 
 public class MainActivity extends PictureBookActivity {
@@ -22,8 +22,10 @@ public class MainActivity extends PictureBookActivity {
         super.onResume();
 
         FragmentManager fm = getFragmentManager();
-        UserFacebookProfile userInfoFragment  = (UserFacebookProfile) fm.findFragmentById(R.id.accounts_profile_fragment_container);
-        userInfoFragment.updateUserInformation(findViewById(R.id.accounts_profile_fragment_container));
+        ManageAccountsFragment userInfoFragment  = (ManageAccountsFragment) fm.findFragmentById(R.id.accounts_profile_fragment_container);
+
+        // TODO: The layout needs to update each time onResume is called.
+        //userInfoFragment.updateRowLayout(findViewById(R.id.accounts_profile_fragment_container));
     }
 
     public void startSlideshow(View view) {

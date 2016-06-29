@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        style="@android:style/TextAppearance.Large"
+        android:layout_margin="10dp"
+        android:textSize="28sp"
+        android:text="@string/accounts" />
+
+    <TableLayout
+        android:id="@+id/user_accounts_table_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <!-- Rows are programatically added here by ManageAccountsFragment -->
+
+    </TableLayout>
+</LinearLayout>

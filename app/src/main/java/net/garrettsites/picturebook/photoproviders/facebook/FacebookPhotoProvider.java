@@ -4,9 +4,9 @@ import com.facebook.AccessToken;
 import com.facebook.Profile;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
-import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.model.Album;
 import net.garrettsites.picturebook.photoproviders.PhotoProvider;
+import net.garrettsites.picturebook.photoproviders.ProviderConfiguration;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -48,8 +48,8 @@ public class FacebookPhotoProvider implements PhotoProvider {
     }
 
     @Override
-    public int getProviderNameResource() {
-        return R.string.provider_facebook;
+    public ProviderConfiguration getConfiguration() {
+        return new FacebookConfiguration();
     }
 
     private AccessToken getCurrentAccessToken() {
