@@ -159,7 +159,30 @@ public abstract class Photo implements Parcelable {
      * @return A key value pair of extra information about the photo. This extra information is
      * displayed if the user taps the photo during a slideshow.
      */
-    public abstract PhotoInsights getPhotoInsights();
+    public PhotoInsights getPhotoInsights() {
+        PhotoInsights insights = new PhotoInsights();
+        insights.addInsight(PhotoInsights.InsightKey.WIDTH, Integer.toString(getWidth()) + "px");
+        insights.addInsight(PhotoInsights.InsightKey.HEIGHT, Integer.toString(getHeight()) + "px");
+        insights.addInsight(PhotoInsights.InsightKey.COMMENT, getName());
+        insights.addInsight(PhotoInsights.InsightKey.PLACE, getPlaceName());
+
+        if (getCreatedTime() != null) {
+            insights.addInsight(PhotoInsights.InsightKey.DATE,
+                    PhotoInsights.formatDate(getCreatedTime()));
+
+            insights.addInsight(PhotoInsights.InsightKey.TIME,
+                    PhotoInsights.formatTime(getCreatedTime()));
+        }
+
+        doGetPhotoInsights(insights);
+        return insights;
+    }
+
+    /**
+     * This method presents an opportunity for a subclass to add additional insights to a photo.
+     * @return A key value pair of extra information about the photo.
+     */
+    public abstract void doGetPhotoInsights(PhotoInsights insights);
 
     /**
      * @return The service that provides this photo. Ex) "facebook", "onedrive"

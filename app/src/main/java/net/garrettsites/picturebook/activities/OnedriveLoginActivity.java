@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.View;
 
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.photoproviders.PhotoProviders;
@@ -47,5 +48,13 @@ public class OnedriveLoginActivity extends PictureBookActivity {
                     })
                     .show();
         }
+    }
+
+    /**
+     * Callback for the "finish" button in the UI.
+     * @param v The button that triggered this action.
+     */
+    public void finishActivity(View v) {
+        finish();
     }
 }

@@ -44,7 +44,13 @@
     <string name="comment">Comment</string>
     <string name="people">People</string>
     <string name="place">Place</string>
-    <string name="soruce">Source</string>
+    <string name="source">Source</string>
+    <string name="camera">Camera</string>
+    <string name="exposure">Exposure</string>
+    <string name="f_number">F number</string>
+    <string name="focal_length">Focal length</string>
+    <string name="iso">ISO</string>
+    <string name="taken_time">Taken time (from camera)</string>
 
     <!-- Manage Accounts fragment -->
     <string name="accounts">Accounts</string>

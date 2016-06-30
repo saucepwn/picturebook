@@ -43,7 +43,13 @@ public class PhotoInsights {
         WIDTH,
 
         // The photo's height.
-        HEIGHT
+        HEIGHT,
+        CAMERA,
+        EXPOSURE,
+        F_NUMBER,
+        FOCAL_LENGTH,
+        ISO,
+        TAKEN_TIME
     }
 
     /**
@@ -118,7 +124,19 @@ public class PhotoInsights {
             case PLACE:
                 return resources.getString(R.string.place);
             case SOURCE:
-                return resources.getString(R.string.soruce);
+                return resources.getString(R.string.source);
+            case CAMERA:
+                return resources.getString(R.string.camera);
+            case EXPOSURE:
+                return resources.getString(R.string.exposure);
+            case F_NUMBER:
+                return resources.getString(R.string.f_number);
+            case FOCAL_LENGTH:
+                return resources.getString(R.string.focal_length);
+            case ISO:
+                return resources.getString(R.string.iso);
+            case TAKEN_TIME:
+                return resources.getString(R.string.taken_time);
             default:
                 mLogger.trackManagedException(
                         "LocalizedKeyNotFound",

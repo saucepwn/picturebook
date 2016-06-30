@@ -54,8 +54,12 @@ public class OnedrivePhotoProvider implements PhotoProvider {
 
     @Override
     public Album getAlbumPhotoData(Album album) throws Exception {
-        // TODO: Implement
-        return null;
+        if (!(album instanceof OnedriveAlbum)) {
+            throw new Exception("Album not an instance of OnedriveAlbum");
+        }
+
+        GetAlbumPhotoDataCommand command = new GetAlbumPhotoDataCommand(mLogger, mOnedriveClient);
+        return command.execute((OnedriveAlbum) album);
     }
 
     @Override

@@ -35,7 +35,7 @@ dependencies {
 
     compile 'com.facebook.android:facebook-android-sdk:4.6.0'
 
-    compile ('com.onedrive.sdk:onedrive-sdk-android:1.2+') {
+    compile ('com.onedrive.sdk:onedrive-sdk-android:1.2.2') {
         transitive = false
     }
     compile 'com.google.code.gson:gson:2.4'

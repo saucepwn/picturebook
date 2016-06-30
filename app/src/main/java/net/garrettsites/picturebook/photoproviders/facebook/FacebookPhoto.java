@@ -66,21 +66,8 @@ public class FacebookPhoto extends Photo {
     }
 
     @Override
-    public PhotoInsights getPhotoInsights() {
-        PhotoInsights insights = new PhotoInsights();
-        insights.addInsight(PhotoInsights.InsightKey.WIDTH, Integer.toString(getWidth()) + "px");
-        insights.addInsight(PhotoInsights.InsightKey.HEIGHT, Integer.toString(getHeight()) + "px");
-        insights.addInsight(PhotoInsights.InsightKey.COMMENT, getName());
-        insights.addInsight(PhotoInsights.InsightKey.PLACE, getPlaceName());
+    public void doGetPhotoInsights(PhotoInsights insights) {
         insights.addInsight(PhotoInsights.InsightKey.SOURCE, "Facebook");
-
-        if (getCreatedTime() != null) {
-            insights.addInsight(PhotoInsights.InsightKey.DATE,
-                    PhotoInsights.formatDate(getCreatedTime()));
-
-            insights.addInsight(PhotoInsights.InsightKey.TIME,
-                    PhotoInsights.formatTime(getCreatedTime()));
-        }
 
         if (getTags() != null && getTags().size() > 0) {
             StringBuilder people = new StringBuilder();
@@ -93,8 +80,6 @@ public class FacebookPhoto extends Photo {
             insights.addInsight(PhotoInsights.InsightKey.PEOPLE,
                     people.substring(0, people.length() - 2));
         }
-
-        return insights;
     }
 
     @Override
