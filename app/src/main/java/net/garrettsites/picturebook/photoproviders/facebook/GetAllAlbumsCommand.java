@@ -49,7 +49,7 @@ public class GetAllAlbumsCommand implements Callable<ArrayList<Album>> {
         // Fail if the user is not logged in.
         if (mAccessToken == null) {
             Log.w(TAG, "Tried to start slideshow without logged in Facebook account - aborting.");
-            //mLogger.trackEvent("WARN: GetAllAlbumsService called without a Facebook account.");
+            mLogger.trackEvent("WARN: GetAllAlbumsService called without a Facebook account.");
             throw new PictureBookException(ErrorCodes.Error.NO_LOGGED_IN_ACCOUNT);
         }
 
@@ -64,7 +64,7 @@ public class GetAllAlbumsCommand implements Callable<ArrayList<Album>> {
                 HttpMethod.GET);
 
         executeRequestAndAddAlbumsToList(request);
-        //mLogger.trackMetric("NumAlbums", mAllAlbums.size(), new HashMap<String, String>());
+        mLogger.trackMetric("NumAlbums", mAllAlbums.size(), new HashMap<String, String>());
 
         // Fail with an error code if the user has no albums.
         if (mAllAlbums.size() == 0) {
@@ -82,7 +82,7 @@ public class GetAllAlbumsCommand implements Callable<ArrayList<Album>> {
 
         HashMap<String, String> properties = new HashMap<>();
         properties.put("Path", request.getGraphPath());
-        //mLogger.trackMetric("FacebookQuery", (double) (end - start), properties);
+        mLogger.trackMetric("FacebookQuery", (double) (end - start), properties);
 
         // Throw any network errors up to the caller.
         if (response.getError() != null) {
@@ -111,7 +111,7 @@ public class GetAllAlbumsCommand implements Callable<ArrayList<Album>> {
                 mAllAlbums.add(album);
             }
         } catch (JSONException e) {
-            //mLogger.trackHandledException(e);
+            mLogger.trackHandledException(e);
             Log.d(TAG, "Response object: " + response.toString());
             e.printStackTrace();
         }

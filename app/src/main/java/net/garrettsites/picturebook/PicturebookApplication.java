@@ -25,14 +25,15 @@ public class PicturebookApplication extends Application {
         // Load all preferences into the UserPreferences object.
         preferences = new UserPreferences(getApplicationContext());
         ApplicationInsights.setup(getApplicationContext(), this);
+        ApplicationInsights.start();
 
         PhotoProviders.initWithContext(getApplicationContext());
 
+        // TODO: Right now this only looks at Facebook user information. Maybe have it look at OneDrive information, too.
         Profile profile = Profile.getCurrentProfile();
         if (profile != null) {
             ApplicationInsights.getTelemetryContext().setAuthenticatedUserId(profile.getId());
         }
 
-        ApplicationInsights.start();
     }
 }
