@@ -79,7 +79,19 @@ public class OnedrivePhotoProvider implements PhotoProvider {
         return new OnedriveConfiguration();
     }
 
+    /**
+     * Begin the OneDrive login flow.
+     * @param activity The current Android Activity, used to spawn a webview for authentication.
+     */
     public void logIn(Activity activity) {
         mOnedriveClient = new OneDriveClient.Builder().fromConfig(onedriveConfig).loginAndBuildClient(activity);
+    }
+
+    /**
+     * Logs out the current OneDrive user.
+     */
+    public void logOut() {
+        mOnedriveClient.getAuthenticator().logout();
+        mOnedriveClient = null;
     }
 }

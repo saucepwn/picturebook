@@ -66,7 +66,7 @@ public class FacebookLoginActivity extends PictureBookActivity {
         } else {
             // Log out the user.
             new AlertDialog.Builder(this).setTitle("Confirm Log Out")
-                    .setMessage("You must have a Facebook account logged in to view slideshows. Are you sure you want to log out?")
+                    .setMessage("Are you sure you want to log out of your Facebook account?")
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {

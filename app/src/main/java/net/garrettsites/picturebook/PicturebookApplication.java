@@ -34,6 +34,5 @@ public class PicturebookApplication extends Application {
         if (profile != null) {
             ApplicationInsights.getTelemetryContext().setAuthenticatedUserId(profile.getId());
         }
-
     }
 }
