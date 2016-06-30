@@ -4,11 +4,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.fragments.ChooseAlbumFragment.OnListFragmentInteractionListener;
 import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.photoproviders.ProviderConfiguration;
 
 import java.util.List;
 
@@ -35,17 +37,25 @@ public class ChooseAlbumRecyclerViewAdapter extends RecyclerView.Adapter<ChooseA
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mAlbum = mAlbums.get(position);
-        holder.mLastUpdatedView.setText(mAlbums.get(position).getAlbumDate().toString("MMMM d, yyyy"));
-        holder.mAlbumNameView.setText(mAlbums.get(position).getName());
+        Album album = mAlbums.get(position);
+        ProviderConfiguration providerConfig = album.getPhotoProvider().getConfiguration();
+        holder.album = album;
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
+        holder.providerIcon.setImageResource(providerConfig.getIconResource());
+
+        int tintColor = holder.providerIcon.getResources().getColor(providerConfig.getColorResource());
+        holder.providerIcon.setColorFilter(tintColor);
+
+        holder.lastUpdatedView.setText(album.getAlbumDate().toString("MMMM d, yyyy"));
+        holder.albumNameView.setText(album.getName());
+
+        holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mAlbum);
+                    mListener.onListFragmentInteraction(holder.album);
                 }
             }
         });
@@ -57,21 +67,23 @@ public class ChooseAlbumRecyclerViewAdapter extends RecyclerView.Adapter<ChooseA
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mLastUpdatedView;
-        public final TextView mAlbumNameView;
-        public Album mAlbum;
+        public final View view;
+        public final ImageView providerIcon;
+        public final TextView lastUpdatedView;
+        public final TextView albumNameView;
+        public Album album;
 
         public ViewHolder(View view) {
             super(view);
-            mView = view;
-            mLastUpdatedView = (TextView) view.findViewById(R.id.choose_album_last_updated);
-            mAlbumNameView = (TextView) view.findViewById(R.id.choose_album_album_name);
+            this.view = view;
+            providerIcon = (ImageView) view.findViewById(R.id.choose_album_provider_icon);
+            lastUpdatedView = (TextView) view.findViewById(R.id.choose_album_last_updated);
+            albumNameView = (TextView) view.findViewById(R.id.choose_album_album_name);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mAlbumNameView.getText() + "'";
+            return super.toString() + " '" + albumNameView.getText() + "'";
         }
     }
 }
