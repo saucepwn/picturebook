@@ -3,6 +3,8 @@ package net.garrettsites.picturebook.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import net.garrettsites.picturebook.photoproviders.PhotoProvider;
+
 import org.joda.time.DateTime;
 
 import java.net.MalformedURLException;
@@ -180,12 +182,12 @@ public abstract class Photo implements Parcelable {
 
     /**
      * This method presents an opportunity for a subclass to add additional insights to a photo.
-     * @return A key value pair of extra information about the photo.
+     * Insights are a set of key value pairs containing information about a photo.
      */
     public abstract void doGetPhotoInsights(PhotoInsights insights);
 
     /**
-     * @return The service that provides this photo. Ex) "facebook", "onedrive"
+     * @return The provider associated with this photo.
      */
-    public abstract String getProvider();
+    public abstract PhotoProvider getProvider();
 }

@@ -2,6 +2,7 @@ package net.garrettsites.picturebook.photoproviders.onedrive;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 
 import com.microsoft.applicationinsights.library.TelemetryClient;
 import com.onedrive.sdk.authentication.MSAAuthenticator;
@@ -11,6 +12,7 @@ import com.onedrive.sdk.extensions.IOneDriveClient;
 import com.onedrive.sdk.extensions.OneDriveClient;
 
 import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.photoproviders.PhotoProvider;
 import net.garrettsites.picturebook.photoproviders.ProviderConfiguration;
 
@@ -60,6 +62,11 @@ public class OnedrivePhotoProvider implements PhotoProvider {
 
         GetAlbumPhotoDataCommand command = new GetAlbumPhotoDataCommand(mLogger, mOnedriveClient);
         return command.execute((OnedriveAlbum) album);
+    }
+
+    @Override
+    public Bitmap getPhotoBitmap(Photo photo) {
+        return new GetPhotoBitmapCommand(mLogger, mOnedriveClient).execute((OnedrivePhoto) photo);
     }
 
     @Override

@@ -6,6 +6,8 @@ import android.os.Parcelable;
 import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.model.PhotoInsights;
 import net.garrettsites.picturebook.model.Tag;
+import net.garrettsites.picturebook.photoproviders.PhotoProvider;
+import net.garrettsites.picturebook.photoproviders.PhotoProviders;
 
 import org.joda.time.DateTime;
 
@@ -106,8 +108,8 @@ public class FacebookPhoto extends Photo {
     }
 
     @Override
-    public String getProvider() {
-        return "FB";
+    public PhotoProvider getProvider() {
+        return PhotoProviders.getFacebookPhotoProvider();
     }
 
     public static final Parcelable.Creator<FacebookPhoto> CREATOR = new Parcelable.Creator<FacebookPhoto>() {

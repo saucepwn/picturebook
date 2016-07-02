@@ -24,6 +24,11 @@ public class OnedriveConfiguration implements ProviderConfiguration {
     }
 
     @Override
+    public String getShortName() {
+        return "1D";
+    }
+
+    @Override
     public Class<?> getManageAccountsActivity() {
         return OnedriveLoginActivity.class;
     }

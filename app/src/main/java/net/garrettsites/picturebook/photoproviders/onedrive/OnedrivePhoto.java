@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.model.PhotoInsights;
+import net.garrettsites.picturebook.photoproviders.PhotoProvider;
+import net.garrettsites.picturebook.photoproviders.PhotoProviders;
 
 import org.joda.time.DateTime;
 
@@ -71,8 +73,8 @@ public class OnedrivePhoto extends Photo {
     }
 
     @Override
-    public String getProvider() {
-        return "1D";
+    public PhotoProvider getProvider() {
+        return PhotoProviders.getOnedrivePhotoProvider();
     }
 
     public static final Parcelable.Creator<OnedrivePhoto> CREATOR = new Parcelable.Creator<OnedrivePhoto>() {

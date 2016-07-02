@@ -25,6 +25,11 @@ public class FacebookConfiguration implements ProviderConfiguration {
     }
 
     @Override
+    public String getShortName() {
+        return "FB";
+    }
+
+    @Override
     public Class<?> getManageAccountsActivity() {
         return FacebookLoginActivity.class;
     }

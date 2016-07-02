@@ -13,6 +13,7 @@ import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.cache.PhotoDiskCache;
 import net.garrettsites.picturebook.model.Photo;
+import net.garrettsites.picturebook.photoproviders.PhotoProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +52,7 @@ public class GetPhotoBitmapService extends IntentService {
         mCache = new PhotoDiskCache(getApplicationContext());
 
         Photo photo = intent.getParcelableExtra(ARG_PHOTO_OBJ);
-        File imageLocation = null;
+        File imageLocation;
 
         if (mCache.doesPhotoExist(photo)) {
             // Photo exists in cache. Serve from cache.
@@ -60,7 +61,8 @@ public class GetPhotoBitmapService extends IntentService {
         } else {
             // Photo is not cached. Get from network, save to cache, then serve from cache.
             URL photoUrl = photo.getImageUrl();
-            Bitmap photoBitmap = getBitmapFromInternet(photoUrl);
+            Bitmap photoBitmap = photo.getProvider().getPhotoBitmap(photo);
+
             Log.v(TAG, "Getting photo from internet. Saving to cache.");
 
             imageLocation = mCache.savePhotoToCache(photo, photoBitmap);
@@ -76,29 +78,5 @@ public class GetPhotoBitmapService extends IntentService {
             retVal.putString(ARG_IMAGE_PATH, imageLocation.getPath());
             receiver.send(Activity.RESULT_OK, retVal);
         }
-    }
-
-    /**
-     * Given a URL, retrieves the photo from the internet synchronously.
-     * @param photoUrl The URL of the photo to retrieve.
-     * @return A Bitmap object representing that photo.
-     */
-    private Bitmap getBitmapFromInternet(URL photoUrl) {
-        try {
-            long start = System.currentTimeMillis();
-            InputStream in = (InputStream) photoUrl.getContent();
-            long end = System.currentTimeMillis();
-
-            HashMap<String, String> properties = new HashMap<>();
-            properties.put("Path", photoUrl.getPath());
-            mLogger.trackMetric("GetPhotoQuery", (double) (end - start), properties);
-
-            return BitmapFactory.decodeStream(in);
-        } catch (IOException e) {
-            mLogger.trackHandledException(e);
-            e.printStackTrace();
-        }
-
-        return null;
     }
 }

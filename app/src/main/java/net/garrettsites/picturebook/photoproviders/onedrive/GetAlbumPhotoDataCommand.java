@@ -31,8 +31,8 @@ public class GetAlbumPhotoDataCommand {
 
     /**
      * Retrieves photo data for a given album.
-     * @param album
-     * @return
+     * @param album The album to retrieve photo data for.
+     * @return An Album populated with the metadata of all its photos. Retrieve using .getPhotos()
      */
     public Album execute(OnedriveAlbum album) {
         ArrayList<Photo> allPhotos = new ArrayList<>();
@@ -60,7 +60,7 @@ public class GetAlbumPhotoDataCommand {
                 int height = photo.image.height;
                 DateTime createdTime = new DateTime(photo.createdDateTime.getTimeInMillis());
 
-                URL imageUrl = null;   // TODO: This is most likely not the correct URL used for the app to retrieve the photo.
+                URL imageUrl;
                 try {
                     imageUrl = new URL(photo.webUrl);
                 } catch (MalformedURLException e) {
@@ -69,7 +69,7 @@ public class GetAlbumPhotoDataCommand {
                     continue;
                 }
 
-                OnedrivePhoto finishedPhoto = new OnedrivePhoto(id, name, width, height, imageUrl, createdTime);
+                OnedrivePhoto finishedPhoto = new OnedrivePhoto(id, null, width, height, imageUrl, createdTime);
 
                 // Extended photo information
                 if (photo.photo != null) {
