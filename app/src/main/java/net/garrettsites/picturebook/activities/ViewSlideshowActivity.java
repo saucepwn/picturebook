@@ -363,8 +363,15 @@ public class ViewSlideshowActivity extends Activity implements
 
             hideSplashScreenIfVisible();
 
+            // TODO: Sometimes imageBitmap is null. Handle that situation gracefully.
             // Show the image we've just retrieved.
-            setupKenBurnsTransition(imageFilePath);
+            Bitmap imageBitmap = BitmapFactory.decodeFile(imageFilePath);
+            if (imageBitmap != null) {
+                mThisPhoto.setWidth(imageBitmap.getWidth());
+                mThisPhoto.setHeight(imageBitmap.getHeight());
+            }
+
+            setupKenBurnsTransition(imageBitmap);
 
             // Populate the UI with additional photo information.
             populateUiWithPhotoInfo(mThisPhoto);
@@ -381,9 +388,7 @@ public class ViewSlideshowActivity extends Activity implements
             mHandler.postDelayed(this, mUserPreferences.getPhotoDelaySeconds() * 1000);
     }
 
-    private void setupKenBurnsTransition(String imageFilePath) {
-
-        Bitmap imageBitmap = BitmapFactory.decodeFile(imageFilePath);
+    private void setupKenBurnsTransition(Bitmap imageBitmap) {
         mBackgroundKenBurnsView.setImageBitmap(imageBitmap);
 
         PhotoTagsTransitionGenerator generator = new PhotoTagsTransitionGenerator(

@@ -17,17 +17,19 @@ public abstract class Photo implements Parcelable {
     protected String mId;
     protected int mOrder = 0;
     protected String mName;
-    protected int mWidth;
-    protected int mHeight;
+    protected int mOrigWidth;
+    protected int mOrigHeight;
+    protected int mWidth = -1;
+    protected int mHeight = -1;
     protected URL mImageUrl;
     protected String mPlaceName;
     protected DateTime mCreatedTime;
 
-    public Photo(String id, String name, int width, int height, URL imageUrl, DateTime createdTime) {
+    public Photo(String id, String name, int origWidth, int origHeight, URL imageUrl, DateTime createdTime) {
         mId = id;
         mName = name;
-        mWidth = width;
-        mHeight = height;
+        mOrigWidth = origWidth;
+        mOrigHeight = origHeight;
         mImageUrl = imageUrl;
         mCreatedTime = createdTime;
     }
@@ -42,8 +44,8 @@ public abstract class Photo implements Parcelable {
         dest.writeString(getId());
         dest.writeInt(getOrder());
         dest.writeString(getName());
-        dest.writeInt(getWidth());
-        dest.writeInt(getHeight());
+        dest.writeInt(getOrigWidth());
+        dest.writeInt(getOrigHeight());
         dest.writeString(getPlaceName());
         dest.writeString(getCreatedTime().toString());
         dest.writeString(getImageUrl().toString());
@@ -62,8 +64,8 @@ public abstract class Photo implements Parcelable {
         mId = in.readString();
         mOrder = in.readInt();
         mName = in.readString();
-        mWidth = in.readInt();
-        mHeight = in.readInt();
+        mOrigWidth = in.readInt();
+        mOrigHeight = in.readInt();
         mPlaceName = in.readString();
         mCreatedTime = new DateTime(in.readString());
 
@@ -128,14 +130,44 @@ public abstract class Photo implements Parcelable {
     }
 
     /**
-     * @return The width of the image in pixels.
+     * @return The width of the image in pixels before it was resized by the app.
+     */
+    public int getOrigWidth() {
+        return mOrigWidth;
+    }
+
+    /**
+     * @return The height of the image in pixels before it was resized by the app.
+     */
+    public int getOrigHeight() {
+        return mOrigHeight;
+    }
+
+    /**
+     * Sets the actual width of the image.
+     * @param width The actual width of the image.
+     */
+    public void setWidth(int width) {
+        mWidth = width;
+    }
+
+    /**
+     * @return The actual width of the image.
      */
     public int getWidth() {
         return mWidth;
     }
 
     /**
-     * @return The height of the image in pixels.
+     * Sets the actual height of the image.
+     * @param height The actual height of the image.
+     */
+    public void setHeight(int height) {
+        mHeight = height;
+    }
+
+    /**
+     * @return The actual height of the image.
      */
     public int getHeight() {
         return mHeight;
@@ -163,8 +195,15 @@ public abstract class Photo implements Parcelable {
      */
     public PhotoInsights getPhotoInsights() {
         PhotoInsights insights = new PhotoInsights();
-        insights.addInsight(PhotoInsights.InsightKey.WIDTH, Integer.toString(getWidth()) + "px");
-        insights.addInsight(PhotoInsights.InsightKey.HEIGHT, Integer.toString(getHeight()) + "px");
+        insights.addInsight(PhotoInsights.InsightKey.ORIG_WIDTH, Integer.toString(getOrigWidth()) + "px");
+        insights.addInsight(PhotoInsights.InsightKey.ORIG_HEIGHT, Integer.toString(getOrigHeight()) + "px");
+
+        if (getWidth() != -1 && getHeight() != -1 &&
+                getOrigWidth() != getWidth() && getOrigHeight() != getHeight()) {
+            insights.addInsight(PhotoInsights.InsightKey.WIDTH, Integer.toString(getWidth()) + "px");
+            insights.addInsight(PhotoInsights.InsightKey.HEIGHT, Integer.toString(getHeight()) + "px");
+        }
+
         insights.addInsight(PhotoInsights.InsightKey.COMMENT, getName());
         insights.addInsight(PhotoInsights.InsightKey.PLACE, getPlaceName());
 

@@ -39,11 +39,18 @@ public class PhotoInsights {
         // Where this photo was from. Ex) Facebook, Tumblr
         SOURCE,
 
-        // The photo's width.
+        // The photo's original width before any resizing the app may perform.
+        ORIG_WIDTH,
+
+        // The photo's original height before any resizing the app may perform.
+        ORIG_HEIGHT,
+
+        // The photo's resized width.
         WIDTH,
 
-        // The photo's height.
+        // The photo's resized height.
         HEIGHT,
+
         CAMERA,
         EXPOSURE,
         F_NUMBER,
@@ -109,6 +116,10 @@ public class PhotoInsights {
      */
     private String getLocalizedKeyName(Resources resources, InsightKey key) {
         switch (key) {
+            case ORIG_WIDTH:
+                return resources.getString(R.string.orig_width);
+            case ORIG_HEIGHT:
+                return resources.getString(R.string.orig_height);
             case WIDTH:
                 return resources.getString(R.string.width);
             case HEIGHT:

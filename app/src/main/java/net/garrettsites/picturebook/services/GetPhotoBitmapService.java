@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.IntentService;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
@@ -13,13 +12,9 @@ import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.cache.PhotoDiskCache;
 import net.garrettsites.picturebook.model.Photo;
-import net.garrettsites.picturebook.photoproviders.PhotoProvider;
+import net.garrettsites.picturebook.util.ImageResizer;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.HashMap;
 
 /**
  * Created by Garrett on 11/28/2015.
@@ -60,10 +55,21 @@ public class GetPhotoBitmapService extends IntentService {
             Log.v(TAG, "Getting photo from cache.");
         } else {
             // Photo is not cached. Get from network, save to cache, then serve from cache.
-            URL photoUrl = photo.getImageUrl();
             Bitmap photoBitmap = photo.getProvider().getPhotoBitmap(photo);
 
             Log.v(TAG, "Getting photo from internet. Saving to cache.");
+
+            ImageResizer resizer = new ImageResizer(getApplicationContext(), photoBitmap);
+
+            if (resizer.doesImageNeedToBeResized()) {
+                Log.v(TAG, "Dimensions: " + photoBitmap.getWidth() + " x " +
+                        photoBitmap.getHeight() + ". Scaling down image.");
+
+                photoBitmap = resizer.shrinkBitmap();
+
+                Log.v(TAG, "Image shrunk to " + photoBitmap.getWidth() + " x " +
+                        photoBitmap.getHeight() + ".");
+            }
 
             imageLocation = mCache.savePhotoToCache(photo, photoBitmap);
         }
