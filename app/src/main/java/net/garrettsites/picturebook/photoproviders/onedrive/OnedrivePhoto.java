@@ -25,8 +25,8 @@ public class OnedrivePhoto extends Photo {
     private int mIso;
     private DateTime mTakenTime;
 
-    public OnedrivePhoto(String id, String name, int width, int height, URL imageUrl, DateTime createdTime) {
-        super(id, name, width, height, imageUrl, createdTime);
+    public OnedrivePhoto(String id, int order, String name, int width, int height, URL imageUrl, DateTime createdTime) {
+        super(id, order, name, width, height, imageUrl, createdTime);
     }
 
     private OnedrivePhoto(Parcel in) {

@@ -69,18 +69,43 @@ public class GetAlbumPhotoDataCommand {
                     continue;
                 }
 
-                OnedrivePhoto finishedPhoto = new OnedrivePhoto(id, null, width, height, imageUrl, createdTime);
+                OnedrivePhoto finishedPhoto = new OnedrivePhoto(
+                        id,
+                        allPhotos.size() + 1,
+                        null,
+                        width,
+                        height,
+                        imageUrl,
+                        createdTime);
 
                 // Extended photo information
                 if (photo.photo != null) {
                     finishedPhoto.setCameraMake(photo.photo.cameraMake);
                     finishedPhoto.setCameraModel(photo.photo.cameraModel);
-                    finishedPhoto.setExposureDenominator(photo.photo.exposureDenominator);
-                    finishedPhoto.setExposureNumerator(photo.photo.exposureNumerator);
-                    finishedPhoto.setFNumber(photo.photo.fNumber);
-                    finishedPhoto.setFocalLength(photo.photo.focalLength);
-                    finishedPhoto.setIso(photo.photo.iso);
-                    finishedPhoto.setTakenTime(new DateTime(photo.photo.takenDateTime.getTimeInMillis()));
+
+                    if (photo.photo.exposureDenominator != null) {
+                        finishedPhoto.setExposureDenominator(photo.photo.exposureDenominator);
+                    }
+
+                    if (photo.photo.exposureNumerator != null) {
+                        finishedPhoto.setExposureNumerator(photo.photo.exposureNumerator);
+                    }
+
+                    if (photo.photo.fNumber != null) {
+                        finishedPhoto.setFNumber(photo.photo.fNumber);
+                    }
+
+                    if (photo.photo.focalLength != null) {
+                        finishedPhoto.setFocalLength(photo.photo.focalLength);
+                    }
+
+                    if (photo.photo.iso != null) {
+                        finishedPhoto.setIso(photo.photo.iso);
+                    }
+
+                    if (photo.photo.takenDateTime != null) {
+                        finishedPhoto.setTakenTime(new DateTime(photo.photo.takenDateTime.getTimeInMillis()));
+                    }
                 }
 
                 allPhotos.add(finishedPhoto);

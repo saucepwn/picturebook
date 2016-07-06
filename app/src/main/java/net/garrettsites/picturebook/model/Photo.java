@@ -25,8 +25,9 @@ public abstract class Photo implements Parcelable {
     protected String mPlaceName;
     protected DateTime mCreatedTime;
 
-    public Photo(String id, String name, int origWidth, int origHeight, URL imageUrl, DateTime createdTime) {
+    public Photo(String id, int order, String name, int origWidth, int origHeight, URL imageUrl, DateTime createdTime) {
         mId = id;
+        mOrder = order;
         mName = name;
         mOrigWidth = origWidth;
         mOrigHeight = origHeight;

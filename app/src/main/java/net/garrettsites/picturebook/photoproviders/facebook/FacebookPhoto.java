@@ -26,9 +26,8 @@ public class FacebookPhoto extends Photo {
     private ArrayList<Tag> mTags;
 
     public FacebookPhoto(String id, int order, String name, String uploadedBy, String uploadedById, int width, int height, URL imageUrl, URL postUrl, DateTime createdTime) {
-        super(id, name, width, height, imageUrl, createdTime);
+        super(id, order, name, width, height, imageUrl, createdTime);
 
-        this.mOrder = order;
         this.mUploadedBy = uploadedBy;
         this.mUploadedById = uploadedById;
         this.mPostUrl = postUrl;
