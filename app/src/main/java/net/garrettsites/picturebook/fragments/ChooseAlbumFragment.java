@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,11 +45,6 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
      * fragment (e.g. upon screen orientation changes).
      */
     public ChooseAlbumFragment() {
-    }
-
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        beginNonUiOperations((Context) activity);
     }
 
     @Override
@@ -113,7 +109,12 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
             new AlertDialog.Builder(getActivity()).setTitle(R.string.error)
                     .setMessage(ErrorCodes.getLocalizedErrorStringResource(errorCode))
                     .setIcon(android.R.drawable.stat_notify_error)
-                    .setNeutralButton(R.string.ok, null)
+                    .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            getActivity().finish();
+                        }
+                    })
                     .show();
         }
     }

@@ -10,6 +10,7 @@ import android.util.Log;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.model.ErrorCodes;
 import net.garrettsites.picturebook.photoproviders.PhotoProvider;
 import net.garrettsites.picturebook.photoproviders.PhotoProviders;
 
@@ -42,6 +43,15 @@ public class GetAllAlbumsService extends IntentService {
         ResultReceiver receiver = intent.getParcelableExtra(ARG_RECEIVER);
         invocationCode = intent.getIntExtra(ARG_CODE, -1);
 
+        Bundle returnBundle = new Bundle();
+        returnBundle.putInt(ARG_CODE, invocationCode);
+
+        if (!PhotoProviders.isAtLeastOneAccountLoggedIn()) {
+            returnBundle.putInt("ErrorCode", ErrorCodes.Error.NO_LOGGED_IN_ACCOUNT.ordinal());
+            receiver.send(Activity.RESULT_CANCELED, returnBundle);
+            return;
+        }
+
         // Call all of our services here and get all albums from each logged in service.
         PhotoProvider[] photoProviders = PhotoProviders.getAllPhotoProviders();
         ArrayList<Album> allAlbums = new ArrayList<>();
@@ -71,9 +81,7 @@ public class GetAllAlbumsService extends IntentService {
 
         executor.shutdown();
 
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList(ARG_ALBUM_ARRAY_LIST, allAlbums);
-        bundle.putInt(ARG_CODE, invocationCode);
-        receiver.send(Activity.RESULT_OK, bundle);
+        returnBundle.putParcelableArrayList(ARG_ALBUM_ARRAY_LIST, allAlbums);
+        receiver.send(Activity.RESULT_OK, returnBundle);
     }
 }

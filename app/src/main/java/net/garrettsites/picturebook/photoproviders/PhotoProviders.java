@@ -53,4 +53,15 @@ public class PhotoProviders {
     public static OnedrivePhotoProvider getOnedrivePhotoProvider() {
         return mOnedrivePhotoProvider;
     }
+
+    /**
+     * @return True if at least one photo provider is logged in.
+     */
+    public static boolean isAtLeastOneAccountLoggedIn() {
+        for (PhotoProvider provider : getAllPhotoProviders()) {
+            if (provider.isUserLoggedIn()) return true;
+        }
+
+        return false;
+    }
 }
