@@ -9,8 +9,8 @@
     <fragment
         android:name="net.garrettsites.picturebook.fragments.ChooseAlbumFragment"
         android:id="@+id/choose_album_fragment_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         tools:layout="@layout/fragment_choose_album_list" />
 
 </LinearLayout>

@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -31,16 +32,20 @@ public class ManageAccountsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_user_accounts, container, false);
+        TableLayout table = (TableLayout) view.findViewById(R.id.user_accounts_table_layout);
 
         // Each photo provider gets its own row in the table.
         for (PhotoProvider provider : PhotoProviders.getAllPhotoProviders()) {
-            View table = inflater.inflate(
+            View rootView = inflater.inflate(
                     R.layout.fragment_user_accounts_row,
-                    (ViewGroup) view.findViewById(R.id.user_accounts_table_layout));
+                    (ViewGroup) view.findViewById(R.id.user_accounts_table_layout),
+                    false);
 
-            TableRow row = (TableRow) table.findViewById(R.id.user_accounts_table_row);
+            TableRow row = (TableRow) rootView.findViewById(R.id.user_accounts_table_row);
             initialRowSetup(row, provider);
             updateRowLayout(row, provider);
+
+            table.addView(row);
         }
 
         return view;
@@ -69,6 +74,21 @@ public class ManageAccountsFragment extends Fragment {
     }
 
     /**
+     * Updates all rows displayed in the Fragment with the current user account state.
+     * @param container The root container of the fragment. It must contain the TableLayout which
+     *                  contains the Account rows.
+     */
+    public void updateAllRows(View container) {
+        for (PhotoProvider provider : PhotoProviders.getAllPhotoProviders()) {
+            TableRow row = (TableRow) container.findViewWithTag(provider.getClass().getName());
+
+            if (row == null) continue;
+
+            updateRowLayout(row, provider);
+        }
+    }
+
+    /**
      * Creates UI elements in the row that will not change over the lifetime of the fragment.
      * @param row The row to configure.
      * @param provider The provider to configure for.
@@ -77,6 +97,10 @@ public class ManageAccountsFragment extends Fragment {
         ImageView providerIcon = (ImageView) row.findViewById(R.id.provider_icon);
         TextView photoProviderName = (TextView) row.findViewById(R.id.photo_provider_name);
         Button manageAcctButton = (Button) row.findViewById(R.id.manage_acct_button);
+
+        // Tag the row with the PhotoProvider class that populated it. We'll need to look up the
+        // provider later if we need to update the row.
+        row.setTag(provider.getClass().getName());
 
         final ProviderConfiguration configuration = provider.getConfiguration();
 

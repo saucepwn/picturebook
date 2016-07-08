@@ -16,11 +16,13 @@ import android.view.ViewGroup;
 
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.model.AlbumDateComparator;
 import net.garrettsites.picturebook.model.ErrorCodes;
 import net.garrettsites.picturebook.receivers.GetAllAlbumsReceiver;
 import net.garrettsites.picturebook.services.GetAllAlbumsService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * A fragment representing a list of Items.
@@ -100,6 +102,11 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
     public void onReceiveAllAlbums(int resultCode, int errorCode, int invocationCode, ArrayList<Album> albums) {
         if (resultCode == Activity.RESULT_OK) {
             Log.v(TAG, "Got results from GetAllAlbumsService");
+
+            // Sort the albums in descending order by date.
+            Collections.sort(albums, new AlbumDateComparator());
+            Collections.reverse(albums);
+
             mRecyclerView.setAdapter(new ChooseAlbumRecyclerViewAdapter(albums, mListener));
         } else {
             // Show the user an error if we received an error code.

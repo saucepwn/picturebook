@@ -42,8 +42,10 @@ public class GetAlbumPhotoDataService extends IntentService {
             album = album.getPhotoProvider().getAlbumPhotoData(album);
         } catch (Exception e) {
             // TODO: Instead of just logging exceptions here, pass the exception text to the UI.
+            e.printStackTrace();
             mLogger.trackHandledException(e);
             receiver.send(Activity.RESULT_CANCELED, resultBundle);
+            return;
         }
 
         // This album has no photos, return failure.

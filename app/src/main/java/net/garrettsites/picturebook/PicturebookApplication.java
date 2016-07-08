@@ -3,11 +3,11 @@ package net.garrettsites.picturebook;
 import android.app.Application;
 import android.util.Log;
 
-import com.facebook.FacebookSdk;
 import com.facebook.Profile;
 import com.microsoft.applicationinsights.library.ApplicationInsights;
 
 import net.garrettsites.picturebook.model.UserPreferences;
+import net.garrettsites.picturebook.photoproviders.PhotoProviders;
 
 /**
  * Created by Garrett on 12/16/2015.
@@ -24,14 +24,15 @@ public class PicturebookApplication extends Application {
 
         // Load all preferences into the UserPreferences object.
         preferences = new UserPreferences(getApplicationContext());
-        FacebookSdk.sdkInitialize(getApplicationContext());
         ApplicationInsights.setup(getApplicationContext(), this);
+        ApplicationInsights.start();
 
+        PhotoProviders.initWithContext(getApplicationContext());
+
+        // TODO: Right now this only looks at Facebook user information. Maybe have it look at OneDrive information, too.
         Profile profile = Profile.getCurrentProfile();
         if (profile != null) {
             ApplicationInsights.getTelemetryContext().setAuthenticatedUserId(profile.getId());
         }
-
-        ApplicationInsights.start();
     }
 }

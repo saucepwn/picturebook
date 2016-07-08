@@ -5,6 +5,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
@@ -49,8 +50,11 @@ public class GetAllAlbumsService extends IntentService {
         Set<Future<ArrayList<Album>>> set = new HashSet<>();
 
         for (PhotoProvider provider : photoProviders) {
-            // Submit the Callables to the executor service and keep a set to track their results.
-            set.add(executor.submit(provider.getAllAlbumsCommand()));
+            if (provider.isUserLoggedIn())
+                set.add(executor.submit(provider.getAllAlbumsCommand()));
+            else
+                Log.i(TAG, "Skipping " + provider.getClass().getName()
+                        + " since no user is logged in.");
         }
 
         // Await all callables.

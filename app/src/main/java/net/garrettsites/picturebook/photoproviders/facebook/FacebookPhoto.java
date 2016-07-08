@@ -6,6 +6,8 @@ import android.os.Parcelable;
 import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.model.PhotoInsights;
 import net.garrettsites.picturebook.model.Tag;
+import net.garrettsites.picturebook.photoproviders.PhotoProvider;
+import net.garrettsites.picturebook.photoproviders.PhotoProviders;
 
 import org.joda.time.DateTime;
 
@@ -24,9 +26,8 @@ public class FacebookPhoto extends Photo {
     private ArrayList<Tag> mTags;
 
     public FacebookPhoto(String id, int order, String name, String uploadedBy, String uploadedById, int width, int height, URL imageUrl, URL postUrl, DateTime createdTime) {
-        super(id, name, width, height, imageUrl, createdTime);
+        super(id, order, name, width, height, imageUrl, createdTime);
 
-        this.mOrder = order;
         this.mUploadedBy = uploadedBy;
         this.mUploadedById = uploadedById;
         this.mPostUrl = postUrl;
@@ -66,21 +67,8 @@ public class FacebookPhoto extends Photo {
     }
 
     @Override
-    public PhotoInsights getPhotoInsights() {
-        PhotoInsights insights = new PhotoInsights();
-        insights.addInsight(PhotoInsights.InsightKey.WIDTH, Integer.toString(getWidth()) + "px");
-        insights.addInsight(PhotoInsights.InsightKey.HEIGHT, Integer.toString(getHeight()) + "px");
-        insights.addInsight(PhotoInsights.InsightKey.COMMENT, getName());
-        insights.addInsight(PhotoInsights.InsightKey.PLACE, getPlaceName());
+    public void doGetPhotoInsights(PhotoInsights insights) {
         insights.addInsight(PhotoInsights.InsightKey.SOURCE, "Facebook");
-
-        if (getCreatedTime() != null) {
-            insights.addInsight(PhotoInsights.InsightKey.DATE,
-                    PhotoInsights.formatDate(getCreatedTime()));
-
-            insights.addInsight(PhotoInsights.InsightKey.TIME,
-                    PhotoInsights.formatTime(getCreatedTime()));
-        }
 
         if (getTags() != null && getTags().size() > 0) {
             StringBuilder people = new StringBuilder();
@@ -93,8 +81,6 @@ public class FacebookPhoto extends Photo {
             insights.addInsight(PhotoInsights.InsightKey.PEOPLE,
                     people.substring(0, people.length() - 2));
         }
-
-        return insights;
     }
 
     @Override
@@ -121,8 +107,8 @@ public class FacebookPhoto extends Photo {
     }
 
     @Override
-    public String getProvider() {
-        return "FB";
+    public PhotoProvider getProvider() {
+        return PhotoProviders.getFacebookPhotoProvider();
     }
 
     public static final Parcelable.Creator<FacebookPhoto> CREATOR = new Parcelable.Creator<FacebookPhoto>() {

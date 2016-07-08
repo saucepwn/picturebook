@@ -1,10 +1,15 @@
 package net.garrettsites.picturebook.photoproviders.facebook;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+
 import com.facebook.AccessToken;
+import com.facebook.FacebookSdk;
 import com.facebook.Profile;
 import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.model.Photo;
 import net.garrettsites.picturebook.photoproviders.PhotoProvider;
 import net.garrettsites.picturebook.photoproviders.ProviderConfiguration;
 
@@ -19,6 +24,11 @@ public class FacebookPhotoProvider implements PhotoProvider {
     private TelemetryClient mLogger = TelemetryClient.getInstance();
 
     @Override
+    public void initialize(Context appContext) {
+        FacebookSdk.sdkInitialize(appContext);
+    }
+
+    @Override
     public Callable<ArrayList<Album>> getAllAlbumsCommand() {
         return new GetAllAlbumsCommand(mLogger, getCurrentAccessToken());
     }
@@ -31,6 +41,11 @@ public class FacebookPhotoProvider implements PhotoProvider {
 
         return new GetAlbumPhotoDataCommand(mLogger, getCurrentAccessToken())
                 .execute((FacebookAlbum) album);
+    }
+
+    @Override
+    public Bitmap getPhotoBitmap(Photo photo) {
+        return new GetPhotoBitmapCommand(mLogger).execute((FacebookPhoto) photo);
     }
 
     @Override

@@ -54,7 +54,8 @@ public class PhotoDiskCache {
 
         // Remove the file if it currently exists.
         if (writeLocation.exists()) {
-            writeLocation.delete();
+            boolean deleted = writeLocation.delete();
+            if (!deleted) mLogger.trackEvent("Delete from cache failed!");
         }
 
         FileOutputStream outputStream = null;
@@ -68,7 +69,8 @@ public class PhotoDiskCache {
         boolean saved = bitmap.compress(Bitmap.CompressFormat.JPEG, JpegQualityLevel, outputStream);
 
         try {
-            outputStream.close();
+            if (outputStream != null) outputStream.close();
+            else mLogger.trackEvent("OutputStream was null when closing!");
         } catch (IOException e) {
             mLogger.trackHandledException(e);
             e.printStackTrace();
@@ -107,7 +109,7 @@ public class PhotoDiskCache {
      * @return A filename which can be used to access this photo in the app's photo cache.
      */
     private String getPhotoFilename(Photo photo) {
-        return photo.getProvider() + "_" + photo.getId() + ".jpg";
+        return photo.getProvider().getConfiguration().getShortName() + "_" + photo.getId() + ".jpg";
     }
 
     private File getPreferredCacheForRead() {

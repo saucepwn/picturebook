@@ -79,6 +79,16 @@ public abstract class Album implements Parcelable {
     public abstract PhotoProvider getPhotoProvider();
 
     /**
+     * Different providers use the created time and modified time differently. In some providers
+     * such as Facebook, the most accurate representation of when an album took place is the last
+     * modified time. In others, such as OneDrive, the most accurate representation is when the
+     * folder was created. Having this method allows each provider to specify which date should be
+     * the album's official "date".
+     * @return A DateTime object representing when this album took place.
+     */
+    public abstract DateTime getAlbumDate();
+
+    /**
      * @return The album's name.
      */
     public String getName() {

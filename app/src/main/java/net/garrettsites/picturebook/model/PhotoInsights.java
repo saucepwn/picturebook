@@ -39,11 +39,24 @@ public class PhotoInsights {
         // Where this photo was from. Ex) Facebook, Tumblr
         SOURCE,
 
-        // The photo's width.
+        // The photo's original width before any resizing the app may perform.
+        ORIG_WIDTH,
+
+        // The photo's original height before any resizing the app may perform.
+        ORIG_HEIGHT,
+
+        // The photo's resized width.
         WIDTH,
 
-        // The photo's height.
-        HEIGHT
+        // The photo's resized height.
+        HEIGHT,
+
+        CAMERA,
+        EXPOSURE,
+        F_NUMBER,
+        FOCAL_LENGTH,
+        ISO,
+        TAKEN_TIME
     }
 
     /**
@@ -103,6 +116,10 @@ public class PhotoInsights {
      */
     private String getLocalizedKeyName(Resources resources, InsightKey key) {
         switch (key) {
+            case ORIG_WIDTH:
+                return resources.getString(R.string.orig_width);
+            case ORIG_HEIGHT:
+                return resources.getString(R.string.orig_height);
             case WIDTH:
                 return resources.getString(R.string.width);
             case HEIGHT:
@@ -118,7 +135,19 @@ public class PhotoInsights {
             case PLACE:
                 return resources.getString(R.string.place);
             case SOURCE:
-                return resources.getString(R.string.soruce);
+                return resources.getString(R.string.source);
+            case CAMERA:
+                return resources.getString(R.string.camera);
+            case EXPOSURE:
+                return resources.getString(R.string.exposure);
+            case F_NUMBER:
+                return resources.getString(R.string.f_number);
+            case FOCAL_LENGTH:
+                return resources.getString(R.string.focal_length);
+            case ISO:
+                return resources.getString(R.string.iso);
+            case TAKEN_TIME:
+                return resources.getString(R.string.taken_time);
             default:
                 mLogger.trackManagedException(
                         "LocalizedKeyNotFound",

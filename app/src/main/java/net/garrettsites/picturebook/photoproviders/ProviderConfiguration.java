@@ -22,6 +22,11 @@ public interface ProviderConfiguration {
     int getIconResource();
 
     /**
+     * @return A two-character code that represents this provider.
+     */
+    String getShortName();
+
+    /**
      * Each provider has its own Activity used to add or remove user accounts. This activity is
      * launched when the user clicks the "link account" or "unlink account" button in the Manage
      * Accounts Fragment.
