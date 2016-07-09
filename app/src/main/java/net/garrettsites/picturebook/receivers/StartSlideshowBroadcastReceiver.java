@@ -12,6 +12,9 @@ import net.garrettsites.picturebook.model.UserPreferences;
 import net.garrettsites.picturebook.services.StartSlideshowService;
 import net.garrettsites.picturebook.util.Wakeitizer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by Garrett on 12/3/2015.
  */
@@ -25,8 +28,10 @@ public class StartSlideshowBroadcastReceiver extends WakefulBroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         TelemetryClient logger = TelemetryClient.getInstance();
 
-        logger.trackEvent("StartSlideshowBroadcastReceiver received broadcast.");
-        Log.i(TAG, "Received broadcast, starting StartSlideshowService");
+        Map<String, String> properties = new HashMap<>();
+        properties.put("TriggeredBy", intent.getAction());
+        logger.trackEvent("StartSlideshowBroadcastReceiver received broadcast.", properties);
+        Log.i(TAG, "Received broadcast, starting StartSlideshowService. Action: " + intent.getAction());
 
         Intent startSlideshowServiceIntent = new Intent(context, StartSlideshowService.class);
 

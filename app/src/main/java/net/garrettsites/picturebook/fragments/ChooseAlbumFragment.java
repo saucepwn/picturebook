@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.model.Album;
@@ -39,6 +40,7 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
 
     private OnListFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
+    private LinearLayout mLoadingLayout;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -82,8 +84,10 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
         View view = inflater.inflate(R.layout.fragment_choose_album_list, container, false);
 
         // Set the adapter
-        mRecyclerView = (RecyclerView) view;
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.album_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+
+        mLoadingLayout = (LinearLayout) view.findViewById(R.id.fragment_choose_album_loading);
 
         return view;
     }
@@ -103,6 +107,8 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
             Collections.sort(albums, new AlbumDateComparator());
             Collections.reverse(albums);
 
+            mLoadingLayout.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(View.VISIBLE);
             mRecyclerView.setAdapter(new ChooseAlbumRecyclerViewAdapter(albums, mListener));
         } else {
             // Show the user an error if we received an error code.

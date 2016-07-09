@@ -1,13 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/list"
     android:name="net.garrettsites.picturebook.fragments.ChooseAlbumFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    app:layoutManager="LinearLayoutManager"
     android:background="@android:color/darker_gray"
     android:scrollbars="vertical"
-    app:layoutManager="LinearLayoutManager"
-    tools:context="net.garrettsites.picturebook.fragments.ChooseAlbumFragment"
-    tools:listitem="@layout/fragment_choose_album" />
+    tools:context="net.garrettsites.picturebook.fragments.ChooseAlbumFragment">
+
+    <LinearLayout
+        android:id="@+id/fragment_choose_album_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:indeterminate="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:text="Loading albums. Please wait...">
+
+        </TextView>
+
+    </LinearLayout>
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/album_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:listitem="@layout/fragment_choose_album" />
+
+</RelativeLayout>

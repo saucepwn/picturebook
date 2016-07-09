@@ -41,6 +41,7 @@ public class Wakeitizer {
         mAlarmManager = (AlarmManager) mAppContext.getSystemService(Context.ALARM_SERVICE);
 
         Intent startSlideshowIntent = new Intent(mAppContext, StartSlideshowBroadcastReceiver.class);
+        startSlideshowIntent.setAction("START_SLIDESHOW_AUTO");
         mWakerIntent = PendingIntent.getBroadcast(mAppContext, 0, startSlideshowIntent, 0);
     }
 
