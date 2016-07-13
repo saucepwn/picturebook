@@ -13,9 +13,8 @@ public class ImageResizer {
     private static final String TAG = ImageResizer.class.getName();
 
     // Image resizing configuration. When images are larger than the display's size, shrink the
-    // image to this size, where 1.0 is the size of the tablet's screen. It's suggested to use a
-    // scale factor slightly larger than the screen size to provide more definition for pans/zooms.
-    private static final double RESIZE_SCALE_FACTOR = 1.1;
+    // image to this size, where 1.0 is the size of the tablet's screen.
+    private static final double RESIZE_SCALE_FACTOR = 1.0;
 
     private Bitmap mBitmap;
 

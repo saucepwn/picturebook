@@ -38,6 +38,7 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
     // TODO: Customize parameters
     private int mColumnCount = 1;
 
+    private boolean instantiated = false;
     private OnListFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
     private LinearLayout mLoadingLayout;
@@ -50,9 +51,24 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        if (!instantiated) {
+            instantiated = true;
+            beginNonUiOperations(activity);
+        }
+    }
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        beginNonUiOperations(context);
+
+        if (!instantiated) {
+            instantiated = true;
+            beginNonUiOperations(context);
+        }
+
     }
 
     /**
