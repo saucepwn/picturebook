@@ -15,6 +15,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.microsoft.applicationinsights.library.TelemetryClient;
 
 import net.garrettsites.picturebook.R;
 import net.garrettsites.picturebook.model.Album;
@@ -34,6 +37,7 @@ import java.util.Collections;
  */
 public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceiver.Receiver {
     public static final String TAG = ChooseAlbumFragment.class.getName();
+    private TelemetryClient mLogger = TelemetryClient.getInstance();
 
     // TODO: Customize parameters
     private int mColumnCount = 1;
@@ -42,6 +46,7 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
     private OnListFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
     private LinearLayout mLoadingLayout;
+    private LinearLayout mErrorLayout;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -104,6 +109,7 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
         mRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
         mLoadingLayout = (LinearLayout) view.findViewById(R.id.fragment_choose_album_loading);
+        mErrorLayout = (LinearLayout) view.findViewById(R.id.fragment_choose_album_error);
 
         return view;
     }
@@ -115,30 +121,39 @@ public class ChooseAlbumFragment extends Fragment implements GetAllAlbumsReceive
     }
 
     @Override
-    public void onReceiveAllAlbums(int resultCode, int errorCode, int invocationCode, ArrayList<Album> albums) {
-        if (resultCode == Activity.RESULT_OK) {
-            Log.v(TAG, "Got results from GetAllAlbumsService");
+    public void onReceiveAllAlbums(int invocationCode, ArrayList<Album> albums) {
+        Log.v(TAG, "Got results from GetAllAlbumsService");
 
-            // Sort the albums in descending order by date.
-            Collections.sort(albums, new AlbumDateComparator());
-            Collections.reverse(albums);
+        // Sort the albums in descending order by date.
+        Collections.sort(albums, new AlbumDateComparator());
+        Collections.reverse(albums);
 
-            mLoadingLayout.setVisibility(View.GONE);
-            mRecyclerView.setVisibility(View.VISIBLE);
-            mRecyclerView.setAdapter(new ChooseAlbumRecyclerViewAdapter(albums, mListener));
-        } else {
-            // Show the user an error if we received an error code.
-            new AlertDialog.Builder(getActivity()).setTitle(R.string.error)
-                    .setMessage(ErrorCodes.getLocalizedErrorStringResource(errorCode))
-                    .setIcon(android.R.drawable.stat_notify_error)
-                    .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            getActivity().finish();
-                        }
-                    })
-                    .show();
-        }
+        mLoadingLayout.setVisibility(View.GONE);
+        mRecyclerView.setVisibility(View.VISIBLE);
+        mRecyclerView.setAdapter(new ChooseAlbumRecyclerViewAdapter(albums, mListener));
+    }
+
+    @Override
+    public void onReceiveAllAlbumsError(int invocationCode, int errorCode, Throwable exception) {
+        // Show the user an error if we received an error code.
+        mLogger.trackEvent("Showing error dialog to user");
+
+        String errorMessage = ErrorCodes.getLocalizedErrorStringResource(
+                getResources(), errorCode, exception);
+
+        new AlertDialog.Builder(getActivity()).setTitle(R.string.error)
+                .setMessage(errorMessage)
+                .setIcon(android.R.drawable.stat_notify_error)
+                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        getActivity().finish();
+                    }
+                }).show();
+
+        ((TextView) mErrorLayout.findViewById(R.id.fragment_choose_album_error_message))
+                .setText(errorMessage);
+
+        mLoadingLayout.setVisibility(View.GONE);
     }
 
     /**

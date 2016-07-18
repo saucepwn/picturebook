@@ -69,6 +69,7 @@
 
     <string name="error_no_account">You must log in with an account to view a slideshow.</string>
     <string name="error_no_albums">The logged in account has no photo albums, so we can\'t show you a slideshow :(</string>
+    <string name="error_provider_exception">One or more photo services reported an error.</string>
 
     <string name="generic_error">An unknown error has occurred.</string>
 </resources>

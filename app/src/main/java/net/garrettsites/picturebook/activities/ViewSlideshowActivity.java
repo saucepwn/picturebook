@@ -243,39 +243,46 @@ public class ViewSlideshowActivity extends Activity implements
     }
 
     @Override
-    public void onReceiveAllAlbums(int resultCode, int errorCode, int invocationCode, ArrayList<Album> albums) {
+    public void onReceiveAllAlbums(int invocationCode, ArrayList<Album> albums) {
         if (!validateInvocationCode(invocationCode)) return;
 
-        if (resultCode == Activity.RESULT_OK) {
-            Log.v(TAG, "Got results from GetAllAlbumsService");
-            ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
+        Log.v(TAG, "Got results from GetAllAlbumsService");
+        ChooseRandomAlbum albumRandomizer = new ChooseRandomAlbum(albums);
 
-            mAlbum = albumRandomizer.selectRandomAlbum();
+        mAlbum = albumRandomizer.selectRandomAlbum();
 
-            HashMap<String, String> properties = new HashMap<>();
-            properties.put("AlbumId", mAlbum.getId());
-            properties.put("AlbumName", mAlbum.getName());
-            mLogger.trackTrace("Displaying random album.", properties);
+        HashMap<String, String> properties = new HashMap<>();
+        properties.put("AlbumId", mAlbum.getId());
+        properties.put("AlbumName", mAlbum.getName());
+        mLogger.trackTrace("Displaying random album.", properties);
 
-            // Get the photo metadata for all of the photos in this album.
-            callGetAllPhotoMetadataService();
-        } else {
-            // Show the user an error if we received an error code.
-            int errorStringResourceId = ErrorCodes.getLocalizedErrorStringResource(errorCode);
-            String errorString = getResources().getString(errorStringResourceId);
-            mLogger.trackManagedException("ReceiveAllAlbumsError", errorString, "", false);
+        // Get the photo metadata for all of the photos in this album.
+        callGetAllPhotoMetadataService();
+    }
 
-            final Activity self = this;
-            new AlertDialog.Builder(this).setTitle(R.string.error)
-                    .setMessage(errorString)
-                    .setIcon(android.R.drawable.stat_notify_error)
-                    .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            self.finish();
-                        }
-                    }).show();
-        }
+    @Override
+    public void onReceiveAllAlbumsError(int invocationCode, int errorCode, Throwable exception) {
+        Log.e(TAG, "Error from onReceiveAllAlbums call.", exception);
+        mLogger.trackHandledException(exception);
+
+        // Show the user an error if we received an error code.
+        String errorMessage = ErrorCodes.getLocalizedErrorStringResource(
+                getResources(), errorCode, exception);
+
+        final Activity self = this;
+        new AlertDialog.Builder(this).setTitle(R.string.error)
+                .setMessage(errorMessage)
+                .setIcon(android.R.drawable.stat_notify_error)
+                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        self.finish();
+                    }
+                }).show();
+
+        // TODO: Right now the slideshow will just stop when an error occurs, but there is probably
+        // a better way to handle this. Maybe show an error TextView on the activity with the error
+        // text and a big back button?
     }
 
     private void callGetAllPhotoMetadataService() {

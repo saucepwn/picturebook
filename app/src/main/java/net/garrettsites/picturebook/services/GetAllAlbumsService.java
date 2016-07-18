@@ -47,7 +47,8 @@ public class GetAllAlbumsService extends IntentService {
         returnBundle.putInt(ARG_CODE, invocationCode);
 
         if (!PhotoProviders.isAtLeastOneAccountLoggedIn()) {
-            returnBundle.putInt("ErrorCode", ErrorCodes.Error.NO_LOGGED_IN_ACCOUNT.ordinal());
+            returnBundle.putInt(ErrorCodes.BUNDLE_ERROR_CODE_ARG,
+                    ErrorCodes.Error.NO_LOGGED_IN_ACCOUNT.ordinal());
             receiver.send(Activity.RESULT_CANCELED, returnBundle);
             return;
         }
@@ -58,6 +59,7 @@ public class GetAllAlbumsService extends IntentService {
 
         ExecutorService executor = Executors.newFixedThreadPool(photoProviders.length);
         Set<Future<ArrayList<Album>>> set = new HashSet<>();
+        Throwable exception = null;
 
         for (PhotoProvider provider : photoProviders) {
             if (provider.isUserLoggedIn())
@@ -75,13 +77,25 @@ public class GetAllAlbumsService extends IntentService {
             } catch (InterruptedException | ExecutionException e) {
                 // We did not get the albums this time. Log, and continue.
                 mLogger.trackHandledException(e);
-                e.printStackTrace();
+
+                if (e instanceof ExecutionException) {
+                    exception = e.getCause();
+                }
             }
         }
 
         executor.shutdown();
 
-        returnBundle.putParcelableArrayList(ARG_ALBUM_ARRAY_LIST, allAlbums);
-        receiver.send(Activity.RESULT_OK, returnBundle);
+        if (exception == null) {
+            // No errors
+            returnBundle.putParcelableArrayList(ARG_ALBUM_ARRAY_LIST, allAlbums);
+            receiver.send(Activity.RESULT_OK, returnBundle);
+        } else {
+            // An exception was thrown from a PhotoProvider.
+            returnBundle.putSerializable("Exception", exception);
+            returnBundle.putInt(ErrorCodes.BUNDLE_ERROR_CODE_ARG,
+                    ErrorCodes.Error.PROVIDER_EXCEPTION_THROWN.ordinal());
+            receiver.send(Activity.RESULT_CANCELED, returnBundle);
+        }
     }
 }

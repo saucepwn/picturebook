@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 
 import net.garrettsites.picturebook.model.Album;
+import net.garrettsites.picturebook.model.ErrorCodes;
 import net.garrettsites.picturebook.services.GetAllAlbumsService;
 
 import java.util.ArrayList;
@@ -21,8 +22,8 @@ public class GetAllAlbumsReceiver extends ResultReceiver {
     }
 
     public interface Receiver {
-        void onReceiveAllAlbums(
-                int resultCode, int errorCode, int invocationCode, ArrayList<Album> albums);
+        void onReceiveAllAlbums(int invocationCode, ArrayList<Album> albums);
+        void onReceiveAllAlbumsError(int invocationCode, int errorCode, Throwable exception);
     }
 
     public void setReceiver(Receiver receiver) {
@@ -38,10 +39,13 @@ public class GetAllAlbumsReceiver extends ResultReceiver {
                 // Deserialize the parceled version of our album array.
                 ArrayList<Album> albums =
                         resultData.getParcelableArrayList(GetAllAlbumsService.ARG_ALBUM_ARRAY_LIST);
-                mReceiver.onReceiveAllAlbums(resultCode, -1, invocationCode, albums);
+                mReceiver.onReceiveAllAlbums(invocationCode, albums);
             } else {
-                int errorCode = resultData.getInt("ErrorCode");
-                mReceiver.onReceiveAllAlbums(resultCode, errorCode, invocationCode, null);
+                int errorCode = resultData.getInt(ErrorCodes.BUNDLE_ERROR_CODE_ARG);
+                Throwable exception =
+                        (Throwable) resultData.getSerializable(ErrorCodes.BUNDLE_EXCEPTION_ARG);
+
+                mReceiver.onReceiveAllAlbumsError(invocationCode, errorCode, exception);
             }
         }
     }
