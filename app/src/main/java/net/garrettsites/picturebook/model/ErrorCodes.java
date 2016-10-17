@@ -53,7 +53,12 @@ public class ErrorCodes {
         String message = r.getString(getLocalizedErrorStringResource(errorCode));
 
         if (exception != null) {
-            message = message + "\n\n" + exception.getMessage();
+            if (exception instanceof PictureBookException) {
+                PictureBookException pbe = (PictureBookException) exception;
+                message = message + "\n\n" + r.getString(getLocalizedErrorStringResource(pbe.getErrorCode()));
+            } else {
+                message = message + "\n\n" + exception.getMessage();
+            }
         }
 
         return message;
